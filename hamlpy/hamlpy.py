@@ -9,9 +9,12 @@ SPECIAL_CHARACTERS = (ELEMENT, ID, CLASS)
 class Compiler:
 
     def process(self, rawText):
-        rootNode = RootNode()
         splitText = rawText.split('\n')
-        for line in splitText:
+        return self.processLines(splitText)
+        
+    def processLines(self, hamlLines):
+        rootNode = RootNode()
+        for line in hamlLines:
             hamlNode = HamlNode(line)
             rootNode.addNode(hamlNode)
         return rootNode.render()
@@ -43,6 +46,8 @@ class RootNode:
     
 class HamlNode(RootNode):
     
+    selfClosingTags = ('meta', 'img', 'link', 'script', 'br', 'hr')
+    
     def __init__(self, haml):
         RootNode.__init__(self)
         self.haml = haml.strip()
@@ -59,12 +64,13 @@ class HamlNode(RootNode):
 
     def __renderTag(self):
         
-        splitTags = re.search(r"(%\w+)(\{.*\})?(#\w*)?(\.[\w\.]*)*([^\w\.#\{].*)?", self.haml)
+        splitTags = re.search(r"(%\w+)(#\w*)?(\.[\w\.]*)*(\{.*\})?(/)?([^\w\.#\{].*)?", self.haml)
         tag = splitTags.groups()[0].strip(ELEMENT)
-        attributeDictionary = (splitTags.groups()[1] != None) and eval(splitTags.groups()[1]) or None
-        idName = splitTags.groups()[2]
-        className = splitTags.groups()[3]
-        theRest = splitTags.groups()[4]
+        idName = splitTags.groups()[1]
+        className = splitTags.groups()[2]
+        attributeDictionary = (splitTags.groups()[3] != None) and eval(splitTags.groups()[3]) or None
+        selfCloseIt = splitTags.groups()[4] and True or False
+        theRest = splitTags.groups()[5]
         
         if len(self.internalNodes) > 0:
             theRest = self.renderInternalNodes()
@@ -74,13 +80,17 @@ class HamlNode(RootNode):
 
         result = "<"+tag
         result += self.__getIdAttribute(idName, attributeDictionary)
-        if (className != None):
-            result += " class='%s'" % className.strip('.').replace('.',' ')
+        result += self.__getClassAttribute(className, attributeDictionary)
         if (attributeDictionary != None):
             for k, v in attributeDictionary.items():
-                if (k != 'id'):
+                if (k != 'id' and k != 'class'):
                     result += " "+k+"='"+v+"'"
-        result += ">%s</%s>" % (theRest.strip(), tag)
+                    
+        if ((tag in self.selfClosingTags or selfCloseIt) and not theRest.strip()):
+            result += " />"
+        else:
+            result += ">%s</%s>" % (theRest.strip(), tag)
+            
         return result
 
     def __getIdAttribute(self, idName, attributeDictionary):
@@ -107,3 +117,23 @@ class HamlNode(RootNode):
             idAttribute += "'"
             
         return idAttribute
+    
+    def __getClassAttribute(self, className, attributeDictionary):
+        classAttribute = ''
+        
+        if (className != None):
+            classAttribute += className.strip('.').replace('.',' ')
+            
+        if (attributeDictionary != None):
+            for k, v in attributeDictionary.items():
+                if (k == 'class' and isinstance(v, str)):
+                    classAttribute += ' ' + v
+                elif (k == 'class'):
+                    for name in v:
+                        classAttribute += ' ' + name
+        
+        if len(classAttribute) > 0:
+            classAttribute = " class='%s'" % classAttribute.strip()
+        
+        return classAttribute
+            
