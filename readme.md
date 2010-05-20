@@ -52,6 +52,7 @@ Check out the wiki for a complete reference and more examples.
 ## Status
 
 HAML-Py currently cannot:
+
 - Auto close Django tags.  This can make indentation a little confusing sometimes.
 - Actually output nicely indented templates.  They will actually be stripped of white space.
 

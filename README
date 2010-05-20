@@ -1,5 +1,0 @@
-HAML-Py
-
-HAML-Py is a rewrite of the extremely awesome ruby templating engine HAML.  
-
-HAML-Py's goal is to eventually be able to output to Django and Mako templates.
