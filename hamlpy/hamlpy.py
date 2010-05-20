@@ -12,8 +12,8 @@ class Compiler:
             hamlNode = createNode(line)
             rootNode.addNode(hamlNode)
         return rootNode.render()
-    
-if __name__ == '__main__':
+
+def convert_files():
     import sys
     import codecs
     
@@ -32,4 +32,7 @@ if __name__ == '__main__':
         else:
             print output
     
+    
+if __name__ == '__main__':
+    convert_files()
 
