@@ -41,6 +41,14 @@ class TestNodeFactory():
         node = nodes.createNode('-# This is a haml comment')
         assert isinstance(node, nodes.HamlCommentNode)
         
+    def test_equals_symbol_creates_variable_node(self):
+        node = nodes.createNode('= some.variable')
+        assert isinstance(node, nodes.VariableNode)
+    
+    def test_dash_symbol_creates_tag_node(self):
+        node = nodes.createNode('- for something in somethings')
+        assert isinstance(node, nodes.TagNode)
+        
         
     
         

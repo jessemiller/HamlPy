@@ -7,6 +7,9 @@ CLASS = '.'
 HTML_COMMENT = '/'
 HAML_COMMENT = '-#'
 
+VARIABLE = '='
+TAG = '-'
+
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
 def createNode(hamlLine):
@@ -23,6 +26,12 @@ def createNode(hamlLine):
     
     if strippedLine.startswith(HAML_COMMENT):
         return HamlCommentNode(hamlLine)
+    
+    if strippedLine[0] == VARIABLE:
+        return VariableNode(hamlLine)
+    
+    if strippedLine[0] == TAG:
+        return TagNode(hamlLine)
      
     return HamlNode(hamlLine)
 
@@ -73,11 +82,10 @@ class ElementNode(HamlNode):
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
+        self.djangoVariable = False
  
     def render(self):
         return self.__renderTag()
-
-
 
     def __renderTag(self):
         
@@ -87,8 +95,8 @@ class ElementNode(HamlNode):
         className = splitTags.groups()[2]
         attributeDictionary = (splitTags.groups()[3] != None) and eval(splitTags.groups()[3]) or None
         selfCloseIt = splitTags.groups()[4] and True or False
-        djangoVariable = splitTags.groups()[5] and True or False
-        tagContent = self.__populateTagContent(djangoVariable, splitTags.groups()[6])
+        self.djangoVariable = splitTags.groups()[5] and True or False
+        tagContent = self.renderTagContent(splitTags.groups()[6])
         
         result = "<"+tag
         result += self.__getIdAttribute(idName, attributeDictionary)
@@ -149,12 +157,12 @@ class ElementNode(HamlNode):
         
         return classAttribute
 
-    def __populateTagContent(self, djangoVariable, currentTagContent):
+    def renderTagContent(self, currentTagContent):
         if self.hasInternalNodes():
             currentTagContent = self.renderInternalNodes()
         if currentTagContent == None:
             currentTagContent = ''
-        if djangoVariable:
+        if self.djangoVariable:
             currentTagContent = "{{ " + currentTagContent.strip() + " }}"
         return currentTagContent
     
@@ -179,3 +187,20 @@ class HamlCommentNode(HamlNode):
         
     def render(self):
         return ''
+
+class VariableNode(ElementNode):
+    def __init__(self, haml):
+        ElementNode.__init__(self, haml)
+        self.djangoVariable = True
+        
+    def render(self):
+        tagContent = self.haml.lstrip(VARIABLE)
+        return self.renderTagContent(tagContent)
+    
+class TagNode(HamlNode):
+    def __init__(self, haml):
+        HamlNode.__init__(self, haml)
+        
+    def render(self):
+        tagContent = self.haml.lstrip(TAG)
+        return "{%% %s %%}" % tagContent.strip()

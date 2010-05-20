@@ -65,3 +65,17 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
+    
+    def test_stand_alone_django_variables_render(self):
+        haml = '= story.tease'
+        html = '{{ story.tease }}'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
+    def test_stand_alone_django_tags_render(self):
+        haml = '- for athlete in athlete_list'
+        html = '{% for athlete in athlete_list %}'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
