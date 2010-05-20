@@ -13,6 +13,15 @@ class TestTemplateCompare():
     def test_self_closing_tags_close(self):
         self.__openAndReadAndTestFiles('selfClosingTags')
         
+    def test_nested_html_comments(self):
+        self.__openAndReadAndTestFiles('nestedComments')
+        
+    def test_haml_comments(self):
+        self.__openAndReadAndTestFiles('hamlComments')
+        
+    def test_implicit_divs(self):
+        self.__openAndReadAndTestFiles('implicitDivs')
+        
     def __openAndReadAndTestFiles(self, name):
         hamlLines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
         html = open('templates/'+name+'.html').read()

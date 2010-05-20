@@ -4,20 +4,40 @@ ELEMENT = '%'
 ID = '#'
 CLASS = '.'
 
-SPECIAL_CHARACTERS = (ELEMENT, ID, CLASS)
+HTML_COMMENT = '/'
+HAML_COMMENT = '-#'
+
+ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
 class Compiler:
 
     def process(self, rawText):
-        splitText = rawText.split('\n')
+        splitText = rawText.strip().split('\n')
         return self.processLines(splitText)
         
     def processLines(self, hamlLines):
         rootNode = RootNode()
         for line in hamlLines:
-            hamlNode = HamlNode(line)
+            hamlNode = createNode(line)
             rootNode.addNode(hamlNode)
         return rootNode.render()
+    
+def createNode(hamlLine):
+    strippedLine = hamlLine.strip()
+    
+    if (len(strippedLine) == 0):
+        return None
+    
+    if strippedLine[0] in ELEMENT_CHARACTERS:
+        return ElementNode(hamlLine)
+    
+    if strippedLine[0] == HTML_COMMENT:
+        return CommentNode(hamlLine)
+    
+    if strippedLine.startswith(HAML_COMMENT):
+        return HamlCommentNode(hamlLine)
+     
+    return HamlNode(hamlLine)
 
 class RootNode:
 
@@ -26,6 +46,9 @@ class RootNode:
         self.internalNodes = []
  
     def addNode(self, hamlNode):
+        if (hamlNode == None):
+            return
+        
         if (self.__shouldGoInsideLastNode(hamlNode)):
             self.internalNodes[-1].addNode(hamlNode)
         else:   
@@ -43,36 +66,41 @@ class RootNode:
             result += node.render()
         return result
     
+    def hasInternalNodes(self):
+        return (len(self.internalNodes) > 0)
     
 class HamlNode(RootNode):
-    
-    selfClosingTags = ('meta', 'img', 'link', 'script', 'br', 'hr')
     
     def __init__(self, haml):
         RootNode.__init__(self)
         self.haml = haml.strip()
         self.rawHaml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
+        
+    def render(self):
+        return self.haml
+    
+class ElementNode(HamlNode):
+    
+    selfClosingTags = ('meta', 'img', 'link', 'script', 'br', 'hr')
+    
+    def __init__(self, haml):
+        HamlNode.__init__(self, haml)
  
     def render(self):
-        result = ''
-        if self.haml.startswith(ELEMENT):
-            result = self.__renderTag()
-        else:
-            result = self.haml
-        return result
+        return self.__renderTag()
 
     def __renderTag(self):
         
-        splitTags = re.search(r"(%\w+)(#\w*)?(\.[\w\.]*)*(\{.*\})?(/)?([^\w\.#\{].*)?", self.haml)
-        tag = splitTags.groups()[0].strip(ELEMENT)
+        splitTags = re.search(r"(%\w+)?(#\w*)?(\.[\w\.]*)*(\{.*\})?(/)?([^\w\.#\{].*)?", self.haml)
+        tag = (splitTags.groups()[0] != None) and splitTags.groups()[0].strip(ELEMENT) or 'div'
         idName = splitTags.groups()[1]
         className = splitTags.groups()[2]
         attributeDictionary = (splitTags.groups()[3] != None) and eval(splitTags.groups()[3]) or None
         selfCloseIt = splitTags.groups()[4] and True or False
         theRest = splitTags.groups()[5]
         
-        if len(self.internalNodes) > 0:
+        if self.hasInternalNodes():
             theRest = self.renderInternalNodes()
             
         if theRest == None:
@@ -136,4 +164,25 @@ class HamlNode(RootNode):
             classAttribute = " class='%s'" % classAttribute.strip()
         
         return classAttribute
-            
+
+class CommentNode(HamlNode):
+    
+    def __init__(self, haml):
+        HamlNode.__init__(self, haml)
+        self.haml = haml.strip().lstrip(HTML_COMMENT).strip()
+        
+    def render(self):
+        content = ''
+        if self.hasInternalNodes():
+            content = self.renderInternalNodes()
+        else:
+            content = self.haml
+        
+        return "<!-- %s -->" % content
+
+class HamlCommentNode(HamlNode):
+    def __init__(self, haml):
+        HamlNode.__init__(self, haml)
+        
+    def render(self):
+        return ''

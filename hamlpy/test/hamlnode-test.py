@@ -1,30 +1,30 @@
 import unittest
 from hamlpy import hamlpy
 
-class HamlNodeTest(unittest.TestCase):
+class TestElementNode(unittest.TestCase):
     
     def testCalculatesIndentationProperly(self):
-        noIndentation = hamlpy.HamlNode('%div')
+        noIndentation = hamlpy.ElementNode('%div')
         self.assertEqual(0, noIndentation.indentation)
         
-        threeIndentation = hamlpy.HamlNode('   %div')
+        threeIndentation = hamlpy.ElementNode('   %div')
         self.assertEqual(3, threeIndentation.indentation)
         
-        sixIndentation = hamlpy.HamlNode('      %div')
+        sixIndentation = hamlpy.ElementNode('      %div')
         self.assertEqual(6, sixIndentation.indentation)
         
     def testLinesAreAlwaysStrippedOfWhiteSpace(self):
-        someSpace = hamlpy.HamlNode('   %div')
+        someSpace = hamlpy.ElementNode('   %div')
         self.assertEqual('%div', someSpace.haml)
         
-        lotsOfSpace = hamlpy.HamlNode('      %div    ')
+        lotsOfSpace = hamlpy.ElementNode('      %div    ')
         self.assertEqual('%div', lotsOfSpace.haml)
         
     def testInsertsNodesIntoProperTreeDepth(self):
-        noIndentationNode = hamlpy.HamlNode('%div')
-        oneIndentationNode = hamlpy.HamlNode(' %div')
-        twoIndentationNode = hamlpy.HamlNode('  %div')
-        anotherOneIndentation = hamlpy.HamlNode(' %div')
+        noIndentationNode = hamlpy.ElementNode('%div')
+        oneIndentationNode = hamlpy.ElementNode(' %div')
+        twoIndentationNode = hamlpy.ElementNode('  %div')
+        anotherOneIndentation = hamlpy.ElementNode(' %div')
         
         noIndentationNode.addNode(oneIndentationNode)
         noIndentationNode.addNode(twoIndentationNode)
@@ -33,3 +33,15 @@ class HamlNodeTest(unittest.TestCase):
         self.assertEqual(oneIndentationNode, noIndentationNode.internalNodes[0])
         self.assertEqual(twoIndentationNode, noIndentationNode.internalNodes[0].internalNodes[0])
         self.assertEqual(anotherOneIndentation, noIndentationNode.internalNodes[1])
+
+    def test_adds_multiple_nodes_to_one(self):
+        startNode = hamlpy.ElementNode('%div')
+        oneNode = hamlpy.ElementNode('  %div')
+        twoNode = hamlpy.ElementNode('  %div')
+        threeNode = hamlpy.ElementNode('  %div')
+        
+        startNode.addNode(oneNode)
+        startNode.addNode(twoNode)
+        startNode.addNode(threeNode)
+        
+        self.assertEqual(3, len(startNode.internalNodes))

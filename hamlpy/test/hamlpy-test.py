@@ -1,4 +1,5 @@
 import unittest
+from nose.tools import eq_
 from hamlpy import hamlpy
 
 class HamlPyTest(unittest.TestCase):
@@ -50,3 +51,10 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result)
+        
+    def test_html_comments_rendered_properly(self):
+        haml = '/ some comment'
+        html = "<!-- some comment -->"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
