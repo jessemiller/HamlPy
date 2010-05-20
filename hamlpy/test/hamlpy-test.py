@@ -58,3 +58,10 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
+        
+    def test_django_variables_on_tag_render_properly(self):
+        haml = '%div= story.tease'
+        html = '<div>{{ story.tease }}</div>'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)

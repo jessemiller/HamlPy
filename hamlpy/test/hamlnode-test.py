@@ -1,30 +1,30 @@
 import unittest
-from hamlpy import hamlpy
+from hamlpy import nodes
 
 class TestElementNode(unittest.TestCase):
     
     def testCalculatesIndentationProperly(self):
-        noIndentation = hamlpy.ElementNode('%div')
+        noIndentation = nodes.ElementNode('%div')
         self.assertEqual(0, noIndentation.indentation)
         
-        threeIndentation = hamlpy.ElementNode('   %div')
+        threeIndentation = nodes.ElementNode('   %div')
         self.assertEqual(3, threeIndentation.indentation)
         
-        sixIndentation = hamlpy.ElementNode('      %div')
+        sixIndentation = nodes.ElementNode('      %div')
         self.assertEqual(6, sixIndentation.indentation)
         
     def testLinesAreAlwaysStrippedOfWhiteSpace(self):
-        someSpace = hamlpy.ElementNode('   %div')
+        someSpace = nodes.ElementNode('   %div')
         self.assertEqual('%div', someSpace.haml)
         
-        lotsOfSpace = hamlpy.ElementNode('      %div    ')
+        lotsOfSpace = nodes.ElementNode('      %div    ')
         self.assertEqual('%div', lotsOfSpace.haml)
         
     def testInsertsNodesIntoProperTreeDepth(self):
-        noIndentationNode = hamlpy.ElementNode('%div')
-        oneIndentationNode = hamlpy.ElementNode(' %div')
-        twoIndentationNode = hamlpy.ElementNode('  %div')
-        anotherOneIndentation = hamlpy.ElementNode(' %div')
+        noIndentationNode = nodes.ElementNode('%div')
+        oneIndentationNode = nodes.ElementNode(' %div')
+        twoIndentationNode = nodes.ElementNode('  %div')
+        anotherOneIndentation = nodes.ElementNode(' %div')
         
         noIndentationNode.addNode(oneIndentationNode)
         noIndentationNode.addNode(twoIndentationNode)
@@ -35,10 +35,10 @@ class TestElementNode(unittest.TestCase):
         self.assertEqual(anotherOneIndentation, noIndentationNode.internalNodes[1])
 
     def test_adds_multiple_nodes_to_one(self):
-        startNode = hamlpy.ElementNode('%div')
-        oneNode = hamlpy.ElementNode('  %div')
-        twoNode = hamlpy.ElementNode('  %div')
-        threeNode = hamlpy.ElementNode('  %div')
+        startNode = nodes.ElementNode('%div')
+        oneNode = nodes.ElementNode('  %div')
+        twoNode = nodes.ElementNode('  %div')
+        threeNode = nodes.ElementNode('  %div')
         
         startNode.addNode(oneNode)
         startNode.addNode(twoNode)
