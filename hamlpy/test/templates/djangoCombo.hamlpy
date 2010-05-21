@@ -1,0 +1,16 @@
+- extends "base_generic.html"
+
+- block title
+= section.title
+- endblock
+
+- block content
+%h1= section.title
+
+- for story in story_list
+%h2
+	%a{'href':'{{ story.get_absolute_url }}'}
+		= story.headline|upper
+%p= story.tease|truncatewords:"100"
+- endfor
+- endblock

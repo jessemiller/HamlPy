@@ -22,6 +22,9 @@ class TestTemplateCompare():
     def test_implicit_divs(self):
         self.__openAndReadAndTestFiles('implicitDivs')
         
+    def test_django_combination_of_tags(self):
+        self.__openAndReadAndTestFiles('djangoCombo')
+        
     def __openAndReadAndTestFiles(self, name):
         hamlLines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
         html = open('templates/'+name+'.html').read()
