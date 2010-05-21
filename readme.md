@@ -1,14 +1,14 @@
-# HAML-Py
+# HamlPy
 
-HAML-Py (pronounced "haml pie") is a tool for Django developers who want to use a HAML like syntax for their templates.
-HAML-Py is not a template engine in itself but simply a compiler which will convert HamlPy files into templates that Django can understand.
+HamlPy (pronounced "haml pie") is a tool for Django developers who want to use a Haml like syntax for their templates.
+HamlPy is not a template engine in itself but simply a compiler which will convert HamlPy files into templates that Django can understand.
 
 
-But wait, what is HAML?  HAML is an incredible template engine written in Ruby used a lot in the Rails community.  You can read more about it [here](http://www.haml-lang.com "HAML Home")
+But wait, what is Haml?  Haml is an incredible template engine written in Ruby used a lot in the Rails community.  You can read more about it [here](http://www.haml-lang.com "Haml Home")
 
 ## Syntax
 
-Almost all of the XHTML syntax of HAML is preserved.  
+Almost all of the XHTML syntax of Haml is preserved.  
 
 	#profile
 		.left.column
@@ -51,7 +51,7 @@ Check out the [reference.md](http://github.com/jessemiller/HamlPy/blob/master/re
 
 ## Status
 
-HAML-Py currently cannot:
+HamlPy currently cannot:
 
 - Do variable interpolation.  So there is currently no way to go `%p This is some cool #{coolThing.text}`.
 - Auto close Django tags.  This can make indentation a little confusing sometimes.

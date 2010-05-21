@@ -202,5 +202,5 @@ class TagNode(HamlNode):
         HamlNode.__init__(self, haml)
         
     def render(self):
-        tagContent = self.haml.lstrip(TAG)
-        return "{%% %s %%}" % tagContent.strip()
+        tagName = self.haml.lstrip(TAG)
+        return "{%% %s %%}" % tagName.strip()
