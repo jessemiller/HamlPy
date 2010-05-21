@@ -53,6 +53,7 @@ Check out the [reference.md](http://github.com/jessemiller/HamlPy/blob/master/re
 
 HAML-Py currently cannot:
 
+- Do variable interpolation.  So there is currently no way to go `%p This is some cool #{coolThing.text}`.
 - Auto close Django tags.  This can make indentation a little confusing sometimes.
 - Actually output nicely indented templates.  They will actually be stripped of white space.
 
