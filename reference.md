@@ -34,3 +34,23 @@ is compiled to:
 		</whiz>
 	</gee>
 	
+## HTML Elements
+
+### Element Name: %
+
+The percent character placed at the beginning of the line will then be followed by the name of the element, then optionally modifiers (see below), a space, and text to be rendered inside the element.  It creates an element in the form of <element></element>.  For example:
+
+	%one
+		%two
+			%three Hey there
+			
+is compiled to:
+
+	<one>
+		<two>
+			<three>Hey there</three>
+		</two>
+	</one>
+
+Any string is a valid element name and a opening and closing tag will automatically be generated.
+
