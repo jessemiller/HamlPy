@@ -203,4 +203,5 @@ class TagNode(HamlNode):
         
     def render(self):
         tagName = self.haml.lstrip(TAG)
-        return "{%% %s %%}" % tagName.strip()
+        internal = self.renderInternalNodes()
+        return "{%% %s %%}%s" % (tagName.strip(), internal)
