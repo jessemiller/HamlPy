@@ -208,6 +208,9 @@ class TagNode(HamlNode):
         self.tagStatement = self.haml.lstrip(TAG).strip()
         self.tagName = self.tagStatement.split(' ')[0]
         
+        if (self.tagName in self.selfClosing.values()):
+            raise TypeError("Do not close your Django tags manually.  It will be done for you.")
+        
     def render(self):
         internal = self.renderInternalNodes()
         output = "{%% %s %%}%s" % (self.tagStatement, internal)

@@ -1,5 +1,5 @@
 import unittest
-from nose.tools import eq_
+from nose.tools import eq_, raises
 from hamlpy import hamlpy
 
 class HamlPyTest(unittest.TestCase):
@@ -86,3 +86,11 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
+    
+    @raises(TypeError)   
+    def test_throws_exception_when_trying_to_close_django(self):
+        haml = '- endfor'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        
+        
