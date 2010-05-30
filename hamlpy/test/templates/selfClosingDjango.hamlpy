@@ -1,0 +1,3 @@
+%ul
+	- for story in story_list
+		%li= story.text

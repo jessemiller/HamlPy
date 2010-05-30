@@ -25,6 +25,9 @@ class TestTemplateCompare():
     def test_django_combination_of_tags(self):
         self.__openAndReadAndTestFiles('djangoCombo')
         
+    def test_self_closing_django(self):
+        self.__openAndReadAndTestFiles('selfClosingDjango')
+        
     def __openAndReadAndTestFiles(self, name):
         hamlLines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
         html = open('templates/'+name+'.html').read()

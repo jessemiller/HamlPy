@@ -41,17 +41,17 @@ class RootNode:
         self.indentation = -1
         self.internalNodes = []
  
-    def addNode(self, hamlNode):
-        if (hamlNode == None):
+    def addNode(self, node):
+        if (node == None):
             return
         
-        if (self.__shouldGoInsideLastNode(hamlNode)):
-            self.internalNodes[-1].addNode(hamlNode)
+        if (self.__shouldGoInsideLastNode(node)):
+            self.internalNodes[-1].addNode(node)
         else:   
-            self.internalNodes.append(hamlNode)
+            self.internalNodes.append(node)
 
-    def __shouldGoInsideLastNode(self, hamlNode):
-        return len(self.internalNodes) > 0 and hamlNode.indentation > self.internalNodes[-1].indentation            
+    def __shouldGoInsideLastNode(self, node):
+        return len(self.internalNodes) > 0 and (node.indentation > self.internalNodes[-1].indentation or self.internalNodes[-1].shouldContain(node))            
     
     def render(self):
         return self.renderInternalNodes()
@@ -64,6 +64,9 @@ class RootNode:
     
     def hasInternalNodes(self):
         return (len(self.internalNodes) > 0)
+    
+    def shouldContain(self, node):
+        return False
     
 class HamlNode(RootNode):
     
@@ -198,10 +201,20 @@ class VariableNode(ElementNode):
         return self.renderTagContent(tagContent)
     
 class TagNode(HamlNode):
+    selfClosing = {'for':'endfor', 'if':'endif', 'block':'endblock'}
+    
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
+        self.tagStatement = self.haml.lstrip(TAG).strip()
+        self.tagName = self.tagStatement.split(' ')[0]
         
     def render(self):
-        tagName = self.haml.lstrip(TAG)
         internal = self.renderInternalNodes()
-        return "{%% %s %%}%s" % (tagName.strip(), internal)
+        output = "{%% %s %%}%s" % (self.tagStatement, internal)
+        if (self.tagName in self.selfClosing.keys()):
+            output += '{%% %s %%}' % self.selfClosing[self.tagName]
+        return output
+    
+    def shouldContain(self, node):
+        return (isinstance(node,TagNode) and node.tagName == 'else')
+        

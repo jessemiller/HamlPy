@@ -74,8 +74,15 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
     
     def test_stand_alone_django_tags_render(self):
-        haml = '- for athlete in athlete_list'
-        html = '{% for athlete in athlete_list %}'
+        haml = '- extends "something.html"'
+        html = '{% extends "something.html" %}'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+        
+    def test_if_else_django_tags_render(self):
+        haml = '- if something\n   %p hello\n- else\n   %p goodbye'
+        html = '{% if something %}<p>hello</p>{% else %}<p>goodbye</p>{% endif %}'
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
