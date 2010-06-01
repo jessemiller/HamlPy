@@ -34,14 +34,13 @@ The main difference is instead of interpretting Ruby, or even Python we instead 
 
 	%ul#atheletes
 		- for athelete in athelete_list
-		%li.athelete= athelete.name
-		- endfor
+			%li.athelete= athelete.name
 
 turns into..
 
 	<ul id='atheletes'>
 		{% for athelete in athelete_list %}
-		<li class='athelete'>{{ athelete.name }}</li>
+			<li class='athelete'>{{ athelete.name }}</li>
 		{% endfor %}
 	</ul>
 	
@@ -54,6 +53,5 @@ Check out the [reference.md](http://github.com/jessemiller/HamlPy/blob/master/re
 HamlPy currently cannot:
 
 - Do variable interpolation.  So there is currently no way to go `%p This is some cool #{coolThing.text}`.
-- Auto close Django tags.  This can make indentation a little confusing sometimes.
 - Actually output nicely indented templates.  They will actually be stripped of white space.
 

@@ -246,30 +246,23 @@ is compiled to:
 The hypen character at the start of the line followed by a space and a Django tag will be inserted as a Django tag.  For example:
 
 	- block content
-	%h1= section.title
-
-	- for dog in dog_list
-	%h2
-		= dog.name
-	- endfor
-	- endblock
+		%h1= section.title
+	
+		- for dog in dog_list
+			%h2
+				= dog.name
 	
 is compiled to:
 
 	{% block content %}
-	<h1>{{ section.title }}</h1>
-	
-	{% for dog in dog_list %}
-	<h2>
-		{{ dog.name }}
-	</h2>
-	{% endfor %}
+		<h1>{{ section.title }}</h1>
+		
+		{% for dog in dog_list %}
+			<h2>
+				{{ dog.name }}
+			</h2>
+		{% endfor %}
 	{% endblock %}
 	
 	
-Note that currently Django tags are not automatically closed so you must explicitly still close your tags.
-		
-	
-
-
-
+Notice that block, for, if and else are all automatically closed.  Using endfor, endif or endblock will throw an exception.		
