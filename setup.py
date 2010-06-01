@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='hamlpy',
-      version = '0.1a1',
+      version = '0.1b1',
       packages = ['hamlpy'],
       author = 'Jesse Miller',
       author_email = 'millerjesse@gmail.com',
