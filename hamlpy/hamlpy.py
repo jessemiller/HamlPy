@@ -1,17 +1,17 @@
-from nodes import RootNode, createNode
+from nodes import RootNode, create_node
 
 class Compiler:
 
-    def process(self, rawText):
-        splitText = rawText.strip().split('\n')
-        return self.processLines(splitText)
+    def process(self, raw_text):
+        split_text = raw_text.strip().split('\n')
+        return self.process_lines(split_text)
         
-    def processLines(self, hamlLines):
-        rootNode = RootNode()
-        for line in hamlLines:
-            hamlNode = createNode(line)
-            rootNode.addNode(hamlNode)
-        return rootNode.render()
+    def process_lines(self, haml_lines):
+        root = RootNode()
+        for line in haml_lines:
+            haml_node = create_node(line)
+            root.add_node(haml_node)
+        return root.render()
 
 def convert_files():
     import sys

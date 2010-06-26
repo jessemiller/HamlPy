@@ -12,173 +12,173 @@ TAG = '-'
 
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
-def createNode(hamlLine):
-    strippedLine = hamlLine.strip()
+def create_node(haml_line):
+    stripped_line = haml_line.strip()
     
-    if (len(strippedLine) == 0):
+    if (len(stripped_line) == 0):
         return None
     
-    if strippedLine[0] in ELEMENT_CHARACTERS:
-        return ElementNode(hamlLine)
+    if stripped_line[0] in ELEMENT_CHARACTERS:
+        return ElementNode(haml_line)
     
-    if strippedLine[0] == HTML_COMMENT:
-        return CommentNode(hamlLine)
+    if stripped_line[0] == HTML_COMMENT:
+        return CommentNode(haml_line)
     
-    if strippedLine.startswith(HAML_COMMENT):
-        return HamlCommentNode(hamlLine)
+    if stripped_line.startswith(HAML_COMMENT):
+        return HamlCommentNode(haml_line)
     
-    if strippedLine[0] == VARIABLE:
-        return VariableNode(hamlLine)
+    if stripped_line[0] == VARIABLE:
+        return VariableNode(haml_line)
     
-    if strippedLine[0] == TAG:
-        return TagNode(hamlLine)
-     
-    return HamlNode(hamlLine)
+    if stripped_line[0] == TAG:
+        return TagNode(haml_line)
+    
+    return HamlNode(haml_line)
 
 class RootNode:
-
+    
     def __init__(self):
         self.indentation = -1
-        self.internalNodes = []
- 
-    def addNode(self, node):
+        self.internal_nodes = []
+    
+    def add_node(self, node):
         if (node == None):
             return
         
-        if (self.__shouldGoInsideLastNode(node)):
-            self.internalNodes[-1].addNode(node)
-        else:   
-            self.internalNodes.append(node)
-
-    def __shouldGoInsideLastNode(self, node):
-        return len(self.internalNodes) > 0 and (node.indentation > self.internalNodes[-1].indentation or self.internalNodes[-1].shouldContain(node))            
+        if (self._should_go_inside_last_node(node)):
+            self.internal_nodes[-1].add_node(node)
+        else:
+            self.internal_nodes.append(node)
+    
+    def _should_go_inside_last_node(self, node):
+        return len(self.internal_nodes) > 0 and (node.indentation > self.internal_nodes[-1].indentation or self.internal_nodes[-1].should_contain(node))
     
     def render(self):
-        return self.renderInternalNodes()
-
-    def renderInternalNodes(self):
+        return self.render_internal_nodes()
+    
+    def render_internal_nodes(self):
         result = ''
-        for node in self.internalNodes:
+        for node in self.internal_nodes:
             result += node.render()
         return result
     
-    def hasInternalNodes(self):
-        return (len(self.internalNodes) > 0)
+    def has_internal_nodes(self):
+        return (len(self.internal_nodes) > 0)
     
-    def shouldContain(self, node):
+    def should_contain(self, node):
         return False
-    
+
 class HamlNode(RootNode):
     
     def __init__(self, haml):
         RootNode.__init__(self)
         self.haml = haml.strip()
-        self.rawHaml = haml
+        self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
-        
+    
     def render(self):
         return self.haml
-    
+
 class ElementNode(HamlNode):
     
-    selfClosingTags = ('meta', 'img', 'link', 'script', 'br', 'hr')
+    self_closing_tags = ('meta', 'img', 'link', 'script', 'br', 'hr')
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
-        self.djangoVariable = False
- 
+        self.django_variable = False
+    
     def render(self):
         return self.__renderTag()
-
+    
     def __renderTag(self):
         
-        splitTags = re.search(r"(%\w+)?(#\w*)?(\.[\w\.]*)*(\{.*\})?(/)?(=)?([^\w\.#\{].*)?", self.haml)
-        tag = (splitTags.groups()[0] != None) and splitTags.groups()[0].strip(ELEMENT) or 'div'
-        idName = splitTags.groups()[1]
-        className = splitTags.groups()[2]
-        attributeDictionary = (splitTags.groups()[3] != None) and eval(splitTags.groups()[3]) or None
-        selfCloseIt = splitTags.groups()[4] and True or False
-        self.djangoVariable = splitTags.groups()[5] and True or False
-        tagContent = self.renderTagContent(splitTags.groups()[6])
+        split_tags = re.search(r"(%\w+)?(#\w*)?(\.[\w\.]*)*(\{.*\})?(/)?(=)?([^\w\.#\{].*)?", self.haml)
+        tag = (split_tags.groups()[0] != None) and split_tags.groups()[0].strip(ELEMENT) or 'div'
+        id_name = split_tags.groups()[1]
+        class_name = split_tags.groups()[2]
+        attribute_dict = (split_tags.groups()[3] != None) and eval(split_tags.groups()[3]) or None
+        self_close_it = split_tags.groups()[4] and True or False
+        self.django_variable = split_tags.groups()[5] and True or False
+        tag_content = self.render_tag_content(split_tags.groups()[6])
         
         result = "<"+tag
-        result += self.__getIdAttribute(idName, attributeDictionary)
-        result += self.__getClassAttribute(className, attributeDictionary)
-        if (attributeDictionary != None):
-            for k, v in attributeDictionary.items():
+        result += self._get_id_attribute(id_name, attribute_dict)
+        result += self._get_class_attribute(class_name, attribute_dict)
+        if (attribute_dict != None):
+            for k, v in attribute_dict.items():
                 if (k != 'id' and k != 'class'):
                     result += " "+k+"='"+v+"'"
-                    
-        if ((tag in self.selfClosingTags or selfCloseIt) and not tagContent.strip()):
+        
+        if ((tag in self.self_closing_tags or self_close_it) and not tag_content.strip()):
             result += " />"
         else:
-            result += ">%s</%s>" % (tagContent.strip(), tag)
-            
+            result += ">%s</%s>" % (tag_content.strip(), tag)
+        
         return result
-
-    def __getIdAttribute(self, idName, attributeDictionary):
-        idNames = []
-        if (idName != None):
-            idNames.append(idName.strip('#'))
-        if (attributeDictionary != None):
-            for k, v in attributeDictionary.items():
+    
+    def _get_id_attribute(self, id_name, attribute_dict):
+        id_names = []
+        if (id_name != None):
+            id_names.append(id_name.strip('#'))
+        if (attribute_dict != None):
+            for k, v in attribute_dict.items():
                 if (k == 'id' and isinstance(v, str)):
-                    idNames.append(v)
+                    id_names.append(v)
                 elif (k == 'id'):
                     for name in v:
-                        idNames.append(name)
+                        id_names.append(name)
         
-        idAttribute = ''
-        if (len(idNames) > 0):
-            idAttribute += " id='"
+        id_attribute = ''
+        if (len(id_names) > 0):
+            id_attribute += " id='"
             first = True
-            for name in idNames:
+            for name in id_names:
                 if not first:
-                    idAttribute += "_"
-                idAttribute += name
+                    id_attribute += "_"
+                id_attribute += name
                 first = False
-            idAttribute += "'"
-            
-        return idAttribute
-    
-    def __getClassAttribute(self, className, attributeDictionary):
-        classAttribute = ''
+            id_attribute += "'"
         
-        if (className != None):
-            classAttribute += className.strip('.').replace('.',' ')
-            
-        if (attributeDictionary != None):
-            for k, v in attributeDictionary.items():
+        return id_attribute
+    
+    def _get_class_attribute(self, class_name, attribute_dict):
+        class_attribute = ''
+        
+        if (class_name != None):
+            class_attribute += class_name.strip('.').replace('.',' ')
+        
+        if (attribute_dict != None):
+            for k, v in attribute_dict.items():
                 if (k == 'class' and isinstance(v, str)):
-                    classAttribute += ' ' + v
+                    class_attribute += ' ' + v
                 elif (k == 'class'):
                     for name in v:
-                        classAttribute += ' ' + name
+                        class_attribute += ' ' + name
         
-        if len(classAttribute) > 0:
-            classAttribute = " class='%s'" % classAttribute.strip()
+        if len(class_attribute) > 0:
+            class_attribute = " class='%s'" % class_attribute.strip()
         
-        return classAttribute
-
-    def renderTagContent(self, currentTagContent):
-        if self.hasInternalNodes():
-            currentTagContent = self.renderInternalNodes()
-        if currentTagContent == None:
-            currentTagContent = ''
-        if self.djangoVariable:
-            currentTagContent = "{{ " + currentTagContent.strip() + " }}"
-        return currentTagContent
+        return class_attribute
     
+    def render_tag_content(self, current_tag_content):
+        if self.has_internal_nodes():
+            current_tag_content = self.render_internal_nodes()
+        if current_tag_content == None:
+            current_tag_content = ''
+        if self.django_variable:
+            current_tag_content = "{{ " + current_tag_content.strip() + " }}"
+        return current_tag_content
+
 class CommentNode(HamlNode):
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
         self.haml = haml.strip().lstrip(HTML_COMMENT).strip()
-        
+    
     def render(self):
         content = ''
-        if self.hasInternalNodes():
-            content = self.renderInternalNodes()
+        if self.has_internal_nodes():
+            content = self.render_internal_nodes()
         else:
             content = self.haml
         
@@ -187,37 +187,37 @@ class CommentNode(HamlNode):
 class HamlCommentNode(HamlNode):
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
-        
+    
     def render(self):
         return ''
 
 class VariableNode(ElementNode):
     def __init__(self, haml):
         ElementNode.__init__(self, haml)
-        self.djangoVariable = True
-        
-    def render(self):
-        tagContent = self.haml.lstrip(VARIABLE)
-        return self.renderTagContent(tagContent)
+        self.django_variable = True
     
+    def render(self):
+        tag_content = self.haml.lstrip(VARIABLE)
+        return self.render_tag_content(tag_content)
+
 class TagNode(HamlNode):
-    selfClosing = {'for':'endfor', 'if':'endif', 'block':'endblock'}
+    self_closing = {'for':'endfor', 'if':'endif', 'block':'endblock'}
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
-        self.tagStatement = self.haml.lstrip(TAG).strip()
-        self.tagName = self.tagStatement.split(' ')[0]
+        self.tag_statement = self.haml.lstrip(TAG).strip()
+        self.tag_name = self.tag_statement.split(' ')[0]
         
-        if (self.tagName in self.selfClosing.values()):
+        if (self.tag_name in self.self_closing.values()):
             raise TypeError("Do not close your Django tags manually.  It will be done for you.")
-        
+    
     def render(self):
-        internal = self.renderInternalNodes()
-        output = "{%% %s %%}%s" % (self.tagStatement, internal)
-        if (self.tagName in self.selfClosing.keys()):
-            output += '{%% %s %%}' % self.selfClosing[self.tagName]
+        internal = self.render_internal_nodes()
+        output = "{%% %s %%}%s" % (self.tag_statement, internal)
+        if (self.tag_name in self.self_closing.keys()):
+            output += '{%% %s %%}' % self.self_closing[self.tag_name]
         return output
     
-    def shouldContain(self, node):
-        return (isinstance(node,TagNode) and node.tagName == 'else')
+    def should_contain(self, node):
+        return (isinstance(node,TagNode) and node.tag_name == 'else')
         

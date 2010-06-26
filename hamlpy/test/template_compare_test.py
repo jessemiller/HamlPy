@@ -33,6 +33,6 @@ class TestTemplateCompare():
         html = open('templates/'+name+'.html').read()
         
         hamlCompiler = hamlpy.Compiler()
-        parsed = hamlCompiler.processLines(hamlLines)
+        parsed = hamlCompiler.process_lines(hamlLines)
         eq_(parsed, html)
         
