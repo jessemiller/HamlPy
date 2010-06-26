@@ -17,7 +17,7 @@ def convert_files():
     import sys
     import codecs
     
-    if (len(sys.argv) < 2):
+    if len(sys.argv) < 2:
         print "Specify the input file as the first argument."
     else: 
         inFile = sys.argv[1]
@@ -26,7 +26,7 @@ def convert_files():
         compiler = Compiler()
         output = compiler.processLines(hamlLines)
         
-        if (len(sys.argv) == 3):
+        if len(sys.argv) == 3:
             outFile = open(sys.argv[2], 'w')
             outFile.write(output)
         else:

@@ -15,7 +15,7 @@ ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 def create_node(haml_line):
     stripped_line = haml_line.strip()
     
-    if (len(stripped_line) == 0):
+    if not stripped_line:
         return None
     
     if stripped_line[0] in ELEMENT_CHARACTERS:
@@ -51,7 +51,7 @@ class RootNode:
             self.internal_nodes.append(node)
     
     def _should_go_inside_last_node(self, node):
-        return len(self.internal_nodes) > 0 and (node.indentation > self.internal_nodes[-1].indentation or self.internal_nodes[-1].should_contain(node))
+        return self.internal_nodes and (node.indentation > self.internal_nodes[-1].indentation or self.internal_nodes[-1].should_contain(node))
     
     def render(self):
         return self.render_internal_nodes()
@@ -63,7 +63,7 @@ class RootNode:
         return result
     
     def has_internal_nodes(self):
-        return (len(self.internal_nodes) > 0)
+        return len(self.internal_nodes) > 0
     
     def should_contain(self, node):
         return False
@@ -129,7 +129,7 @@ class ElementNode(HamlNode):
                         id_names.append(name)
         
         id_attribute = ''
-        if (len(id_names) > 0):
+        if id_names:
             id_attribute += " id='"
             first = True
             for name in id_names:
@@ -155,7 +155,7 @@ class ElementNode(HamlNode):
                     for name in v:
                         class_attribute += ' ' + name
         
-        if len(class_attribute) > 0:
+        if class_attribute:
             class_attribute = " class='%s'" % class_attribute.strip()
         
         return class_attribute
