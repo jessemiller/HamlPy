@@ -30,9 +30,9 @@ class TestElementNode(unittest.TestCase):
         no_indentation_node.add_node(two_indentation_node)
         no_indentation_node.add_node(another_one_indentation_node)
         
-        self.assertEqual(one_indentation_node, no_indenation_node.internal_nodes[0])
+        self.assertEqual(one_indentation_node, no_indentation_node.internal_nodes[0])
         self.assertEqual(two_indentation_node, no_indentation_node.internal_nodes[0].internal_nodes[0])
-        self.assertEqual(another_one_indentation, no_indentation_node.internal_nodes[1])
+        self.assertEqual(another_one_indentation_node, no_indentation_node.internal_nodes[1])
     
     def test_adds_multiple_nodes_to_one(self):
         start = nodes.ElementNode('%div')

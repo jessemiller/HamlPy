@@ -8,34 +8,34 @@ class HamlPyTest(unittest.TestCase):
                    ('<one><two><three>Hey there</three></two></one>', '%one\n  %two\n    %three Hey there'),
                    ('<gee><whiz>Wow this is cool!</whiz></gee>', '%gee\n  %whiz\n    Wow this is cool!'))
     
-    def testOutputsSimpleHtmlProperly(self):
+    def test_outputs_simply_html_properly(self):
         hamlParser = hamlpy.Compiler()
         for html, haml in self.htmlValues:
             result = hamlParser.process(haml)
             assert html == result
         
-    def testAppliesIdProperly(self):
+    def test_applies_id_properly(self):
         haml = '%div#someId Some text'
         html = "<div id='someId'>Some text</div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result)
         
-    def testAppliesClassProperly(self):
+    def test_applies_class_properly(self):
         haml = '%div.someClass Some text'
         html = "<div class='someClass'>Some text</div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result)
         
-    def testAppliesMultipleClassesProperly(self):
+    def test_applies_multiple_classes_properly(self):
         haml = '%div.someClass.anotherClass Some text'
         html = "<div class='someClass anotherClass'>Some text</div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result)
 
-    def testDictionariesDefineAttributes(self):
+    def test_dictionaries_define_attributes(self):
         haml = "%html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
