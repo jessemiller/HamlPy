@@ -20,15 +20,15 @@ def convert_files():
     if len(sys.argv) < 2:
         print "Specify the input file as the first argument."
     else: 
-        inFile = sys.argv[1]
-        hamlLines = codecs.open(inFile, 'r', encoding='utf-8').read().splitlines()
+        infile = sys.argv[1]
+        haml_lines = codecs.open(infile, 'r', encoding='utf-8').read().splitlines()
 
         compiler = Compiler()
-        output = compiler.processLines(hamlLines)
+        output = compiler.processLines(haml_lines)
         
         if len(sys.argv) == 3:
-            outFile = open(sys.argv[2], 'w')
-            outFile.write(output)
+            outfile = open(sys.argv[2], 'w')
+            outfile.write(output)
         else:
             print output
     
