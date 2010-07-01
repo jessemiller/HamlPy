@@ -24,7 +24,7 @@ def convert_files():
         haml_lines = codecs.open(infile, 'r', encoding='utf-8').read().splitlines()
 
         compiler = Compiler()
-        output = compiler.processLines(haml_lines)
+        output = compiler.process_lines(haml_lines)
         
         if len(sys.argv) == 3:
             outfile = open(sys.argv[2], 'w')
