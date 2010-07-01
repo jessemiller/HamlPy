@@ -1,0 +1,1 @@
+watch('.*\.py') { |md|  system("cd hamlpy/test;nosetests --with-sneazr") }
