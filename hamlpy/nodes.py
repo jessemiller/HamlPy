@@ -1,5 +1,7 @@
 import re
 
+from elements import Element
+
 ELEMENT = '%'
 ID = '#'
 CLASS = '.'
@@ -81,86 +83,37 @@ class HamlNode(RootNode):
 
 class ElementNode(HamlNode):
     
-    self_closing_tags = ('meta', 'img', 'link', 'script', 'br', 'hr')
-    
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
         self.django_variable = False
     
     def render(self):
-        return self.__renderTag()
+        return self._render_tag()
     
-    def __renderTag(self):
+    def _render_tag(self):
+        element = Element(self.haml)
+        self.django_variable = element.django_variable
+        return self._generate_html(element)
         
-        split_tags = re.search(r"(%\w+)?(#\w*)?(\.[\w\.]*)*(\{.*\})?(/)?(=)?([^\w\.#\{].*)?", self.haml)
-        tag = (split_tags.groups()[0] != None) and split_tags.groups()[0].strip(ELEMENT) or 'div'
-        id_name = split_tags.groups()[1]
-        class_name = split_tags.groups()[2]
-        attribute_dict = (split_tags.groups()[3] != None) and eval(split_tags.groups()[3]) or None
-        self_close_it = split_tags.groups()[4] and True or False
-        self.django_variable = split_tags.groups()[5] and True or False
-        tag_content = self.render_tag_content(split_tags.groups()[6])
+    def _generate_html(self, element):        
+        result = "<%s" % element.tag 
+        if element.id:
+            result += " id='%s'" % element.id 
+        if element.classes:
+            result += " class='%s'" % element.classes 
+        if element.attributes:
+            result += ' ' + element.attributes            
+            
+        content = self._render_tag_content(element.inline_content)
         
-        result = "<"+tag
-        result += self._get_id_attribute(id_name, attribute_dict)
-        result += self._get_class_attribute(class_name, attribute_dict)
-        if (attribute_dict != None):
-            for k, v in attribute_dict.items():
-                if (k != 'id' and k != 'class'):
-                    result += " "+k+"='"+v+"'"
-        
-        if ((tag in self.self_closing_tags or self_close_it) and not tag_content.strip()):
+        if element.self_close and not content:
             result += " />"
         else:
-            result += ">%s</%s>" % (tag_content.strip(), tag)
+            result += ">%s</%s>" % (content, element.tag)
         
         return result
     
-    def _get_id_attribute(self, id_name, attribute_dict):
-        id_names = []
-        if (id_name != None):
-            id_names.append(id_name.strip('#'))
-        if (attribute_dict != None):
-            for k, v in attribute_dict.items():
-                if (k == 'id' and isinstance(v, str)):
-                    id_names.append(v)
-                elif (k == 'id'):
-                    for name in v:
-                        id_names.append(name)
-        
-        id_attribute = ''
-        if id_names:
-            id_attribute += " id='"
-            first = True
-            for name in id_names:
-                if not first:
-                    id_attribute += "_"
-                id_attribute += name
-                first = False
-            id_attribute += "'"
-        
-        return id_attribute
-    
-    def _get_class_attribute(self, class_name, attribute_dict):
-        class_attribute = ''
-        
-        if (class_name != None):
-            class_attribute += class_name.strip('.').replace('.',' ')
-        
-        if (attribute_dict != None):
-            for k, v in attribute_dict.items():
-                if (k == 'class' and isinstance(v, str)):
-                    class_attribute += ' ' + v
-                elif (k == 'class'):
-                    for name in v:
-                        class_attribute += ' ' + name
-        
-        if class_attribute:
-            class_attribute = " class='%s'" % class_attribute.strip()
-        
-        return class_attribute
-    
-    def render_tag_content(self, current_tag_content):
+    def _render_tag_content(self, current_tag_content):
         if self.has_internal_nodes():
             current_tag_content = self.render_internal_nodes()
         if current_tag_content == None:
@@ -198,7 +151,7 @@ class VariableNode(ElementNode):
     
     def render(self):
         tag_content = self.haml.lstrip(VARIABLE)
-        return self.render_tag_content(tag_content)
+        return self._render_tag_content(tag_content)
 
 class TagNode(HamlNode):
     self_closing = {'for':'endfor', 'if':'endif', 'block':'endblock'}
