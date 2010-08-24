@@ -61,8 +61,8 @@ class RootNode:
     def render_internal_nodes(self):
         result = ''
         for node in self.internal_nodes:
-            result += node.render()
-        return result
+            result += ('\n%s\n') % node.render()
+            return result
     
     def has_internal_nodes(self):
         return len(self.internal_nodes) > 0
@@ -96,7 +96,12 @@ class ElementNode(HamlNode):
         return self._generate_html(element)
         
     def _generate_html(self, element):        
-        result = "<%s" % element.tag 
+        if self.indentation>0:
+            spaces = ''.join(' ' for i in range(self.indentation))
+            result = "%s<%s" % (spaces, element.tag) 
+        else:
+            result = "<%s" % element.tag 
+
         if element.id:
             result += " id='%s'" % element.id 
         if element.classes:
