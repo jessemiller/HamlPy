@@ -1,0 +1,7 @@
+.project
+.pydevproject
+*.pyc
+dist
+build
+hamlpy.egg-info
+
