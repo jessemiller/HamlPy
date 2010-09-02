@@ -53,5 +53,4 @@ Check out the [reference.md](http://github.com/jessemiller/HamlPy/blob/master/re
 HamlPy currently cannot:
 
 - Do variable interpolation.  So there is currently no way to go `%p This is some cool #{coolThing.text}`.
-- Actually output nicely indented templates.  They will actually be stripped of white space.
 
