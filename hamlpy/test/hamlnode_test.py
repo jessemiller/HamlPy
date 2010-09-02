@@ -45,3 +45,9 @@ class TestElementNode(unittest.TestCase):
         start.add_node(three)
         
         self.assertEqual(3, len(start.internal_nodes))
+
+    def test_html_indentation_vs_haml_indentation(self):
+        pass
+
+if __name__ == "__main__":
+    unittest.main()

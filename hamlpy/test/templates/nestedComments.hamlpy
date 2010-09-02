@@ -1,4 +1,4 @@
 /
   %div.someClass
-  	%div
-  	  None of this matters
+    %div
+      None of this matters

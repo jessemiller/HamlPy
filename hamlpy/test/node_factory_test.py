@@ -48,8 +48,3 @@ class TestNodeFactory():
     def test_dash_symbol_creates_tag_node(self):
         node = nodes.create_node('- for something in somethings')
         assert isinstance(node, nodes.TagNode)
-        
-        
-    
-        
-    

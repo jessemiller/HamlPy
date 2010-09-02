@@ -61,7 +61,7 @@ class RootNode:
     def render_internal_nodes(self):
         result = ''
         for node in self.internal_nodes:
-            result += node.render()
+            result += ('%s\n') % node.render()
         return result
     
     def has_internal_nodes(self):
@@ -69,7 +69,7 @@ class RootNode:
     
     def should_contain(self, node):
         return False
-
+        
 class HamlNode(RootNode):
     
     def __init__(self, haml):
@@ -77,9 +77,11 @@ class HamlNode(RootNode):
         self.haml = haml.strip()
         self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
+        self.spaces = ''.join(' ' for i in range(self.indentation))
+        
     
     def render(self):
-        return self.haml
+        return "%s%s" % (self.spaces, self.haml)
 
 class ElementNode(HamlNode):
     
@@ -96,7 +98,11 @@ class ElementNode(HamlNode):
         return self._generate_html(element)
         
     def _generate_html(self, element):        
-        result = "<%s" % element.tag 
+        if self.indentation > 0:
+            result = "%s<%s" % (self.spaces, element.tag) 
+        else:
+            result = "<%s" % element.tag 
+
         if element.id:
             result += " id='%s'" % element.id 
         if element.classes:
@@ -115,7 +121,7 @@ class ElementNode(HamlNode):
     
     def _render_tag_content(self, current_tag_content):
         if self.has_internal_nodes():
-            current_tag_content = self.render_internal_nodes()
+            current_tag_content = '\n' + self.render_internal_nodes() + self.spaces
         if current_tag_content == None:
             current_tag_content = ''
         if self.django_variable:
@@ -131,11 +137,11 @@ class CommentNode(HamlNode):
     def render(self):
         content = ''
         if self.has_internal_nodes():
-            content = self.render_internal_nodes()
+            content = '\n' + self.render_internal_nodes()
         else:
-            content = self.haml
+            content = self.haml + ' '
         
-        return "<!-- %s -->" % content
+        return "<!-- %s-->" % content
 
 class HamlCommentNode(HamlNode):
     def __init__(self, haml):
@@ -151,7 +157,7 @@ class VariableNode(ElementNode):
     
     def render(self):
         tag_content = self.haml.lstrip(VARIABLE)
-        return self._render_tag_content(tag_content)
+        return "%s%s" % (self.spaces, self._render_tag_content(tag_content))
 
 class TagNode(HamlNode):
     self_closing = {'for':'endfor', 'if':'endif', 'block':'endblock'}
@@ -166,9 +172,9 @@ class TagNode(HamlNode):
     
     def render(self):
         internal = self.render_internal_nodes()
-        output = "{%% %s %%}%s" % (self.tag_statement, internal)
+        output = "%s{%% %s %%}\n%s" % (self.spaces, self.tag_statement, internal)
         if (self.tag_name in self.self_closing.keys()):
-            output += '{%% %s %%}' % self.self_closing[self.tag_name]
+            output += '%s{%% %s %%}' % (self.spaces, self.self_closing[self.tag_name])
         return output
     
     def should_contain(self, node):

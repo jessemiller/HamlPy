@@ -1,1 +1,1 @@
-watch('.*\.py') { |md|  system("cd hamlpy/test;nosetests --with-sneazr") }
+watch('.*\.(py|hamlpy|html)') { |md|  system("cd hamlpy/test;nosetests --with-sneazr") }

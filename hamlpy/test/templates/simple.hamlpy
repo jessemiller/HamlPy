@@ -1,6 +1,5 @@
 %div 
-	%div.someClass 
-		Here we go
-		And more
+  %div.someClass 
+    Here we go
+    And more
 %div More
-    

@@ -1,6 +1,5 @@
 .articles
-	#article_1
-		.title.bold So happy
-		#content_1.content
-			Finally, I can use HAML again!
-	
+  #article_1
+    .title.bold So happy
+    #content_1.content
+      Finally, I can use HAML again!
