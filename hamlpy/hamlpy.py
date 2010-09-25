@@ -27,7 +27,7 @@ def convert_files():
         output = compiler.process_lines(haml_lines)
         
         if len(sys.argv) == 3:
-            outfile = open(sys.argv[2], 'w')
+            outfile = codecs.open(sys.argv[2], 'w', encoding='utf-8')
             outfile.write(output)
         else:
             print output
