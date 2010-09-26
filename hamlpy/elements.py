@@ -45,7 +45,7 @@ class Element(object):
     def _parse_id(self, id_haml):
         id_text = id_haml.strip(self.ID)
         if 'id' in self.attributes_dict:
-            id_text += self.joinarray('_', self.attributes_dict['id'])
+            id_text += self.joinarray('_', self._expand_django(self.attributes_dict['id']))
         id_text = id_text.lstrip('_')
         return id_text
     
@@ -73,7 +73,6 @@ class Element(object):
                 if k != 'id' and k != 'class':
                     v= self._expand_django(v)
                     separator = "" if k == 'href' else " "
-                        
                     self.attributes += "%s='%s' " % (k, self.joinarray(separator, v).lstrip(" "))
             self.attributes = self.attributes.strip()
         return attributes_dict
