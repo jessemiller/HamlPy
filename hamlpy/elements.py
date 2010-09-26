@@ -45,8 +45,8 @@ class Element(object):
     def _parse_id(self, id_haml):
         id_text = id_haml.strip(self.ID)
         if 'id' in self.attributes_dict:
-            id_text += self.joinarray('_', self._expand_django(self.attributes_dict['id']))
-        id_text = id_text.lstrip('_')
+            id_text += self.joinarray('', self._expand_django(self.attributes_dict['id']))
+        id_text = id_text.lstrip('')
         return id_text
     
     def _expand_django(self, obj):
