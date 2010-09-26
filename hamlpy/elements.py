@@ -27,7 +27,7 @@ class Element(object):
         self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
-        self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), self.attributes_dict.get('class', ''))).strip()
+        self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), " ".join(self.attributes_dict.get('class', '')))).strip()
         self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
         self.django_variable = split_tags.get('django') != ''
         self.inline_content = split_tags.get('inline').strip()
