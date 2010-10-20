@@ -1,5 +1,7 @@
 import re
 
+HAML_REGEX = re.compile(r"(?P<tag>%\w+)?(?P<id>#\w*)?(?P<class>\.[\w\.]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?")
+
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
     
@@ -21,8 +23,7 @@ class Element(object):
         self._parse_haml()
         
     def _parse_haml(self):
-        haml_regex = r"(?P<tag>%\w+)?(?P<id>#\w*)?(?P<class>\.[\w\.]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?"
-        split_tags = re.search(haml_regex, self.haml).groupdict('')
+        split_tags = HAML_REGEX.search(self.haml).groupdict('')
         
         self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
