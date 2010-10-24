@@ -82,5 +82,19 @@ class HamlPyTest(unittest.TestCase):
         haml = '- endfor'
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
+    
+    def test_handles_dash_in_class_name_properly(self):
+        haml = '.header.span-24.last'
+        html = "<div class='header span-24 last'></div>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+        
+    def test_handles_multiple_attributes_in_dict(self):
+        haml = "%div{'id': ('article', '3'), 'class': ('newest', 'urgent')} Content"
+        html = "<div id='article_3' class='newest urgent'>Content</div>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
         
         
