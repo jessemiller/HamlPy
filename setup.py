@@ -10,6 +10,7 @@ setup(name='hamlpy',
       url = 'http://github.com/jessemiller/HamlPy',
       
       entry_points = {
-          'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files']
+          'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files',
+                               'hamlpy-watcher = hamlpy.hamlpy_watcher:watch_folder']
       }
     )
