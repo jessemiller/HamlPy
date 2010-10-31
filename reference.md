@@ -14,6 +14,10 @@ Or you can have it dump right into a file:
 
 	hamlpy inputFile.hamlpy outputFile.html
 	
+There is also a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
+
+	hamlpy-watcher <watch-folder>
+	
 ## A note about output
 
 All of the following examples will show the HTML output nicely formatted.  Currently HamlPy actually outputs it with all white space stripped but the examples are formatted this way just for easy reading. 
