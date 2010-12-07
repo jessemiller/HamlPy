@@ -15,7 +15,7 @@ EXTENSIONS = ['.hamlpy']    # watched extensions
 CHECK_INTERVAL = 3          # in seconds
 DEBUG = False               # print file paths when a file is compiled
 
-# dict of compiled files [filename : timestamp]
+# dict of compiled files [fullpath : timestamp]
 compiled = dict()
 
 def watched_extension(extension):
@@ -44,16 +44,19 @@ def watch_folder():
 def _watch_folder(folder):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
     if necessary."""
-    for filename in os.listdir(folder):
-        fullpath = os.path.join(folder, filename)
-        mtime = os.stat(fullpath).st_mtime
-        if watched_extension(filename):
+    for dirpath, dirnames, filenames in os.walk(folder):
+        filepaths = (os.path.join(dirpath, filename) \
+                     for filename in filenames \
+                     if watched_extension(filename)
+                    )
+        for fullpath in filepaths:
+            mtime = os.stat(fullpath).st_mtime
             compiled_path = _compiled_path(fullpath)
-            if (not filename in compiled or
-                compiled[filename] < mtime or
+            if (not fullpath in compiled or
+                compiled[fullpath] < mtime or
                 not os.path.isfile(compiled_path)):
                 compile_file(fullpath, compiled_path)
-                compiled[filename] = mtime
+                compiled[fullpath] = mtime
 
 def _compiled_path(fullpath):
     return fullpath[:fullpath.rfind('.')] + '.html'
