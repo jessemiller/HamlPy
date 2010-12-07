@@ -1,7 +1,7 @@
 # haml-watcher.py
 # Author: Christian Stefanescu (st.chris@gmail.com)
-# 
-# Watch a folder for files with the given extensions and call the HamlPy 
+#
+# Watch a folder for files with the given extensions and call the HamlPy
 # compiler if the modified time has changed since the last check.
 
 import sys
@@ -31,8 +31,8 @@ def watch_folder():
         print "Watching %s at refresh interval %s seconds" % (folder,CHECK_INTERVAL)
         _watch_folder(folder)
     else:
-        print "Usage: haml-watcher.py <watch_folder>" 
-        
+        print "Usage: haml-watcher.py <watch_folder>"
+
 def _watch_folder(folder):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
     if necessary."""
@@ -41,7 +41,7 @@ def _watch_folder(folder):
         mtime = os.stat(fullpath).st_mtime
         if watched_extension(filename):
             if ((not compiled.has_key(filename)) or (compiled[filename] < mtime)):
-                compile_file(fullpath)               
+                compile_file(fullpath)
                 compiled[filename] = mtime
     while True:
         try:
@@ -51,7 +51,7 @@ def _watch_folder(folder):
             # allow graceful exit (no stacktrace output)
             sys.exit(0)
             pass
-            
+
 def compile_file(fullpath):
     """Calls HamlPy compiler."""
     outfile_name = fullpath[:fullpath.rfind('.')] + '.html'
