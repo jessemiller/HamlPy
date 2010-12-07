@@ -29,7 +29,14 @@ def watch_folder():
     if len(sys.argv) == 2:
         folder = os.path.realpath(sys.argv[1])
         print "Watching %s at refresh interval %s seconds" % (folder,CHECK_INTERVAL)
-        _watch_folder(folder)
+        while True:
+            try:
+                _watch_folder(folder)
+                time.sleep(CHECK_INTERVAL)
+            except KeyboardInterrupt:
+                # allow graceful exit (no stacktrace output)
+                sys.exit(0)
+                pass
     else:
         print "Usage: haml-watcher.py <watch_folder>"
 
@@ -43,14 +50,6 @@ def _watch_folder(folder):
             if ((not compiled.has_key(filename)) or (compiled[filename] < mtime)):
                 compile_file(fullpath)
                 compiled[filename] = mtime
-    while True:
-        try:
-            time.sleep(CHECK_INTERVAL)
-            _watch_folder(folder)
-        except KeyboardInterrupt:
-            # allow graceful exit (no stacktrace output)
-            sys.exit(0)
-            pass
 
 def compile_file(fullpath):
     """Calls HamlPy compiler."""
