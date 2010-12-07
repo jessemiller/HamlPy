@@ -7,6 +7,7 @@
 import sys
 import codecs
 import os
+import os.path
 import time
 from hamlpy import Compiler
 
@@ -47,13 +48,18 @@ def _watch_folder(folder):
         fullpath = os.path.join(folder, filename)
         mtime = os.stat(fullpath).st_mtime
         if watched_extension(filename):
-            if ((not compiled.has_key(filename)) or (compiled[filename] < mtime)):
-                compile_file(fullpath)
+            compiled_path = _compiled_path(fullpath)
+            if (not filename in compiled or
+                compiled[filename] < mtime or
+                not os.path.isfile(compiled_path)):
+                compile_file(fullpath, compiled_path)
                 compiled[filename] = mtime
 
-def compile_file(fullpath):
+def _compiled_path(fullpath):
+    return fullpath[:fullpath.rfind('.')] + '.html'
+
+def compile_file(fullpath, outfile_name):
     """Calls HamlPy compiler."""
-    outfile_name = fullpath[:fullpath.rfind('.')] + '.html'
     if DEBUG:
         print "Compiling %s -> %s" % (fullpath, outfile_name)
     haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
