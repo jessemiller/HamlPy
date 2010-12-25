@@ -30,7 +30,7 @@ turns into..
 	</div>
 	
 
-The main difference is instead of interpretting Ruby, or even Python we instead can create Django Tags and Variables
+The main difference is instead of interpreting Ruby, or even Python we instead can create Django Tags and Variables
 
 	%ul#atheletes
 		- for athelete in athelete_list
