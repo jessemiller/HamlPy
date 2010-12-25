@@ -1,0 +1,16 @@
+<ul>
+  {% for story in story_list %}
+    <li>{{ story.text }}</li>
+    {% if story.author_list %}
+      {% for author in story.author_list %}
+        <div class='author'>{{ author }}</div>
+      {% endfor %}
+    {% else %}
+      <div class='author'>Anonymous</div>
+
+    {% endif %}
+  {% empty %}
+    <div class='error'>No stories found</div>
+
+  {% endfor %}
+</ul>

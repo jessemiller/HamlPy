@@ -1,8 +1,9 @@
 import codecs
+import unittest
 from nose.tools import eq_
 from hamlpy import hamlpy
 
-class TestTemplateCompare():
+class TestTemplateCompare(unittest.TestCase):
     
     def test_comparing_simple_templates(self):
         self._compare_test_files('simple')
@@ -28,6 +29,9 @@ class TestTemplateCompare():
     def test_self_closing_django(self):
         self._compare_test_files('selfClosingDjango')
         
+    def test_nested_django_tags(self):
+        self._compare_test_files('nestedDjangoTags')
+        
     def _compare_test_files(self, name):
         haml_lines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
         html = open('templates/'+name+'.html').read()
@@ -36,3 +40,5 @@ class TestTemplateCompare():
         parsed = haml_compiler.process_lines(haml_lines)
         eq_(parsed, html)
         
+if __name__ == '__main__':
+    unittest.main()

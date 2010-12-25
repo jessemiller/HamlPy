@@ -160,7 +160,13 @@ class VariableNode(ElementNode):
         return "%s%s" % (self.spaces, self._render_tag_content(tag_content))
 
 class TagNode(HamlNode):
-    self_closing = {'for':'endfor', 'if':'endif', 'block':'endblock'}
+    self_closing = {'for':'endfor',
+                    'if':'endif',
+                    'block':'endblock',
+                    'filter':'endfilter',
+                    'autoescape':'endautoescape',
+                    }
+    may_contain = {'if':'else', 'for':'empty'}
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
@@ -178,5 +184,5 @@ class TagNode(HamlNode):
         return output
     
     def should_contain(self, node):
-        return (isinstance(node,TagNode) and node.tag_name == 'else')
+        return self.may_contain.get(self.tag_name,'') == node.tag_name
         

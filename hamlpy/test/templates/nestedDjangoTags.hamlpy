@@ -1,0 +1,10 @@
+%ul
+  - for story in story_list
+    %li= story.text
+    - if story.author_list
+      - for author in story.author_list
+        .author= author
+    - else
+      .author Anonymous
+  - empty
+    .error No stories found

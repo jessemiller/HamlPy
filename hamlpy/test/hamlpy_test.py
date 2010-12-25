@@ -98,3 +98,5 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
         
         
+if __name__ == '__main__':
+    unittest.main()
