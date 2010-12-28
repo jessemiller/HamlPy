@@ -12,6 +12,10 @@ HAML_COMMENT = '-#'
 VARIABLE = '='
 TAG = '-'
 
+JAVASCRIPT_FILTER = ':javascript'
+CSS_FILTER = ':css'
+PLAIN_FILTER = ':plain'
+
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
 def create_node(haml_line):
@@ -34,6 +38,15 @@ def create_node(haml_line):
     
     if stripped_line[0] == TAG:
         return TagNode(haml_line)
+    
+    if stripped_line == JAVASCRIPT_FILTER:
+        return JavascriptFilterNode(haml_line)
+    
+    if stripped_line == CSS_FILTER:
+        return CssFilterNode(haml_line)
+    
+    if stripped_line == PLAIN_FILTER:
+        return PlainFilterNode(haml_line)
     
     return HamlNode(haml_line)
 
@@ -69,6 +82,7 @@ class RootNode:
     
     def should_contain(self, node):
         return False
+      
         
 class HamlNode(RootNode):
     
@@ -82,6 +96,7 @@ class HamlNode(RootNode):
     
     def render(self):
         return "%s%s" % (self.spaces, self.haml)
+
 
 class ElementNode(HamlNode):
     
@@ -128,6 +143,7 @@ class ElementNode(HamlNode):
             current_tag_content = "{{ " + current_tag_content.strip() + " }}"
         return current_tag_content
 
+
 class CommentNode(HamlNode):
     
     def __init__(self, haml):
@@ -143,12 +159,14 @@ class CommentNode(HamlNode):
         
         return "<!-- %s-->" % content
 
+
 class HamlCommentNode(HamlNode):
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
     
     def render(self):
         return ''
+
 
 class VariableNode(ElementNode):
     def __init__(self, haml):
@@ -158,6 +176,7 @@ class VariableNode(ElementNode):
     def render(self):
         tag_content = self.haml.lstrip(VARIABLE)
         return "%s%s" % (self.spaces, self._render_tag_content(tag_content))
+
 
 class TagNode(HamlNode):
     self_closing = {'for':'endfor',
@@ -184,5 +203,34 @@ class TagNode(HamlNode):
         return output
     
     def should_contain(self, node):
-        return self.may_contain.get(self.tag_name,'') == node.tag_name
+        return isinstance(node,TagNode) and self.may_contain.get(self.tag_name,'') == node.tag_name
+
+
+class FilterNode(HamlNode):
+  def add_node(self, node):
+      if (node == None):
+          return
+      else:
+          self.internal_nodes.append(node)
+
+
+class PlainFilterNode(FilterNode):
+    def render(self):
+        return "".join([node.raw_haml + '\n' for node in self.internal_nodes])
+
+
+class JavascriptFilterNode(FilterNode):
+    def render(self):
+        output = '<script type="text/javascript"><![CDATA[\n'
+        output += "\n".join([node.raw_haml for node in self.internal_nodes])
+        output += '\n]]><script/>'
+        return output
+        
+        
+class CssFilterNode(FilterNode):
+    def render(self):
+        output = '<style type="text/css"><![CDATA[\n'
+        output += "\n".join([node.raw_haml for node in self.internal_nodes])
+        output += '\n]]><script/>'
+        return output
         

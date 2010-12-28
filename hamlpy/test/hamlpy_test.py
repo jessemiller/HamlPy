@@ -42,13 +42,6 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))  
           
-    def test_dictionaries_variable_substitution(self):
-        haml = "%div{'id':('itemType', =item.id)}"
-        html = "<div id='itemType_{{item.id}}'></div>"
-        hamlParser = hamlpy.Compiler()
-        result = hamlParser.process(haml)
-        self.assertEqual(html, result.replace('\n', ''))
-        
     def test_html_comments_rendered_properly(self):
         haml = '/ some comment'
         html = "<!-- some comment -->"

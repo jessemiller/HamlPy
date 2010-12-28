@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from nodes import RootNode, create_node
 
 class Compiler:

@@ -63,7 +63,7 @@ class Element(object):
     def _parse_attribute_dictionary(self, attribute_dict_string):        
         attributes_dict = {}
         if (attribute_dict_string):
-            attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
+            #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
             attributes_dict = eval(attribute_dict_string)
             for k, v in attributes_dict.items():
                 if k != 'id' and k != 'class':
