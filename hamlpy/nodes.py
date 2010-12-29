@@ -95,7 +95,7 @@ class HamlNode(RootNode):
         
     
     def render(self):
-        return "%s%s" % (self.spaces, self.haml)
+        return "".join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
 
 
 class ElementNode(HamlNode):
