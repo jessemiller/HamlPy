@@ -221,16 +221,16 @@ class PlainFilterNode(FilterNode):
 
 class JavascriptFilterNode(FilterNode):
     def render(self):
-        output = '<script type="text/javascript"><![CDATA[\n'
-        output += "\n".join([node.raw_haml for node in self.internal_nodes])
-        output += '\n]]><script/>'
+        output = '<script type=\'text/javascript\'>\n// <![CDATA[\n'
+        output += "".join([node.raw_haml for node in self.internal_nodes])
+        output += '// ]]>\n</script>'
         return output
         
         
 class CssFilterNode(FilterNode):
     def render(self):
-        output = '<style type="text/css"><![CDATA[\n'
-        output += "\n".join([node.raw_haml for node in self.internal_nodes])
-        output += '\n]]><script/>'
+        output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
+        output += "".join([node.raw_haml for node in self.internal_nodes])
+        output += '/*]]>*/\n</style>'
         return output
         

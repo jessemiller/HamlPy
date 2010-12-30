@@ -32,6 +32,9 @@ class TestTemplateCompare(unittest.TestCase):
     def test_nested_django_tags(self):
         self._compare_test_files('nestedDjangoTags')
         
+    def test_filters(self):
+        self._compare_test_files('filters')
+        
     def _compare_test_files(self, name):
         haml_lines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
         html = open('templates/'+name+'.html').read()

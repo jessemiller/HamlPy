@@ -1,6 +1,10 @@
-  :javascript
-    $(document).ready(function(){
-      $("#form{{form.initial.id}}").submit(form_submit);
-      // Javascript comment
-    });
+:javascript
+  $(document).ready(function(){
+    $("#form{{form.initial.id}}").submit(form_submit);
+    // Javascript comment
+  });
+:css
+  .someClass {
+    width: 100px;
+  }
     
