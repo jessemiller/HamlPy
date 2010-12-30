@@ -269,4 +269,14 @@ is compiled to:
 	{% endblock %}
 	
 	
-Notice that block, for, if and else are all automatically closed.  Using endfor, endif or endblock will throw an exception.		
+Notice that block, for, if and else are all automatically closed.  Using endfor, endif or endblock will throw an exception.
+
+## Filters
+
+### :javascript
+
+Surrounds the filtered text with <script> and CDATA tags. Useful for including inline Javascript.
+
+### :css
+
+Surrounds the filtered text with <style> and CDATA tags. Useful for including inline CSS.
