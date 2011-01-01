@@ -141,6 +141,7 @@ class ElementNode(HamlNode):
             current_tag_content = ''
         if self.django_variable:
             current_tag_content = "{{ " + current_tag_content.strip() + " }}"
+        current_tag_content = re.sub(r'#\{([a-zA-Z0-9\.\_]+)\}', r'{{ \1 }}', current_tag_content)
         return current_tag_content
 
 
