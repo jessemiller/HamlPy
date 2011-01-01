@@ -99,10 +99,10 @@ class HamlPyTest(unittest.TestCase):
         
     def test_inline_variables_are_parsed_correctly(self):
         haml = "%h1 Hello, #{name}, how are you?"
-        html = "<h1>Hello, {{ name }}, how are you?</h1>"
+        html = "<h1>Hello, {{ name }}, how are you?</h1>\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
-        self.assertEqual(html, result)
+        eq_(html, result)
         
 if __name__ == '__main__':
     unittest.main()
