@@ -72,10 +72,7 @@ class RootNode:
         return self.render_internal_nodes()
     
     def render_internal_nodes(self):
-        result = ''
-        for node in self.internal_nodes:
-            result += ('%s\n') % node.render()
-        return result
+        return ''.join([node.render() for node in self.internal_nodes])
     
     def has_internal_nodes(self):
         return len(self.internal_nodes) > 0
@@ -95,7 +92,10 @@ class HamlNode(RootNode):
         
     
     def render(self):
-        return "".join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
+        if self.has_internal_nodes():
+          return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
+        else:
+          return ''.join([self.spaces, self.haml,'\n'])
 
 
 class ElementNode(HamlNode):
@@ -128,9 +128,9 @@ class ElementNode(HamlNode):
         content = self._render_tag_content(element.inline_content)
         
         if element.self_close and not content:
-            result += " />"
+            result += " />\n"
         else:
-            result += ">%s</%s>" % (content, element.tag)
+            result += ">%s</%s>\n" % (content, element.tag)
         
         return result
     
@@ -158,7 +158,7 @@ class CommentNode(HamlNode):
         else:
             content = self.haml + ' '
         
-        return "<!-- %s-->" % content
+        return "<!-- %s-->\n" % content
 
 
 class HamlCommentNode(HamlNode):
@@ -176,7 +176,7 @@ class VariableNode(ElementNode):
     
     def render(self):
         tag_content = self.haml.lstrip(VARIABLE)
-        return "%s%s" % (self.spaces, self._render_tag_content(tag_content))
+        return "%s%s\n" % (self.spaces, self._render_tag_content(tag_content))
 
 
 class TagNode(HamlNode):
@@ -201,7 +201,7 @@ class TagNode(HamlNode):
         internal = self.render_internal_nodes()
         output = "%s{%% %s %%}\n%s" % (self.spaces, self.tag_statement, internal)
         if (self.tag_name in self.self_closing.keys()):
-            output += '%s{%% %s %%}' % (self.spaces, self.self_closing[self.tag_name])
+            output += '%s{%% %s %%}\n' % (self.spaces, self.self_closing[self.tag_name])
         return output
     
     def should_contain(self, node):
@@ -225,7 +225,7 @@ class JavascriptFilterNode(FilterNode):
     def render(self):
         output = '<script type=\'text/javascript\'>\n// <![CDATA[\n'
         output += "".join([node.raw_haml for node in self.internal_nodes])
-        output += '// ]]>\n</script>'
+        output += '// ]]>\n</script>\n'
         return output
         
         
@@ -233,6 +233,6 @@ class CssFilterNode(FilterNode):
     def render(self):
         output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
         output += "".join([node.raw_haml for node in self.internal_nodes])
-        output += '/*]]>*/\n</style>'
+        output += '/*]]>*/\n</style>\n'
         return output
         

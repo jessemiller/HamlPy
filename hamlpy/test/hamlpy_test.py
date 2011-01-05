@@ -72,7 +72,7 @@ class HamlPyTest(unittest.TestCase):
         
     def test_if_else_django_tags_render(self):
         haml = '- if something\n   %p hello\n- else\n   %p goodbye'
-        html = '{% if something %}\n   <p>hello</p>\n{% else %}\n   <p>goodbye</p>\n\n{% endif %}\n'
+        html = '{% if something %}\n   <p>hello</p>\n{% else %}\n   <p>goodbye</p>\n{% endif %}\n'
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
@@ -107,6 +107,20 @@ class HamlPyTest(unittest.TestCase):
     def test_inline_variables_with_special_characters_are_parsed_correctly(self):
         haml = "%h1 Hello, #{person.name}, how are you?"
         html = "<h1>Hello, {{ person.name }}, how are you?</h1>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+        
+    def test_plain_text(self):
+        haml = "This should be plain text\n    This should be indented"
+        html = "This should be plain text\n    This should be indented\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)   
+             
+    def test_plain_text_with_indenting(self):
+        haml = "This should be plain text"
+        html = "This should be plain text\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
