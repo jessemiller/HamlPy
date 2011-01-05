@@ -103,6 +103,13 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
+
+    def test_inline_variables_with_special_characters_are_parsed_correctly(self):
+        haml = "%h1 Hello, #{person.name}, how are you?"
+        html = "<h1>Hello, {{ person.name }}, how are you?</h1>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
         
 if __name__ == '__main__':
     unittest.main()
