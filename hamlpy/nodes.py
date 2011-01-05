@@ -185,8 +185,9 @@ class TagNode(HamlNode):
                     'block':'endblock',
                     'filter':'endfilter',
                     'autoescape':'endautoescape',
+                    'with':'endwith',
                     }
-    may_contain = {'if':'else', 'for':'empty'}
+    may_contain = {'if':'else', 'for':'empty', 'with':'with'}
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
