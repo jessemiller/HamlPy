@@ -48,3 +48,7 @@ class TestNodeFactory():
     def test_dash_symbol_creates_tag_node(self):
         node = nodes.create_node('- for something in somethings')
         assert isinstance(node, nodes.TagNode)
+        
+    def test_dash_symbol_creates_tag_node_web2py(self):
+        node = nodes.create_node('- for something in somethings:', 'web2py')
+        assert isinstance(node, nodes.TagNode)

@@ -27,7 +27,8 @@ def watched_extension(extension):
 
 def watch_folder():
     """Main entry point. Expects exactly one argument (the watch folder)."""
-    if len(sys.argv) == 2:
+    """Added additional argument for template_type after adding web2py template compatibility -Dane"""
+    if len(sys.argv) >= 2:
         folder = os.path.realpath(sys.argv[1])
         print "Watching %s at refresh interval %s seconds" % (folder,CHECK_INTERVAL)
         while True:
@@ -39,7 +40,7 @@ def watch_folder():
                 sys.exit(0)
                 pass
     else:
-        print "Usage: haml-watcher.py <watch_folder>"
+        print "Usage: haml-watcher.py <watch_folder> <template_type [optional, supports django(default), web2py]>"
 
 def _watch_folder(folder):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
@@ -66,7 +67,10 @@ def compile_file(fullpath, outfile_name):
     if DEBUG:
         print "Compiling %s -> %s" % (fullpath, outfile_name)
     haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
-    compiler = Compiler()
+    
+    template_type = sys.argv[2] if len(sys.argv) == 3 else 'django'
+    
+    compiler = Compiler(template_type)
     output = compiler.process_lines(haml_lines)
     outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
     outfile.write(output)

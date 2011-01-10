@@ -72,13 +72,13 @@ class TestElement(object):
             sut = Element("%div/")
             assert sut.self_close
             
-        def test_properly_detects_django_tag(self):
+        def test_properly_detects_template_tag(self):
             sut = Element("%div= $someVariable")
-            assert sut.django_variable
+            assert sut.template_variable
             
-        def test_knows_when_its_not_django_tag(self):
+        def test_knows_when_its_not_template_tag(self):
             sut = Element("%div Some Text")
-            assert sut.django_variable == False
+            assert sut.template_variable == False
             
         def test_grabs_inline_tag_content(self):
             sut = Element("%div Some Text")

@@ -1,0 +1,16 @@
+<ul>
+  {{ for story in story_list: }}
+    <li>{{ =story.text }}</li>
+    {{ if story.author_list: }}
+      {{ for author in story.author_list: }}
+        <div class='author'>{{ =author }}</div>
+      {{ pass }}
+    {{ else: }}
+      <div class='author'>Anonymous</div>
+
+    {{ pass }}
+  {{ pass }}
+  {{ if not len(story_list): }}
+    <div class='error'>No stories found</div>
+  {{ pass }}
+</ul>
