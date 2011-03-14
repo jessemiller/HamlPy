@@ -66,7 +66,7 @@ class RootNode:
             self.internal_nodes.append(node)
     
     def _should_go_inside_last_node(self, node):
-        return self.internal_nodes and (node.indentation > self.internal_nodes[-1].indentation or self.internal_nodes[-1].should_contain(node))
+        return self.internal_nodes and (node.indentation > self.internal_nodes[-1].indentation or (node.indentation == self.internal_nodes[-1].indentation and self.internal_nodes[-1].should_contain(node)))
     
     def render(self):
         return self.render_internal_nodes()
@@ -147,23 +147,17 @@ class ElementNode(HamlNode):
 
 class CommentNode(HamlNode):
     
-    def __init__(self, haml):
-        HamlNode.__init__(self, haml)
-        self.haml = haml.strip().lstrip(HTML_COMMENT).strip()
-    
     def render(self):
         content = ''
         if self.has_internal_nodes():
             content = '\n' + self.render_internal_nodes()
         else:
-            content = self.haml + ' '
+            content = self.haml.lstrip(HTML_COMMENT).strip() + ' '
         
         return "<!-- %s-->\n" % content
 
 
 class HamlCommentNode(HamlNode):
-    def __init__(self, haml):
-        HamlNode.__init__(self, haml)
     
     def render(self):
         return ''
@@ -224,7 +218,7 @@ class PlainFilterNode(FilterNode):
 class JavascriptFilterNode(FilterNode):
     def render(self):
         output = '<script type=\'text/javascript\'>\n// <![CDATA[\n'
-        output += "".join([node.raw_haml for node in self.internal_nodes])
+        output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
         output += '// ]]>\n</script>\n'
         return output
         
@@ -232,7 +226,7 @@ class JavascriptFilterNode(FilterNode):
 class CssFilterNode(FilterNode):
     def render(self):
         output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
-        output += "".join([node.raw_haml for node in self.internal_nodes])
+        output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
         output += '/*]]>*/\n</style>\n'
         return output
         

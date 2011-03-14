@@ -34,6 +34,9 @@ class TestTemplateCompare(unittest.TestCase):
         
     def test_filters(self):
         self._compare_test_files('filters')
+    
+    def test_nested_if_else_blocks(self):
+        self._compare_test_files('nestedIfElseBlocks')
         
     def _compare_test_files(self, name):
         haml_lines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
