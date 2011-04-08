@@ -28,7 +28,7 @@ def create_node(haml_line):
 
     if stripped_line[0] == HAML_ESCAPE:
         escape_sign_index = haml_line.find(HAML_ESCAPE)
-	return HamlNode(haml_line[:escape_sign_index] + haml_line[escape_sign_index + 1:])
+	return haml_line[:escape_sign_index] + haml_line[escape_sign_index + 1:]
 
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
