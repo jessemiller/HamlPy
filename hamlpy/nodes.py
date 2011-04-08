@@ -18,12 +18,18 @@ PLAIN_FILTER = ':plain'
 
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
+HAML_ESCAPE = '\\'
+
 def create_node(haml_line):
     stripped_line = haml_line.strip()
     
     if not stripped_line:
         return None
-    
+
+    if stripped_line[0] == HAML_ESCAPE:
+        escape_sign_index = haml_line.find(HAML_ESCAPE)
+	return haml_line[:escape_sign_index] + haml_line[escape_sign_index + 1:]
+
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
     
