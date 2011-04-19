@@ -48,3 +48,10 @@ class TestNodeFactory():
     def test_dash_symbol_creates_tag_node(self):
         node = nodes.create_node('- for something in somethings')
         assert isinstance(node, nodes.TagNode)
+    
+    def test_backslash_symbol_creates_tag_node(self):
+        node = nodes.create_node('\\= some.variable')
+        assert isinstance(node, nodes.HamlNode)
+        
+        node = nodes.create_node('    \\= some.variable')
+        assert isinstance(node, nodes.HamlNode)

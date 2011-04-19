@@ -125,5 +125,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
         
+    def test_escaped_haml(self):
+        haml = "\\= Escaped"
+        html = "= Escaped\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+        
+
 if __name__ == '__main__':
     unittest.main()

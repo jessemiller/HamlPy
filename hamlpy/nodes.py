@@ -25,11 +25,10 @@ def create_node(haml_line):
     
     if not stripped_line:
         return None
-
+        
     if stripped_line[0] == HAML_ESCAPE:
-        escape_sign_index = haml_line.find(HAML_ESCAPE)
-	return HamlNode(haml_line[:escape_sign_index] + haml_line[escape_sign_index + 1:])
-
+        return HamlNode(haml_line.replace(HAML_ESCAPE, '', 1))
+        
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
     
@@ -98,10 +97,7 @@ class HamlNode(RootNode):
         
     
     def render(self):
-        if self.has_internal_nodes():
-          return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
-        else:
-          return ''.join([self.spaces, self.haml,'\n'])
+        return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
 
 
 class ElementNode(HamlNode):
