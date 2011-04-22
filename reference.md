@@ -118,7 +118,7 @@ is compiled to:
 
 These shortcuts can be combined with the attribute dictionary and they will be combined as if they were all put inside a tuple.  For example:
 
-	%div#Article.article.entry{'id':'1', class='visible'} Booyaka
+	%div#Article.article.entry{'id':'1', 'class':'visible'} Booyaka
 	
 is equivalent to:
 	
@@ -237,7 +237,7 @@ is compiled to:
 A Django variable can also be used as content for any HTML element by placing an equals sign as the last character before the space and content.  For example:
 
 	%h2
-		%a{'href'='stories/1'}= story.teaser
+		%a{'href':'stories/1'}= story.teaser
 		
 is compiled to:
 
