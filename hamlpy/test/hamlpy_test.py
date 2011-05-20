@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 from nose.tools import eq_, raises
 from hamlpy import hamlpy
@@ -128,6 +129,13 @@ class HamlPyTest(unittest.TestCase):
     def test_escaped_haml(self):
         haml = "\\= Escaped"
         html = "= Escaped\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+        
+    def test_utf8_with_regular_text(self):
+        haml = u"%a{'href':'', 'title':'링크(Korean)'} Some Link"
+        html = u"<a href='' title='\ub9c1\ud06c(Korean)'>Some Link</a>\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
