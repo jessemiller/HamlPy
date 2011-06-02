@@ -1,4 +1,6 @@
 import re
+import sys
+from StringIO import StringIO
 
 from elements import Element
 
@@ -15,6 +17,7 @@ TAG = '-'
 JAVASCRIPT_FILTER = ':javascript'
 CSS_FILTER = ':css'
 PLAIN_FILTER = ':plain'
+PYTHON_FILTER = ':python'
 
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
@@ -52,6 +55,9 @@ def create_node(haml_line):
     
     if stripped_line == PLAIN_FILTER:
         return PlainFilterNode(haml_line)
+        
+    if stripped_line == PYTHON_FILTER:
+        return PythonFilterNode(haml_line)
     
     return HamlNode(haml_line)
 
@@ -215,6 +221,18 @@ class FilterNode(HamlNode):
 class PlainFilterNode(FilterNode):
     def render(self):
         return "".join([node.raw_haml + '\n' for node in self.internal_nodes])
+
+
+class PythonFilterNode(FilterNode):
+    def render(self):
+        code = compile("".join([node.raw_haml.strip() + '\n' for node in self.internal_nodes]), "", "exec")
+        
+        buffer = StringIO()
+        sys.stdout = buffer
+        exec code
+        # restore the original stdout
+        sys.stdout = sys.__stdout__
+        return buffer.getvalue()
 
 
 class JavascriptFilterNode(FilterNode):
