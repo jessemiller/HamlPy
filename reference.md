@@ -275,11 +275,11 @@ Notice that block, for, if and else, as well as 'with' are all automatically clo
 
 ### :javascript
 
-Surrounds the filtered text with <script> and CDATA tags. Useful for including inline Javascript.
+Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline Javascript.
 
 ### :css
 
-Surrounds the filtered text with <style> and CDATA tags. Useful for including inline CSS.
+Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline CSS.
 
 ### :python
 
