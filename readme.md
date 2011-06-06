@@ -54,3 +54,9 @@ HamlPy currently:
 
 - has no configuration file.  which it should for a few reasons, like turning off what is autoescaped for example
 - does not support some of the filters yet
+
+## Contributing
+
+Very happy to have contributions to this project. Please write tests for any new features and always ensure the current tests pass. You can run the tests from the hamlpy/test using nosetests by typing
+
+    nosetests *.py
