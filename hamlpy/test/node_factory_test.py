@@ -55,3 +55,7 @@ class TestNodeFactory():
         
         node = nodes.create_node('    \\= some.variable')
         assert isinstance(node, nodes.HamlNode)
+    
+    def test_python_creates_python_node(self):
+        node = nodes.create_node(':python')
+        assert isinstance(node, nodes.PythonFilterNode)
