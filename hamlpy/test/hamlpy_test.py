@@ -146,6 +146,20 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
+        
+    def test_doctype_html5(self):
+        haml = '!!! 5'
+        html = '<!DOCTYPE html>'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result.replace('\n', ''))
+        
+    def test_doctype_xhtml(self):
+        haml = '!!!'
+        html = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result.replace('\n', ''))
 
 if __name__ == '__main__':
     unittest.main()
