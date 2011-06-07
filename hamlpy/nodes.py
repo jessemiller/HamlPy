@@ -7,6 +7,7 @@ from elements import Element
 ELEMENT = '%'
 ID = '#'
 CLASS = '.'
+DOCTYPE = '!!!'
 
 HTML_COMMENT = '/'
 HAML_COMMENT = '-#'
@@ -31,6 +32,9 @@ def create_node(haml_line):
         
     if stripped_line[0] == HAML_ESCAPE:
         return HamlNode(haml_line.replace(HAML_ESCAPE, '', 1))
+        
+    if stripped_line.startswith(DOCTYPE):
+        return DoctypeNode(haml_line)
         
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
@@ -100,7 +104,6 @@ class HamlNode(RootNode):
         self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
         self.spaces = ''.join(' ' for i in range(self.indentation))
-        
     
     def render(self):
         return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
@@ -163,7 +166,24 @@ class CommentNode(HamlNode):
             content = self.haml.lstrip(HTML_COMMENT).strip() + ' '
         
         return "<!-- %s-->\n" % content
-
+        
+class DoctypeNode(HamlNode):
+    
+    def render(self):
+        doctype = self.haml.lstrip(DOCTYPE).strip()
+        
+        if doctype == "":
+            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
+        if doctype == "Strict":
+            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+        if doctype == "Frameset":
+            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+        if doctype == "5":
+            content = '<!DOCTYPE html>'
+        if doctype == "1.1":
+            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+        
+        return "%s\n" % content
 
 class HamlCommentNode(HamlNode):
     
