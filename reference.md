@@ -37,7 +37,17 @@ is compiled to:
 			Wow this is cool!
 		</whiz>
 	</gee>
-	
+
+## Doctype
+
+You can specify a specific doctype after the !!! The following doctypes are supported:
+
+* `!!!`: XHTML 1.0 Transitional
+* `!!! Strict`: XHTML 1.0 Strict
+* `!!! Frameset`: XHTML 1.0 Frameset
+* `!!! 5`: XHTML 5
+* `!!! 1.1`: XHTML 1.1
+
 ## HTML Elements
 
 ### Element Name: %
@@ -272,6 +282,10 @@ is compiled to:
 Notice that block, for, if and else, as well as 'with' are all automatically closed.  Using endfor, endif or endblock will throw an exception.
 
 ## Filters
+
+### :plain
+
+Render the text as is. Useful for including raw HTML.
 
 ### :javascript
 

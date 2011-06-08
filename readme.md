@@ -46,7 +46,7 @@ turns into..
 	
 ## Reference
 
-Check out the [reference.md](http://github.com/jessemiller/HamlPy/blob/master/reference.md "HamlPy Reference") for a complete reference and more examples.
+Check out the `reference.md` file for a complete reference and more examples.
 
 ## Status
 
