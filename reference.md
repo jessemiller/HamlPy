@@ -285,7 +285,7 @@ Notice that block, for, if and else, as well as 'with' are all automatically clo
 
 ### :plain
 
-Render the text as is. Useful for including raw HTML.
+Does not parse the filtered text. This is useful for large blocks of text without HTML tags, when you don’t want lines starting with . or - to be parsed.
 
 ### :javascript
 
@@ -297,7 +297,7 @@ Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for inclu
 
 ### :python
 
-Execute the expression and outputs the result in the file. For example:
+Execute the filtered text as python and outputs the result in the file. For example:
 
 	for i in range(0, 5): print "<p>item %s</p>" % i
 	
