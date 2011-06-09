@@ -240,7 +240,9 @@ class FilterNode(HamlNode):
 
 class PlainFilterNode(FilterNode):
     def render(self):
-        return "".join([node.raw_haml + '\n' for node in self.internal_nodes])
+        if self.internal_nodes:
+            first_indentation = self.internal_nodes[0].indentation
+        return "".join([node.raw_haml[first_indentation:] + '\n' for node in self.internal_nodes])
 
 
 class PythonFilterNode(FilterNode):

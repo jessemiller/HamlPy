@@ -160,6 +160,21 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result.replace('\n', ''))
+        
+    def test_plain_filter_with_indentation(self):
+        haml = ":plain\n    -This should be plain text\n    .This should be more\n      This should be indented"
+        html = "-This should be plain text\n.This should be more\n  This should be indented\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)   
+
+    def test_plain_filter_with_no_children(self):
+        haml = ":plain\nNothing"
+        html = "Nothing\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)   
+
 
 if __name__ == '__main__':
     unittest.main()
