@@ -10,7 +10,7 @@ CLASS = '.'
 DOCTYPE = '!!!'
 
 HTML_COMMENT = '/'
-CONDITIONAL_COMMENT = '/[if'
+CONDITIONAL_COMMENT = '/['
 HAML_COMMENT = '-#'
 
 VARIABLE = '='
@@ -40,7 +40,7 @@ def create_node(haml_line):
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
     
-    if stripped_line[0:4] == CONDITIONAL_COMMENT:
+    if stripped_line[0:len(CONDITIONAL_COMMENT)] == CONDITIONAL_COMMENT:
         return ConditionalCommentNode(haml_line)
         
     if stripped_line[0] == HTML_COMMENT:
