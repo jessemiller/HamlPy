@@ -1,0 +1,27 @@
+{% if something %}
+  Cool
+{% endif %}
+{% ifchanged something %}
+  Changed
+{% endifchanged %}
+{% ifequal something "booya" %}
+  Equal
+{% endifequal %}
+{% ifnotequal something "blamo" %}
+  No Equal
+{% endifnotequal %}
+{% ifchanged something %}
+  Changed
+{% else %}
+  No Changed
+{% endifchanged %}
+{% ifequal something "booya" %}
+  Equal
+{% else %}
+  No Equal
+{% endifequal %}
+{% ifnotequal something "blamo" %}
+  No Equal
+{% else %}
+  Equal
+{% endifnotequal %}

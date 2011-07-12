@@ -204,12 +204,20 @@ class VariableNode(ElementNode):
 class TagNode(HamlNode):
     self_closing = {'for':'endfor',
                     'if':'endif',
+                    'ifchanged':'endifchanged',
+                    'ifequal':'endifequal',
+                    'ifnotequal':'endifnotequal',
                     'block':'endblock',
                     'filter':'endfilter',
                     'autoescape':'endautoescape',
                     'with':'endwith',
                     }
-    may_contain = {'if':'else', 'for':'empty', 'with':'with'}
+    may_contain = {'if':'else', 
+                   'ifchanged':'else',
+                   'ifequal':'else',
+                   'ifnotequal':'else',
+                   'for':'empty', 
+                   'with':'with'}
     
     def __init__(self, haml):
         HamlNode.__init__(self, haml)

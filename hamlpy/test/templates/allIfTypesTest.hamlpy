@@ -1,0 +1,20 @@
+- if something
+  Cool
+- ifchanged something
+  Changed
+- ifequal something "booya"
+  Equal
+- ifnotequal something "blamo"
+  No Equal
+- ifchanged something
+  Changed
+- else
+  No Changed
+- ifequal something "booya"
+  Equal
+- else
+  No Equal
+- ifnotequal something "blamo"
+  No Equal
+- else
+  Equal
