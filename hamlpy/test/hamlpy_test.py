@@ -52,14 +52,14 @@ class HamlPyTest(unittest.TestCase):
 
     def test_conditional_comments_rendered_properly(self):
         haml = "/[if IE]\n  %h1 You use a shitty browser"
-        html = "<!--[if IE]-->\n  <h1>You use a shitty browser</h1>\n<![endif]-->"
+        html = "<!--[if IE]>\n  <h1>You use a shitty browser</h1>\n<![endif]-->"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
     
     def test_single_line_conditional_comments_rendered_properly(self):
         haml = "/[if IE] You use a shitty browser"
-        html = "<!--[if IE]--> You use a shitty browser<![endif]-->"
+        html = "<!--[if IE]> You use a shitty browser<![endif]-->"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)        

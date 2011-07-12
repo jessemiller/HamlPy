@@ -179,7 +179,7 @@ class ConditionalCommentNode(HamlNode):
         content = content + self.haml[self.haml.index(']')+1:]
         if self.has_internal_nodes():
             content = '\n' + self.render_internal_nodes()
-        return "<!--%s-->%s<![endif]-->" % (conditional, content)
+        return "<!--%s>%s<![endif]-->" % (conditional, content)
         
 
 class DoctypeNode(HamlNode):
