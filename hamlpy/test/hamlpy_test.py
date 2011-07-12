@@ -49,7 +49,21 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result.replace('\n', ''))
-        
+
+    def test_conditional_comments_rendered_properly(self):
+        haml = "/[if IE]\n  %h1 You use a shitty browser"
+        html = "<!--[if IE]-->\n  <h1>You use a shitty browser</h1>\n<![endif]-->"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
+    def test_single_line_conditional_comments_rendered_properly(self):
+        haml = "/[if IE] You use a shitty browser"
+        html = "<!--[if IE]--> You use a shitty browser<![endif]-->"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)        
+
     def test_django_variables_on_tag_render_properly(self):
         haml = '%div= story.tease'
         html = '<div>{{ story.tease }}</div>'

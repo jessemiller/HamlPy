@@ -10,6 +10,7 @@ CLASS = '.'
 DOCTYPE = '!!!'
 
 HTML_COMMENT = '/'
+CONDITIONAL_COMMENT = '/[if'
 HAML_COMMENT = '-#'
 
 VARIABLE = '='
@@ -39,6 +40,9 @@ def create_node(haml_line):
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
     
+    if stripped_line[0:4] == CONDITIONAL_COMMENT:
+        return ConditionalCommentNode(haml_line)
+        
     if stripped_line[0] == HTML_COMMENT:
         return CommentNode(haml_line)
     
@@ -166,7 +170,18 @@ class CommentNode(HamlNode):
             content = self.haml.lstrip(HTML_COMMENT).strip() + ' '
         
         return "<!-- %s-->\n" % content
+
+class ConditionalCommentNode(HamlNode):
+    
+    def render(self):
+        conditional = self.haml[1: self.haml.index(']')+1 ]
+        content = ''
+        content = content + self.haml[self.haml.index(']')+1:]
+        if self.has_internal_nodes():
+            content = '\n' + self.render_internal_nodes()
+        return "<!--%s-->%s<![endif]-->" % (conditional, content)
         
+
 class DoctypeNode(HamlNode):
     
     def render(self):
@@ -279,4 +294,3 @@ class CssFilterNode(FilterNode):
         output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
         output += '/*]]>*/\n</style>\n'
         return output
-        

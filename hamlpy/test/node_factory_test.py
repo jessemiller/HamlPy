@@ -59,3 +59,8 @@ class TestNodeFactory():
     def test_python_creates_python_node(self):
         node = nodes.create_node(':python')
         assert isinstance(node, nodes.PythonFilterNode)
+    
+    def test_slash_with_if_creates_a_conditional_comment_node(self):
+        node = nodes.create_node('/[if IE 5]')
+        assert isinstance(node, nodes.ConditionalCommentNode)
+        
