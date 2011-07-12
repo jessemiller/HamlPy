@@ -211,6 +211,19 @@ is compiled to:
 		</div>
 	-->
 	
+### Conditional Comments /[]
+
+You can use [Internet Explorer conditional comments](http://www.quirksmode.org/css/condcom.html) by enclosing the condition in square brackets after the /. For example:
+
+    /[if IE]
+        %h1 Get a better browser
+    
+is compiled to:
+
+    <!--[if IE]>
+        <h1>Get a better browswer</h1>
+    <![endif]-->
+	
 ### HamlPy Comments: -#
 
 The hyphen followed immediately by the pound sign signifies a silent comment.  Any text following this isn't rendered during compilation at all.  For example:
