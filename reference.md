@@ -18,10 +18,6 @@ There is also a script which will watch for changed hamlpy extensions and regene
 
 	hamlpy-watcher <watch-folder>
 	
-## A note about output
-
-All of the following examples will show the HTML output nicely formatted.  Currently HamlPy actually outputs it with all white space stripped but the examples are formatted this way just for easy reading. 
-
 ## Plain Text
 
 Any line that is not interpreted as something else will be taken as plain text and outputted unmodified.  For example:
@@ -221,7 +217,7 @@ You can use [Internet Explorer conditional comments](http://www.quirksmode.org/c
 is compiled to:
 
     <!--[if IE]>
-        <h1>Get a better browswer</h1>
+        <h1>Get a better browser</h1>
     <![endif]-->
 	
 ### HamlPy Comments: -#
