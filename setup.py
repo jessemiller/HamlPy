@@ -2,12 +2,14 @@ from setuptools import setup
 
 setup(name='hamlpy',
       version = '0.2',
+      download_url = 'git@github.com:jessemiller/HamlPy.git',
       packages = ['hamlpy'],
       author = 'Jesse Miller',
       author_email = 'millerjesse@gmail.com',
       description = 'HAML like syntax for Django templates',
       keywords = 'haml django converter',
       url = 'http://github.com/jessemiller/HamlPy',
+      license = 'MIT',
       
       entry_points = {
           'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files',
