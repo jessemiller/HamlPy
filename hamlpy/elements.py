@@ -64,6 +64,8 @@ class Element(object):
         attributes_dict = {}
         if (attribute_dict_string):
             #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
+            # converting all allowed attributes to python dictionary style
+            attribute_dict_string = re.sub(r'(:|\")(?P<var>[a-zA-Z_][a-zA-Z0-9_.-]+)(\"|) =>', '"\g<var>":',attribute_dict_string)
             attributes_dict = eval(attribute_dict_string)
             for k, v in attributes_dict.items():
                 if k != 'id' and k != 'class':
