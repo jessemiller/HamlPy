@@ -145,8 +145,8 @@ Because divs are used so often, they are the default element.  If you only defin
 will compile to:
 
 	<div id='collection'>
-		<div id='item'>
-			<div id='description'>What a cool item!</div>
+		<div class='item'>
+			<div class='description'>What a cool item!</div>
 		</div>
 	</div>
 	
