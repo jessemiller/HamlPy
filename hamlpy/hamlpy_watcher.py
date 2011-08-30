@@ -11,7 +11,7 @@ import os.path
 import time
 from hamlpy import Compiler
 
-EXTENSIONS = ['.hamlpy']    # watched extensions
+EXTENSIONS = ['.haml']    # watched extensions
 CHECK_INTERVAL = 3          # in seconds
 DEBUG = False               # print file paths when a file is compiled
 
