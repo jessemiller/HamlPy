@@ -63,13 +63,18 @@ def _compiled_path(fullpath):
 
 def compile_file(fullpath, outfile_name):
     """Calls HamlPy compiler."""
-    if DEBUG:
-        print "Compiling %s -> %s" % (fullpath, outfile_name)
-    haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
-    compiler = Compiler()
-    output = compiler.process_lines(haml_lines)
-    outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
-    outfile.write(output)
+    try:
+        if DEBUG:
+            print "Compiling %s -> %s" % (fullpath, outfile_name)
+        haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
+        compiler = Compiler()
+        output = compiler.process_lines(haml_lines)
+        outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
+        outfile.write(output)
+    except Exception, e:
+        # import traceback
+        print "Failed to compile %s -> %s\nReason:\n%s" % (fullpath, outfile_name, e)
+        # print traceback.print_exc()
 
 if __name__ == '__main__':
     watch_folder()
