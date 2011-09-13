@@ -20,6 +20,7 @@ JAVASCRIPT_FILTER = ':javascript'
 CSS_FILTER = ':css'
 PLAIN_FILTER = ':plain'
 PYTHON_FILTER = ':python'
+CDATA_FILTER = ':cdata'
 
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
@@ -66,6 +67,9 @@ def create_node(haml_line):
         
     if stripped_line == PYTHON_FILTER:
         return PythonFilterNode(haml_line)
+    
+    if stripped_line == CDATA_FILTER:
+        return CDataFilterNode(haml_line)
     
     return HamlNode(haml_line)
 
@@ -293,4 +297,12 @@ class CssFilterNode(FilterNode):
         output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
         output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
         output += '/*]]>*/\n</style>\n'
+        return output
+
+
+class CDataFilterNode(FilterNode):
+    def render(self):
+        output = self.spaces + '<![CDATA[\n'
+        output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
+        output += self.spaces + ']]>\n'
         return output
