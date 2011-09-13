@@ -10,7 +10,7 @@ class Element(object):
     ID = '#'
     CLASS = '.'
 
-    HAML_REGEX = re.compile(r"(?P<tag>%\w+)?(?P<id>#[\w-]*)?(?P<class>\.[\w\.-]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?")
+    HAML_REGEX = re.compile(r"(?P<tag>%\w+(\:\w+)?)?(?P<id>#[\w-]*)?(?P<class>\.[\w\.-]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?")
     
     def __init__(self, haml):
         self.haml = haml
