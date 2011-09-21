@@ -26,40 +26,41 @@ def watched_extension(extension):
     return False
 
 def watch_folder():
-    """Main entry point. Expects exactly one argument (the watch folder)."""
-    if len(sys.argv) == 2:
+    """Main entry point. Expects one or two arguments (the watch folder + optional destination folder)."""
+    argv_len = len(sys.argv)
+    if argv_len in (2, 3):
         folder = os.path.realpath(sys.argv[1])
+        destination = os.path.realpath(argv_len == 3 and os.path.realpath(sys.argv[2]) or folder)
+        
         print "Watching %s at refresh interval %s seconds" % (folder,CHECK_INTERVAL)
         while True:
             try:
-                _watch_folder(folder)
+                _watch_folder(folder, destination)
                 time.sleep(CHECK_INTERVAL)
             except KeyboardInterrupt:
                 # allow graceful exit (no stacktrace output)
                 sys.exit(0)
                 pass
     else:
-        print "Usage: haml-watcher.py <watch_folder>"
+        print "Usage: haml-watcher.py <watch_folder> [destination_folder]"
 
-def _watch_folder(folder):
+def _watch_folder(folder, destination):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
     if necessary."""
     for dirpath, dirnames, filenames in os.walk(folder):
-        filepaths = (os.path.join(dirpath, filename) \
-                     for filename in filenames \
-                     if watched_extension(filename)
-                    )
-        for fullpath in filepaths:
+        for filename in filenames:
+            if watched_extension(filename):
+                fullpath = os.path.join(dirpath, filename) 
             mtime = os.stat(fullpath).st_mtime
-            compiled_path = _compiled_path(fullpath)
+            compiled_path = _compiled_path(destination, filename)
             if (not fullpath in compiled or
                 compiled[fullpath] < mtime or
                 not os.path.isfile(compiled_path)):
                 compile_file(fullpath, compiled_path)
                 compiled[fullpath] = mtime
 
-def _compiled_path(fullpath):
-    return fullpath[:fullpath.rfind('.')] + '.html'
+def _compiled_path(destination, filename):
+    return os.path.join(destination, filename[:filename.rfind('.')] + '.html')
 
 def compile_file(fullpath, outfile_name):
     """Calls HamlPy compiler."""
