@@ -72,10 +72,10 @@ class Element(object):
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
                         if isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s='%s' " % (k, v)
+                            self.attributes += '%s="%s" ' % (k, v)
                         else:
                             v = v.decode('utf-8')
-                            self.attributes += "%s='%s' " % (k, v.replace("'","&quot;"))
+                            self.attributes += '%s="%s" ' % (k, v.replace('"','&quot;'))
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s'%attribute_dict_string)
