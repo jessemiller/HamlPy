@@ -138,9 +138,9 @@ class ElementNode(HamlNode):
             result = "<%s" % element.tag 
 
         if element.id:
-            result += ' id="%s"' % element.id
+            result += " id='%s'" % element.id 
         if element.classes:
-            result += ' class="%s"' % element.classes
+            result += " class='%s'" % element.classes 
         if element.attributes:
             result += ' ' + element.attributes            
             
