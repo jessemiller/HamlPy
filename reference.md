@@ -8,11 +8,11 @@
 
 To simply output the conversion to your console:
 
-	hamlpy inputFile.hamlpy
+	hamlpy inputFile.haml
 	
 Or you can have it dump right into a file:
 
-	hamlpy inputFile.hamlpy outputFile.html
+	hamlpy inputFile.haml outputFile.html
 	
 There is also a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
@@ -303,6 +303,10 @@ Does not parse the filtered text. This is useful for large blocks of text withou
 ### :javascript
 
 Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline Javascript.
+
+### :cdata
+
+Surrounds the filtered text with CDATA tags.
 
 ### :css
 

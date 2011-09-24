@@ -7,3 +7,8 @@
   .someClass {
     width: 100px;
   }
+:cdata
+  if (a < b && a < 0)
+  {
+    return 1;
+  }
