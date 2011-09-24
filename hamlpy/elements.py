@@ -4,13 +4,13 @@ import re
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
     
-    self_closing_tags = ('meta', 'img', 'link', 'br', 'hr')
+    self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input')
 
     ELEMENT = '%'
     ID = '#'
     CLASS = '.'
 
-    HAML_REGEX = re.compile(r"(?P<tag>%\w+)?(?P<id>#[\w-]*)?(?P<class>\.[\w\.-]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?")
+    HAML_REGEX = re.compile(r"(?P<tag>%\w+(\:\w+)?)?(?P<id>#[\w-]*)?(?P<class>\.[\w\.-]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?")
     
     def __init__(self, haml):
         self.haml = haml
@@ -63,13 +63,23 @@ class Element(object):
     def _parse_attribute_dictionary(self, attribute_dict_string):        
         attributes_dict = {}
         if (attribute_dict_string):
-            #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
-            attributes_dict = eval(attribute_dict_string)
-            for k, v in attributes_dict.items():
-                if k != 'id' and k != 'class':
-                    v = v.decode('utf-8')
-                    self.attributes += "%s='%s' " % (k, v.replace("'","&quot;"))
-            self.attributes = self.attributes.strip()
+            try:
+                #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
+                # converting all allowed attributes to python dictionary style
+                attribute_dict_string = re.sub(r'(:|\")(?P<var>[a-zA-Z_][a-zA-Z0-9_.-]+)(\"|) =>', '"\g<var>":',attribute_dict_string)
+                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_]*):\s*(?P<val>\"|\'|\d)', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                attributes_dict = eval(attribute_dict_string)
+                for k, v in attributes_dict.items():
+                    if k != 'id' and k != 'class':
+                        if isinstance(v, int) or isinstance(v, float):
+                            self.attributes += "%s='%s' " % (k, v)
+                        else:
+                            v = v.decode('utf-8')
+                            self.attributes += "%s='%s' " % (k, v.replace("'","&quot;"))
+                self.attributes = self.attributes.strip()
+            except Exception, e:
+                raise Exception('failed to decode: %s'%attribute_dict_string)
+
         return attributes_dict
 
 
