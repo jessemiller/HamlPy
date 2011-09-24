@@ -41,7 +41,15 @@ class HamlPyTest(unittest.TestCase):
         html = "<div id='itemType_5'></div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
-        self.assertEqual(html, result.replace('\n', ''))  
+        self.assertEqual(html, result.replace('\n', ''))
+        
+    def test_dictionaries_can_by_pythonic(self):
+        haml = "%div{'id':['Article','1'], 'class':['article','entry','visible']} Booyaka"
+        html = "<div id='Article_1' class='article entry visible'>Booyaka</div>"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertEqual(html, result.replace('\n', ''))
+        
           
     def test_html_comments_rendered_properly(self):
         haml = '/ some comment'

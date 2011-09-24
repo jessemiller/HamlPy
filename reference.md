@@ -134,6 +134,10 @@ and would compile to:
 
 	<div id='Article_1' class='article entry visible'>Booyaka</div>
 	
+You can also use more pythonic array structures in the dictionary, like so:
+
+    %div{'id':['Article','1'], 'class':['article','entry','visible']} Booyaka
+	
 #### Implicit div elements
 
 Because divs are used so often, they are the default element.  If you only define a class and/or id using . or # the %div will be implied.  For example:
