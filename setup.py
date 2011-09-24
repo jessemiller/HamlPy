@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='hamlpy',
-      version = '0.2',
+      version = '0.3',
       download_url = 'git@github.com:jessemiller/HamlPy.git',
       packages = ['hamlpy'],
       author = 'Jesse Miller',
