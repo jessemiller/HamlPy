@@ -11,7 +11,7 @@ import os.path
 import time
 from hamlpy import Compiler
 
-EXTENSIONS = ['.haml']    # watched extensions
+EXTENSIONS = ['.haml', '.hamlpy']    # watched extensions
 CHECK_INTERVAL = 3          # in seconds
 DEBUG = False               # print file paths when a file is compiled
 
@@ -50,14 +50,14 @@ def _watch_folder(folder, destination):
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             if watched_extension(filename):
-                fullpath = os.path.join(dirpath, filename) 
-            mtime = os.stat(fullpath).st_mtime
-            compiled_path = _compiled_path(destination, filename)
-            if (not fullpath in compiled or
-                compiled[fullpath] < mtime or
-                not os.path.isfile(compiled_path)):
-                compile_file(fullpath, compiled_path)
-                compiled[fullpath] = mtime
+                fullpath = os.path.join(dirpath, filename)
+                mtime = os.stat(fullpath).st_mtime
+                compiled_path = _compiled_path(destination, filename)
+                if (not fullpath in compiled or
+                    compiled[fullpath] < mtime or
+                    not os.path.isfile(compiled_path)):
+                    compile_file(fullpath, compiled_path)
+                    compiled[fullpath] = mtime
 
 def _compiled_path(destination, filename):
     return os.path.join(destination, filename[:filename.rfind('.')] + '.html')
