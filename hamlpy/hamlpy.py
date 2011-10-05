@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from elements import MULTILINE_ATTR_ELEMENT_REGEX
 from nodes import RootNode, create_node
 
 class Compiler:
@@ -9,8 +10,14 @@ class Compiler:
         
     def process_lines(self, haml_lines):
         root = RootNode()
-        for line in haml_lines:
-            haml_node = create_node(line)
+        line_iter = iter(haml_lines)
+        for line in line_iter:
+            node_lines = line
+            if MULTILINE_ATTR_ELEMENT_REGEX.match(line.strip()):
+                while '}' not in line:
+                    line = line_iter.next()
+                    node_lines += line
+            haml_node = create_node(node_lines)
             root.add_node(haml_node)
         return root.render()
 
