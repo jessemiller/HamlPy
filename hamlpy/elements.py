@@ -1,5 +1,11 @@
 import re
 
+MULTILINE_ATTR_ELEMENT_REGEX = re.compile(r"""
+(?P<tag>%\w+(\:\w+)?)?
+(?P<id>\#[\w-]*)?
+(?P<class>\.[\w\.-]*)*
+(?P<attribute_start>\{[^\}]+$)
+""", re.X)
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -10,8 +16,16 @@ class Element(object):
     ID = '#'
     CLASS = '.'
 
-    HAML_REGEX = re.compile(r"(?P<tag>%\w+(\:\w+)?)?(?P<id>#[\w-]*)?(?P<class>\.[\w\.-]*)*(?P<attributes>\{.*\})?(?P<selfclose>/)?(?P<django>=)?(?P<inline>[^\w\.#\{].*)?")
-    
+    HAML_REGEX = re.compile(r"""
+    (?P<tag>%\w+(\:\w+)?)?
+    (?P<id>\#[\w-]*)?
+    (?P<class>\.[\w\.-]*)*
+    (?P<attributes>\{.*\})?
+    (?P<selfclose>/)?
+    (?P<django>=)?
+    (?P<inline>[^\w\.#\{].*)?
+    """, re.X|re.MULTILINE|re.DOTALL)
+
     def __init__(self, haml):
         self.haml = haml
         self.tag = None
@@ -60,9 +74,10 @@ class Element(object):
                 text += '_'+one_id
         return text
 
-    def _parse_attribute_dictionary(self, attribute_dict_string):        
+    def _parse_attribute_dictionary(self, attribute_dict_string):
         attributes_dict = {}
         if (attribute_dict_string):
+            attribute_dict_string = attribute_dict_string.replace('\n', ' ')
             try:
                 #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
                 # converting all allowed attributes to python dictionary style

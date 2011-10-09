@@ -83,5 +83,10 @@ class TestElement(object):
         def test_grabs_inline_tag_content(self):
             sut = Element("%div Some Text")
             eq_(sut.inline_content, 'Some Text')
-        
-    
+            
+        def test_multiline_attributes(self):
+            sut = Element("""%link{'rel': 'stylesheet', 'type': 'text/css',
+                'href': '/long/url/to/stylesheet/resource.css'}""")
+            assert "href='/long/url/to/stylesheet/resource.css'" in sut.attributes
+            assert "type='text/css'" in sut.attributes
+            assert "rel='stylesheet'" in sut.attributes

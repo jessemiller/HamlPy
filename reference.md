@@ -74,6 +74,11 @@ is compiled to:
 
 	<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'></html>
 
+Long attribute dictionaries can be separated into multiple lines:
+
+    %script{'type': 'text/javascript', 'charset': 'utf-8', 
+            'href': '/long/url/to/javascript/resource.js'}
+
 #### 'class' and 'id' attributes
 
 The 'class' and 'id' attributes can also be specified as a Python tuple whose elements will be joined together.  A 'class' tuple will be joined with " " and an 'id' tuple is joined with "_".  For example:
