@@ -230,6 +230,12 @@ class TagNode(HamlNode):
                     'filter':'endfilter',
                     'autoescape':'endautoescape',
                     'with':'endwith',
+                    'blocktrans': 'endblocktrans',
+                    'spaceless': 'endspaceless',
+                    'comment': 'endcomment',
+                    'cache': 'endcache',
+                    'localize': 'endlocalize',
+                    'compress': 'endcompress',
                     }
     may_contain = {'if':'else', 
                    'ifchanged':'else',
