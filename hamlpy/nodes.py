@@ -18,6 +18,7 @@ TAG = '-'
 
 JAVASCRIPT_FILTER = ':javascript'
 CSS_FILTER = ':css'
+STYLUS_FILTER = ':stylus'
 PLAIN_FILTER = ':plain'
 PYTHON_FILTER = ':python'
 CDATA_FILTER = ':cdata'
@@ -62,6 +63,9 @@ def create_node(haml_line):
     if stripped_line == CSS_FILTER:
         return CssFilterNode(haml_line)
     
+    if stripped_line == STYLUS_FILTER:
+        return StylusFilterNode(haml_line)
+
     if stripped_line == PLAIN_FILTER:
         return PlainFilterNode(haml_line)
         
@@ -297,6 +301,15 @@ class CssFilterNode(FilterNode):
         output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
         output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
         output += '/*]]>*/\n</style>\n'
+        return output
+
+
+class StylusFilterNode(FilterNode):
+    def render(self):
+        output = '<style type=\'text/stylus\'>\n/*<![CDATA[*/\n'
+        first_indentation = self.internal_nodes[0].indentation
+        output += '\n'.join([node.raw_haml[first_indentation:] for node in self.internal_nodes])
+        output += '\n/*]]>*/\n</style>\n'
         return output
 
 
