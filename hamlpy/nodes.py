@@ -235,6 +235,7 @@ class TagNode(HamlNode):
                     'comment': 'endcomment',
                     'cache': 'endcache',
                     'localize': 'endlocalize',
+                    'compress': 'endcompress',
                     }
     may_contain = {'if':'else', 
                    'ifchanged':'else',
