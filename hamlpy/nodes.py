@@ -298,9 +298,9 @@ class JavascriptFilterNode(FilterNode):
         
 class CoffeeScriptFilterNode(FilterNode):
     def render(self):
-        output = '<script type=\'text/coffeescript\'>\n'
+        output = '<script type=\'text/coffeescript\'>#<![CDATA[\n'
         output += ''.join([node.raw_haml for node in self.internal_nodes])
-        output += '\n</script>'
+        output += '\n#]]></script>'
         return output
 
 
