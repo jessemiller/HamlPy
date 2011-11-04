@@ -16,8 +16,10 @@ HAML_COMMENT = '-#'
 VARIABLE = '='
 TAG = '-'
 
+COFFEESCRIPT_FILTERS = [':coffeescript', ':coffee']
 JAVASCRIPT_FILTER = ':javascript'
 CSS_FILTER = ':css'
+STYLUS_FILTER = ':stylus'
 PLAIN_FILTER = ':plain'
 PYTHON_FILTER = ':python'
 CDATA_FILTER = ':cdata'
@@ -59,9 +61,15 @@ def create_node(haml_line):
     if stripped_line == JAVASCRIPT_FILTER:
         return JavascriptFilterNode(haml_line)
     
+    if stripped_line in COFFEESCRIPT_FILTERS:
+        return CoffeeScriptFilterNode(haml_line)
+        
     if stripped_line == CSS_FILTER:
         return CssFilterNode(haml_line)
     
+    if stripped_line == STYLUS_FILTER:
+        return StylusFilterNode(haml_line)
+
     if stripped_line == PLAIN_FILTER:
         return PlainFilterNode(haml_line)
         
@@ -297,11 +305,28 @@ class JavascriptFilterNode(FilterNode):
         return output
         
         
+class CoffeeScriptFilterNode(FilterNode):
+    def render(self):
+        output = '<script type=\'text/coffeescript\'>#<![CDATA[\n'
+        output += ''.join([node.raw_haml for node in self.internal_nodes])
+        output += '\n#]]></script>'
+        return output
+
+
 class CssFilterNode(FilterNode):
     def render(self):
         output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
         output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
         output += '/*]]>*/\n</style>\n'
+        return output
+
+
+class StylusFilterNode(FilterNode):
+    def render(self):
+        output = '<style type=\'text/stylus\'>\n/*<![CDATA[*/\n'
+        first_indentation = self.internal_nodes[0].indentation
+        output += '\n'.join([node.raw_haml[first_indentation:] for node in self.internal_nodes])
+        output += '\n/*]]>*/\n</style>\n'
         return output
 
 
