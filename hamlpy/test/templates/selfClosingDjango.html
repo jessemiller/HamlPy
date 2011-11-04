@@ -1,9 +1,9 @@
 <ul>
   {% for story in story_list %}
-     <li>{{ story.text }}</li>
+    <li>{{ story.text }}</li>
   {% endfor %}
 </ul>
-{% blocktrans with object.duration_as_time as dur %}    
+{% blocktrans with object.duration_as_time as dur %}
   <span class='jtimer bigger'>{{ dur }}</span>
-    remain
+  remain
 {% endblocktrans %}

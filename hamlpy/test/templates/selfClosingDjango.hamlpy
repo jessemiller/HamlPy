@@ -2,6 +2,6 @@
   - for story in story_list
     %li= story.text
 - blocktrans with object.duration_as_time as dur
-    %span.jtimer.bigger {{ dur }}
-    remain
+  %span.jtimer.bigger {{ dur }}
+  remain
 
