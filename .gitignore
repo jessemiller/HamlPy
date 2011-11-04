@@ -2,3 +2,7 @@
 dist
 build
 hamlpy.egg-info
+/.idea/
+.project
+.pydevproject
+.DS_Store
