@@ -34,13 +34,13 @@ The main difference is instead of interpreting Ruby, or even Python we instead c
 
 	%ul#atheletes
 		- for athelete in athelete_list
-			%li.athelete= athelete.name
+			%li.athelete{'id': 'athelete_{{ athelete.pk }}'}= athelete.name
 
 turns into..
 
 	<ul id='atheletes'>
 		{% for athelete in athelete_list %}
-			<li class='athelete'>{{ athelete.name }}</li>
+			<li class='athelete' id='athelete_{{ athelete.pk }}'>{{ athelete.name }}</li>
 		{% endfor %}
 	</ul>
 	

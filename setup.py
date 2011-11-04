@@ -10,7 +10,9 @@ setup(name='hamlpy',
       keywords = 'haml django converter',
       url = 'http://github.com/jessemiller/HamlPy',
       license = 'MIT',
-      
+      requires = [
+        'django'
+      ],
       entry_points = {
           'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files',
                                'hamlpy-watcher = hamlpy.hamlpy_watcher:watch_folder']
