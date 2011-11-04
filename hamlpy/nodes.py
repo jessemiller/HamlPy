@@ -16,6 +16,7 @@ HAML_COMMENT = '-#'
 VARIABLE = '='
 TAG = '-'
 
+COFFEESCRIPT_FILTERS = [':coffeescript', ':coffee']
 JAVASCRIPT_FILTER = ':javascript'
 CSS_FILTER = ':css'
 PLAIN_FILTER = ':plain'
@@ -59,6 +60,9 @@ def create_node(haml_line):
     if stripped_line == JAVASCRIPT_FILTER:
         return JavascriptFilterNode(haml_line)
     
+    if stripped_line in COFFEESCRIPT_FILTERS:
+        return CoffeeScriptFilterNode(haml_line)
+        
     if stripped_line == CSS_FILTER:
         return CssFilterNode(haml_line)
     
@@ -297,6 +301,14 @@ class JavascriptFilterNode(FilterNode):
         return output
         
         
+class CoffeeScriptFilterNode(FilterNode):
+    def render(self):
+        output = '<script type=\'text/coffeescript\'>#<![CDATA[\n'
+        output += ''.join([node.raw_haml for node in self.internal_nodes])
+        output += '\n#]]></script>'
+        return output
+
+
 class CssFilterNode(FilterNode):
     def render(self):
         output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
