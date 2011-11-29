@@ -90,7 +90,7 @@ class Element(object):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
                             v = v.decode('utf-8')
-                            self.attributes += "%s='%s' " % (k, v.replace("'","&quot;"))
+                            self.attributes += "%s='%s' " % (k, v)
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s'%attribute_dict_string)
