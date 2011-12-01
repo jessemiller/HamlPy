@@ -3,7 +3,6 @@
 #
 # Watch a folder for files with the given extensions and call the HamlPy
 # compiler if the modified time has changed since the last check.
-
 from time import gmtime, strftime
 import sys
 import codecs
