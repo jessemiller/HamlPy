@@ -40,6 +40,9 @@ class TestTemplateCompare(unittest.TestCase):
 
     def test_all_if_types(self):
         self._compare_test_files('allIfTypesTest')
+
+    def test_multi_line_dict(self):
+        self._compare_test_files('multiLineDict')
         
     def _compare_test_files(self, name):
         haml_lines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
