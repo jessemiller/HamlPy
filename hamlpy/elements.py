@@ -10,7 +10,7 @@ MULTILINE_ATTR_ELEMENT_REGEX = re.compile(r"""
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
     
-    self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input')
+    self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track')
 
     ELEMENT = '%'
     ID = '#'
