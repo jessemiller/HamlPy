@@ -42,7 +42,7 @@ def watch_folder():
                 sys.exit(0)
                 pass
     else:
-        print "Usage: haml-watcher.py <watch_folder> [destination_folder]"
+        print "Usage: hamlpy-watcher.py <watch_folder> [destination_folder]"
 
 def _watch_folder(folder, destination):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
@@ -51,8 +51,15 @@ def _watch_folder(folder, destination):
         for filename in filenames:
             if watched_extension(filename):
                 fullpath = os.path.join(dirpath, filename)
+                subfolder = os.path.relpath(dirpath, folder)
                 mtime = os.stat(fullpath).st_mtime
-                compiled_path = _compiled_path(destination, filename)
+				
+                # Create subfolders in target directory if they don't exist
+                compiled_folder = os.path.join(destination, subfolder)
+                if not os.path.exists(compiled_folder):
+                    os.makedirs(compiled_folder)
+				
+                compiled_path = _compiled_path(compiled_folder, filename)
                 if (not fullpath in compiled or
                     compiled[fullpath] < mtime or
                     not os.path.isfile(compiled_path)):
