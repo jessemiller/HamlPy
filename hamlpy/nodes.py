@@ -11,7 +11,7 @@ DOCTYPE = '!!!'
 
 HTML_COMMENT = '/'
 CONDITIONAL_COMMENT = '/['
-HAML_COMMENT = '-#'
+HAML_COMMENTS = ['-#', '=#']
 
 VARIABLE = '='
 TAG = '-'
@@ -49,8 +49,9 @@ def create_node(haml_line):
     if stripped_line[0] == HTML_COMMENT:
         return CommentNode(haml_line)
     
-    if stripped_line.startswith(HAML_COMMENT):
-        return HamlCommentNode(haml_line)
+    for comment_prefix in HAML_COMMENTS:
+        if stripped_line.startswith(comment_prefix):
+            return HamlCommentNode(haml_line)
     
     if stripped_line[0] == VARIABLE:
         return VariableNode(haml_line)
