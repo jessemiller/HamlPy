@@ -2,7 +2,6 @@ import unittest
 from hamlpy import nodes
 
 class TestElementNode(unittest.TestCase):
-    
     def test_calculates_indentation_properly(self):
         no_indentation = nodes.ElementNode('%div')
         self.assertEqual(0, no_indentation.indentation)
@@ -12,7 +11,26 @@ class TestElementNode(unittest.TestCase):
         
         six_indentation = nodes.ElementNode('      %div')
         self.assertEqual(6, six_indentation.indentation)
-    
+
+	def test_indents_tabs_properly(self):
+		no_indentation = nodes.ElementNode('%div')
+		self.assertEqual('', no_indentation.spaces)
+
+		one_tab = nodes.HamlNode('	%div')
+		self.assertEqual('\t', one_tab.spaces)
+
+		one_space = nodes.HamlNode(' %div')
+		self.assertEqual(' ', one_space.spaces)
+
+		three_tabs = nodes.HamlNode('			%div')
+		self.assertEqual('\t\t\t', three_tabs.spaces)
+
+		tab_space = nodes.HamlNode('	 %div')
+		self.assertEqual('\t\t', tab_space.spaces)
+
+		space_tab = nodes.HamlNode(' 	%div')
+		self.assertEqual('  ', space_tab.spaces)
+			
     def test_lines_are_always_stripped_of_whitespace(self):
         some_space = nodes.ElementNode('   %div')
         self.assertEqual('%div', some_space.haml)

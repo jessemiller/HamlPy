@@ -3,7 +3,7 @@
 #
 # Watch a folder for files with the given extensions and call the HamlPy
 # compiler if the modified time has changed since the last check.
-
+from time import gmtime, strftime
 import sys
 import codecs
 import os
@@ -71,6 +71,7 @@ def _compiled_path(destination, filename):
 
 def compile_file(fullpath, outfile_name):
     """Calls HamlPy compiler."""
+    print '%s %s -> %s' % ( strftime("%H:%M:%S", gmtime()), fullpath, outfile_name )
     try:
         if DEBUG:
             print "Compiling %s -> %s" % (fullpath, outfile_name)

@@ -120,7 +120,7 @@ class HamlNode(RootNode):
         self.haml = haml.strip()
         self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
-        self.spaces = ''.join(' ' for i in range(self.indentation))
+        self.spaces = ''.join(haml[0] for i in range(self.indentation))
     
     def render(self):
         return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
