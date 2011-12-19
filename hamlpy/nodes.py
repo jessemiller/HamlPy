@@ -55,7 +55,7 @@ def create_node(haml_line):
     
     if stripped_line[0] == VARIABLE:
         return VariableNode(haml_line)
-    
+
     if stripped_line[0] == TAG:
         return TagNode(haml_line)
     
@@ -98,7 +98,8 @@ class RootNode:
             self.internal_nodes.append(node)
     
     def _should_go_inside_last_node(self, node):
-        return self.internal_nodes and (node.indentation > self.internal_nodes[-1].indentation or (node.indentation == self.internal_nodes[-1].indentation and self.internal_nodes[-1].should_contain(node)))
+        return self.internal_nodes and (node.indentation > self.internal_nodes[-1].indentation
+            or (node.indentation == self.internal_nodes[-1].indentation and self.internal_nodes[-1].should_contain(node)))
     
     def render(self):
         return self.render_internal_nodes()
