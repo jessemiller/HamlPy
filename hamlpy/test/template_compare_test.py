@@ -73,6 +73,10 @@ class TestTemplateCompare(unittest.TestCase):
         
         haml_compiler = hamlpy.Compiler()
         parsed = haml_compiler.process_lines(haml_lines)
+
+        # Ignore line ending differences
+        parsed=parsed.replace('\r','')
+        html=html.replace('\r','')
         
         line,col,c1,c2 = self._find_diff(parsed, html)
         if line != -1:
