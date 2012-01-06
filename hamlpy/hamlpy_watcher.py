@@ -49,7 +49,8 @@ def _watch_folder(folder, destination):
     if necessary."""
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
-            if watched_extension(filename):
+            # Ignore filenames starting with ".#" for Emacs compatibility
+            if watched_extension(filename) and not filename.startswith('.#'):
                 fullpath = os.path.join(dirpath, filename)
                 subfolder = os.path.relpath(dirpath, folder)
                 mtime = os.stat(fullpath).st_mtime
