@@ -1,4 +1,6 @@
 %div{'class': 'row'}
-  %img{'src': '/static/imgs/ibl_logo.gif', 
+  %img{'src': '/static/imgs/ibl_logo{{id}}.gif', 
        'alt': 'IBL Logo'}
   %br
+  %img{'src': '/static/imgs/ibl_logo.gif', 
+       'alt': 'IBL Logo{{id}}'}

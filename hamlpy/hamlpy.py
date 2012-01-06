@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-from elements import MULTILINE_ATTR_ELEMENT_REGEX
-from nodes import RootNode, create_node
+from nodes import RootNode, FilterNode, create_node
 
 class Compiler:
 
@@ -11,12 +10,20 @@ class Compiler:
     def process_lines(self, haml_lines):
         root = RootNode()
         line_iter = iter(haml_lines)
-        for line in line_iter:
+
+        for line_number, line in enumerate(line_iter):
             node_lines = line
-            if MULTILINE_ATTR_ELEMENT_REGEX.match(line.strip()):
-                while '}' not in line:
-                    line = line_iter.next()
-                    node_lines += line
+
+            #Ignore multiline if parent is a filter node
+            if root.internal_nodes and not isinstance(root.internal_nodes[-1], FilterNode):
+                if line.count('{') - line.count('}') == 1:
+                    start_multiline=line_number # For exception handling
+                    while line.count('{') - line.count('}') != -1:
+                        try:
+                            line = line_iter.next()
+                        except StopIteration:
+                            raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
+                        node_lines += line
             haml_node = create_node(node_lines)
             root.add_node(haml_node)
         return root.render()
