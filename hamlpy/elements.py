@@ -81,7 +81,7 @@ class Element(object):
                     if k != 'id' and k != 'class':
                         if v.lower() in ("yes", "true", "t", "1"):
                             self.attributes += "%s " % (k,)
-                        if isinstance(v, int) or isinstance(v, float):
+                        elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
                             v = v.decode('utf-8')
