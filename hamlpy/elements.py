@@ -79,6 +79,8 @@ class Element(object):
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
+                        if v.lower() in ("yes", "true", "t", "1"):
+                            self.attributes += "%s " % (k,)
                         if isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
