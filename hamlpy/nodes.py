@@ -245,7 +245,7 @@ class TagNode(HamlNode):
                     'cache': 'endcache',
                     'localize': 'endlocalize',
                     'compress': 'endcompress'}
-    may_contain = {'if':'else', 
+    may_contain = {'if':['else', 'elif'], 
                    'ifchanged':'else',
                    'ifequal':'else',
                    'ifnotequal':'else',
@@ -268,7 +268,7 @@ class TagNode(HamlNode):
         return output
     
     def should_contain(self, node):
-        return isinstance(node,TagNode) and self.may_contain.get(self.tag_name,'') == node.tag_name
+        return isinstance(node,TagNode) and node.tag_name in self.may_contain.get(self.tag_name,'')
 
 
 class FilterNode(HamlNode):
