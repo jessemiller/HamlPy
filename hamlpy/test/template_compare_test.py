@@ -43,13 +43,48 @@ class TestTemplateCompare(unittest.TestCase):
 
     def test_multi_line_dict(self):
         self._compare_test_files('multiLineDict')
+
+    def test_filter_ignore_multiline(self):
+        self._compare_test_files('filterMultilineIgnore')
+
+    def _find_diff(self, s1, s2):
+        if len(s1)>len(s2):
+            shorter=s2
+        else:
+            shorter=s1
+
+        line=1
+        col=1
         
+        for i, _ in enumerate(shorter):
+            if shorter[i]=='\n':
+                line += 1
+                col=1
+            if s1[i] != s2[i]:
+                return line,col,s1[i],s2[i]
+
+            col+=1
+
+        return -1,-1,'',''
+
     def _compare_test_files(self, name):
         haml_lines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
         html = open('templates/'+name+'.html').read()
         
         haml_compiler = hamlpy.Compiler()
         parsed = haml_compiler.process_lines(haml_lines)
+
+        # Ignore line ending differences
+        parsed=parsed.replace('\r','')
+        html=html.replace('\r','')
+        
+        line,col,c1,c2 = self._find_diff(parsed, html)
+        if line != -1:
+            print 'HAML generated: '
+            print parsed
+            print 'Difference begins at line', line, 'column', col
+            print 'Character code in parsed:', ord(c1)
+            print 'Character code in HTML file:', ord(c2)
         eq_(parsed, html)
         
 if __name__ == '__main__':

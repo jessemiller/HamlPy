@@ -1,12 +1,5 @@
 import re
 
-MULTILINE_ATTR_ELEMENT_REGEX = re.compile(r"""
-(?P<tag>%\w+(\:\w+)?)?
-(?P<id>\#[\w-]*)?
-(?P<class>\.[\w\.-]*)*
-(?P<attribute_start>\{[^\}]+$)
-""", re.X)
-
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
     
