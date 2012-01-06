@@ -44,9 +44,6 @@ class TestTemplateCompare(unittest.TestCase):
     def test_multi_line_dict(self):
         self._compare_test_files('multiLineDict')
 
-    def test_filter_ignore_multiline(self):
-        self._compare_test_files('filterMultilineIgnore')
-
     def _find_diff(self, s1, s2):
         if len(s1)>len(s2):
             shorter=s2
