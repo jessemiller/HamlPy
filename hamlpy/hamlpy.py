@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-from nodes import RootNode, FilterNode, create_node
+from nodes import RootNode, FilterNode, HamlNode, create_node
 
 class Compiler:
-
     def process(self, raw_text):
         split_text = raw_text.strip().split('\n')
         return self.process_lines(split_text)
-        
+
     def process_lines(self, haml_lines):
         root = RootNode()
         line_iter = iter(haml_lines)
@@ -14,10 +13,11 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            #Ignore multiline if parent is a filter node
-            if root.internal_nodes and not isinstance(root.internal_nodes[-1], FilterNode):
+            # Check for multi-line only when last node isn't FilterNode or when last node isn't parent of this node
+            if (not(len(root.internal_nodes)>0 and isinstance(root.internal_nodes[-1], FilterNode))) or not root._should_go_inside_last_node(HamlNode(line)):
                 if line.count('{') - line.count('}') == 1:
                     start_multiline=line_number # For exception handling
+
                     while line.count('{') - line.count('}') != -1:
                         try:
                             line = line_iter.next()

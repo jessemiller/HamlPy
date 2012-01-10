@@ -1,0 +1,21 @@
+<div id='{{myId}}' class='multilinetest1' alt='{{nothing}}'></div>
+These { { braces
+
+should } not be interpreted as a multiline string
+
+<style type='text/css'>
+/*<![CDATA[*/
+	.test {
+		display: inline;
+	}
+/*]]>*/
+</style>
+<script type='text/javascript'>
+// <![CDATA[
+	These {
+	Braces should {
+		also
+	} be { ignored
+// ]]>
+</script>
+<div id='{{myId}}' class='multilinetest2 {{myClass}}' alt=''></div>

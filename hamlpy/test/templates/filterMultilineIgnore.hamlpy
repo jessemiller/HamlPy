@@ -1,0 +1,18 @@
+.multilinetest1{id:'{{myId}}',
+	alt: "{{nothing}}"}
+:plain
+	These { { braces
+	should } not be interpreted as a multiline string
+:css
+	.test {
+		display: inline;
+	}
+:javascript
+	These {
+	Braces should {
+		also
+	} be { ignored
+		
+.multilinetest2{id:'{{myId}}',
+	class:'{{myClass}}',
+	alt: ""}
