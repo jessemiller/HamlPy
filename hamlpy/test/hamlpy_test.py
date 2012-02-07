@@ -204,7 +204,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
         
-
-
+	def test_pygments_filter(self):
+		haml = ":highlight\nprint \"Hello, HamlPy World!"
+		html = "<div class=\"highlight\"><pre><span class=\"k\">print</span> <span class=\"err\">&quot;</span><span class=\"n\">Hello</span><span class=\"p\">,</span> <span class=\"n\">HamlPy</span> <span class=\"n\">World</span><span class=\"o\">!</span></pre></div>"
+				
+		hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+		
 if __name__ == '__main__':
     unittest.main()
