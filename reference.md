@@ -317,6 +317,10 @@ Surrounds the filtered text with CDATA tags.
 
 Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline CSS.
 
+### :highlight
+
+This will output the filtered text with syntax highlighting using Pygments.
+
 ### :python
 
 Execute the filtered text as python and outputs the result in the file. For example:
