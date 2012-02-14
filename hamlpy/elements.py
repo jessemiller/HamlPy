@@ -67,6 +67,25 @@ class Element(object):
                 text += '_'+one_id
         return text
 
+    def _escape_attribute_quotes(self,v):
+        '''
+        Escapes quotes with a backslash, except those inside a Django tag
+        '''
+        escaped=[]
+        inside_tag = False
+        for i, _ in enumerate(v):
+            if v[i:i+2] == '{%':
+                inside_tag=True
+            elif v[i:i+2] == '%}':
+                inside_tag=False
+
+            if v[i]=="'" and not inside_tag:
+                escaped.append('\\')
+
+            escaped.append(v[i])
+
+        return ''.join(escaped)
+
     def _parse_attribute_dictionary(self, attribute_dict_string):
         attributes_dict = {}
         if (attribute_dict_string):
@@ -85,7 +104,7 @@ class Element(object):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
                             v = v.decode('utf-8')
-                            self.attributes += "%s='%s' " % (k, v.replace("'","&quot;"))
+                            self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s'%attribute_dict_string)

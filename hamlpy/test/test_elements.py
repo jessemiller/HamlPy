@@ -4,6 +4,15 @@ from hamlpy.elements import Element
 
 class TestElement(object):
 
+        def test_escape_quotes_except_django_tags(self):
+            sut = Element('')
+
+            s1 = sut._escape_attribute_quotes('''{% url 'blah' %}''')
+            eq_(s1,'''{% url 'blah' %}''')
+
+            s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
+            eq_(s2,r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s")
+
         def test_pulls_tag_name_off_front(self):
             sut = Element('%div.class')
             eq_(sut.tag, 'div')
