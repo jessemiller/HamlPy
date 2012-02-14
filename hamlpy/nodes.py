@@ -96,6 +96,16 @@ class RootNode:
         self.indentation = -1
         self.internal_nodes = []
     
+    def parent(self,node):
+        if (node == None):
+            return None
+
+        if (self._should_go_inside_last_node(node)):
+            ret = self.internal_nodes[-1].parent(node)
+            return ret
+        else:
+            return self
+
     def add_node(self, node):
         if (node == None):
             return
@@ -134,9 +144,11 @@ class HamlNode(RootNode):
     def render(self):
         return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
 
+    def __repr__(self):
+        return '(%s) %s' % (self.__class__, self.haml)
+
 
 class ElementNode(HamlNode):
-    
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
         self.django_variable = False

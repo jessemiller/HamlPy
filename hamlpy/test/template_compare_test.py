@@ -4,7 +4,7 @@ from nose.tools import eq_
 from hamlpy import hamlpy
 
 class TestTemplateCompare(unittest.TestCase):
-    
+
     def test_comparing_simple_templates(self):
         self._compare_test_files('simple')
         
@@ -43,6 +43,9 @@ class TestTemplateCompare(unittest.TestCase):
 
     def test_multi_line_dict(self):
         self._compare_test_files('multiLineDict')
+
+    def test_filter_multiline_ignore(self):
+        self._compare_test_files('filterMultilineIgnore')
 
     def _find_diff(self, s1, s2):
         if len(s1)>len(s2):
