@@ -79,6 +79,17 @@ Long attribute dictionaries can be separated into multiple lines:
     %script{'type': 'text/javascript', 'charset': 'utf-8', 
             'href': '/long/url/to/javascript/resource.js'}
 
+#### Attributes without values (Boolean attributes)
+
+Attributes without values can be specified using Python's ```None``` keyword (without quotes. For example:
+
+	%input{'type':'checkbox', value:'Test', checked: None}
+
+is compiled to:
+
+	<input type="checkbox" value="Test" checked />
+
+
 #### 'class' and 'id' attributes
 
 The 'class' and 'id' attributes can also be specified as a Python tuple whose elements will be joined together.  A 'class' tuple will be joined with " " and an 'id' tuple is joined with "_".  For example:
