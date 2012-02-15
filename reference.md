@@ -283,6 +283,14 @@ is compiled to:
 	<h2>
 		<a href='stories/1'>{{ story.teaser }}</a>
 	</h2>
+
+Variables can also be used in attributes, but only if the attribute contains nothing else other than that variable. For example:
+
+	%a{'href':'= some_url'}
+
+is compiled to:
+
+	<a href='{{some_url}}'></a>
 	
 ### Django Tags: -
 

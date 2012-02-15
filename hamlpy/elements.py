@@ -108,9 +108,11 @@ class Element(object):
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
+                            # Replace variables in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
+                            v = attributes_dict[k] = re.sub('^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9_]*)\s*$', '{{\g<variable>}}', attributes_dict[k])
                             v = v.decode('utf-8')
                             self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
-                self.attributes = self.attributes
+                self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s'%attribute_dict_string)
 

@@ -16,12 +16,13 @@ class TestElement(object):
         def test_attributes_parse(self):
             sut = Element('')
 
-            s1 = sut._parse_attribute_dictionary('''{a:'something',"b":None,'c':2}''')
+            s1 = sut._parse_attribute_dictionary('''{a:'something',"b":None,'c':2,d:"= some_var"}''')
             eq_(s1['a'],'something')
             eq_(s1['b'],None)
             eq_(s1['c'],2)
+            eq_(s1['d'],'{{some_var}}')
 
-            eq_(sut.attributes, "a='something' c='2' b ")
+            eq_(sut.attributes, "a='something' c='2' b d='{{some_var}}'")
 
         def test_pulls_tag_name_off_front(self):
             sut = Element('%div.class')
