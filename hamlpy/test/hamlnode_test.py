@@ -67,5 +67,19 @@ class TestElementNode(unittest.TestCase):
     def test_html_indentation_vs_haml_indentation(self):
         pass
 
+    def test_node_parent_function(self):
+        root=nodes.ElementNode('%div.a')
+        elements = [
+            {'node': nodes.ElementNode('  %div.b'), 'expected_parent': 'root'},
+            {'node': nodes.ElementNode('  %div.c'), 'expected_parent': 'root'},
+            {'node': nodes.ElementNode('    %div.d'), 'expected_parent': 'elements[1]["node"]'},
+            {'node': nodes.ElementNode('      %div.e'), 'expected_parent': 'elements[2]["node"]'},
+            {'node': nodes.ElementNode('  %div.f'), 'expected_parent': 'root'},
+        ]
+
+        for el in elements:
+            self.assertEqual(root.parent(el['node']), eval(el['expected_parent']))
+            root.add_node(el['node'])
+
 if __name__ == "__main__":
     unittest.main()
