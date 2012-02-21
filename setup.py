@@ -11,7 +11,8 @@ setup(name='hamlpy',
       url = 'http://github.com/jessemiller/HamlPy',
       license = 'MIT',
       requires = [
-        'django'
+        'django',
+        'pygments'
       ],
       entry_points = {
           'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files',
