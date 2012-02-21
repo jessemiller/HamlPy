@@ -1,4 +1,5 @@
 import re
+from types import NoneType
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -67,6 +68,25 @@ class Element(object):
                 text += '_'+one_id
         return text
 
+    def _escape_attribute_quotes(self,v):
+        '''
+        Escapes quotes with a backslash, except those inside a Django tag
+        '''
+        escaped=[]
+        inside_tag = False
+        for i, _ in enumerate(v):
+            if v[i:i+2] == '{%':
+                inside_tag=True
+            elif v[i:i+2] == '%}':
+                inside_tag=False
+
+            if v[i]=="'" and not inside_tag:
+                escaped.append('\\')
+
+            escaped.append(v[i])
+
+        return ''.join(escaped)
+
     def _parse_attribute_dictionary(self, attribute_dict_string):
         attributes_dict = {}
         if (attribute_dict_string):
@@ -74,18 +94,24 @@ class Element(object):
             try:
                 #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
                 # converting all allowed attributes to python dictionary style
+
+                # Replace Ruby-style HAML with Python style
                 attribute_dict_string = re.sub(r'(:|\")(?P<var>[a-zA-Z_][a-zA-Z0-9_.-]+)(\"|) =>', '"\g<var>":',attribute_dict_string)
-                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_]*):\s*(?P<val>\"|\'|\d)', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                # Put double quotes around key
+                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_]*):\s*(?P<val>\"|\'|\d|None(?![A-Za-z0-9_]))', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
-                        if v.lower() in ("yes", "true", "t", "1"):
+                        if isinstance(v, NoneType):
                             self.attributes += "%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
+                            # Replace variables in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
+                            v = attributes_dict[k] = re.sub('^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9_]*)\s*$', '{{\g<variable>}}', attributes_dict[k])
                             v = v.decode('utf-8')
-                            self.attributes += "%s='%s' " % (k, v.replace("'","&quot;"))
+                            self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s'%attribute_dict_string)

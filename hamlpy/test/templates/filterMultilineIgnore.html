@@ -19,3 +19,41 @@ should } not be interpreted as a multiline string
 // ]]>
 </script>
 <div id='{{myId}}' class='multilinetest2 {{myClass}}' alt=''></div>
+<!-- The following is from hjonathan, issue #67 -->
+<head>
+  <div class='blah'>
+<script type='text/javascript'>
+// <![CDATA[
+      $(document).ready(function(){
+        $("#form{{form.initial.id}}").submit(form_submit);
+        //Double nesting
+        $(function() {
+            blahblahblah
+        });
+        // Javascript comment
+      });
+// ]]>
+</script>
+  </div>
+<script type='text/javascript'>
+// <![CDATA[
+    $(document).ready(function(){
+      $("#form{{form.initial.id}}").submit(form_submit);
+      // Javascript comment
+    });
+// ]]>
+</script>
+<style type='text/css'>
+/*<![CDATA[*/
+    .someClass {
+      width: 100px;
+    }
+/*]]>*/
+</style>
+  <![CDATA[
+    if (a < b && a < 0)
+    {
+      return 1;
+    }
+  ]]>
+</head>
