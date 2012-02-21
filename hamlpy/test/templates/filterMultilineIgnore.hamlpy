@@ -16,3 +16,30 @@
 .multilinetest2{id:'{{myId}}',
 	class:'{{myClass}}',
 	alt: ""}
+/ The following is from hjonathan, issue #67
+%head
+  .blah
+    :javascript
+      $(document).ready(function(){
+        $("#form{{form.initial.id}}").submit(form_submit);
+        //Double nesting
+        $(function() {
+            blahblahblah
+        });
+        
+        // Javascript comment
+      });
+  :javascript
+    $(document).ready(function(){
+      $("#form{{form.initial.id}}").submit(form_submit);
+      // Javascript comment
+    });
+  :css
+    .someClass {
+      width: 100px;
+    }
+  :cdata
+    if (a < b && a < 0)
+    {
+      return 1;
+    }

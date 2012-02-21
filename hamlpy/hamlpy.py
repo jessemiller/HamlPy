@@ -13,8 +13,8 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            # Check for multi-line only when last node isn't FilterNode or when last node isn't parent of this node
-            if (not(len(root.internal_nodes)>0 and isinstance(root.internal_nodes[-1], FilterNode))) or not root._should_go_inside_last_node(HamlNode(line)):
+            # Check for multi-line string when parent is not a FilterNode
+            if not isinstance(root.parent( HamlNode(line) ), FilterNode):
                 if line.count('{') - line.count('}') == 1:
                     start_multiline=line_number # For exception handling
 
