@@ -98,7 +98,7 @@ class Element(object):
                 # Replace Ruby-style HAML with Python style
                 attribute_dict_string = re.sub(r'(:|\")(?P<var>[a-zA-Z_][a-zA-Z0-9_.-]+)(\"|) =>', '"\g<var>":',attribute_dict_string)
                 # Put double quotes around key
-                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_]*):\s*(?P<val>\"|\'|\d|None(?![A-Za-z0-9_]))', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_-]*):\s*(?P<val>\"|\'|\d|None(?![A-Za-z0-9_]))', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
