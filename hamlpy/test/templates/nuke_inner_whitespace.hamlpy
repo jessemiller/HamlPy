@@ -1,3 +1,10 @@
+%p< Foo
+%p<
+  - if something
+    %q
+      Foo
+%p<
+  = Foo
 %p
   %q< Foo
 %p
