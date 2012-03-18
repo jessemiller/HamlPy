@@ -1,3 +1,7 @@
+%ul#display-inline-block-example
+  %li Item one
+  %li> Item two
+  %li Item three
 %p< Foo
 %p<
   - if something
