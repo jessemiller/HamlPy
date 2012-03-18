@@ -1,0 +1,129 @@
+<p>
+  {% if something %}<q>
+      Foo
+    </q>{% endif %}
+</p>
+<p>
+  {% sometag %}<q>
+    Foo
+  </q></p>
+<p>
+<!--[test]><q>
+      Foo
+    </q><![endif]--></p>
+<p>
+  <p><q>
+      Foo
+    </q></p>
+</p>
+<p>
+  <p><q a='2'>
+      Foo
+    </q></p>
+</p>
+<p>
+  <p><q>Foo</q></p>
+</p>
+<p>
+  <p><q a='2'>Foo</q></p>
+</p>
+<p>
+  <p><q>
+      {{ Foo }}
+    </q></p>
+</p>
+<p>
+  <p><q a='2'>
+      {{ Foo }}
+    </q></p>
+</p>
+<p>
+  <p><q>{{ Foo }}</q></p>
+</p>
+<p>
+  <p><q a='2'>{{ Foo }}</q></p>
+</p>
+<p>
+  <p>
+    foo<q>
+      Foo
+    </q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q a='2'>
+      Foo
+    </q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q>Foo</q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q a='2'>Foo</q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q>
+      {{ Foo }}
+    </q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q a='2'>
+      {{ Foo }}
+    </q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q>{{ Foo }}</q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q a='2'>{{ Foo }}</q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q>
+      {{ FooBar }}
+    </q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q a='2'>
+      {{ FooBar }}
+    </q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q>{{ FooBar }}</q>bar
+  </p>
+</p>
+<p>
+  <p>
+    foo<q a='2'>{{ FooBar }}</q>bar
+  </p>
+</p>
+<p>
+  <p><q></q></p>
+</p>
+<p>
+  <p><q /></p>
+</p>
+<p>
+  <p><q a='2'></q></p>
+</p>
+<p>
+  <p><q a='2' /></p>
+</p>

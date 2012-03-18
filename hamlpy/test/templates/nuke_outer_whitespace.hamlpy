@@ -1,0 +1,119 @@
+%p
+  - if something
+    %q>
+      Foo
+%p
+  - sometag
+  %q>
+    Foo
+%p
+  /[test]
+    %q>
+      Foo
+-# Tests from Ruby HAML
+%p
+  %p
+    %q>
+      Foo
+%p
+  %p
+    %q{a: '2'}>
+      Foo
+%p
+  %p
+    %q> Foo
+%p
+  %p
+    %q{a: "2"}> Foo
+%p
+  %p
+    %q>
+      = Foo
+%p
+  %p
+    %q{a: "2"}>
+      = Foo
+%p
+  %p
+    %q>= Foo
+%p
+  %p
+    %q{a: "2"}>= Foo
+%p
+  %p
+    foo
+    %q>
+      Foo
+    bar
+%p
+  %p
+    foo
+    %q{a: 2}>
+      Foo
+    bar
+%p
+  %p
+    foo
+    %q> Foo
+    bar
+%p
+  %p
+    foo
+    %q{a: "2"}> Foo
+    bar
+%p
+  %p
+    foo
+    %q>
+      = Foo
+    bar
+%p
+  %p
+    foo
+    %q{a: "2"}>
+      = Foo
+    bar
+%p
+  %p
+    foo
+    %q>= Foo
+    bar
+%p
+  %p
+    foo
+    %q{a: "2"}>= Foo
+    bar
+%p
+  %p
+    foo
+    %q>
+      = FooBar
+    bar
+%p
+  %p
+    foo
+    %q{a: "2"}>
+      = FooBar
+    bar
+%p
+  %p
+    foo
+    %q>= FooBar
+    bar
+%p
+  %p
+    foo
+    %q{a: "2"}>= FooBar
+    bar
+%p
+  %p
+    %q>
+%p
+  %p
+    %q>/
+%p
+  %p
+    %q{a: "2"}>
+%p
+  %p
+    %q{a: "2"}>/
