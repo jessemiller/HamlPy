@@ -15,6 +15,8 @@ class Element(object):
     (?P<id>\#[\w-]*)?
     (?P<class>\.[\w\.-]*)*
     (?P<attributes>\{.*\})?
+    (?P<nuke_outer_whitespace>\>)?
+    (?P<nuke_inner_whitespace>\<)?
     (?P<selfclose>/)?
     (?P<django>=)?
     (?P<inline>[^\w\.#\{].*)?
@@ -28,6 +30,8 @@ class Element(object):
         self.attributes = ''
         self.self_close = False
         self.django_variable = False
+        self.nuke_inner_whitespace = False
+        self.nuke_outer_whitespace = False
         self.inline_content = ''
         self._parse_haml()
         
@@ -39,6 +43,8 @@ class Element(object):
         self.id = self._parse_id(split_tags.get('id'))
         self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), self._parse_class_from_attributes_dict())).strip()
         self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
+        self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace') != ''
+        self.nuke_outer_whitespace = split_tags.get('nuke_outer_whitespace') != ''
         self.django_variable = split_tags.get('django') != ''
         self.inline_content = split_tags.get('inline').strip()
 
@@ -98,7 +104,7 @@ class Element(object):
                 # Replace Ruby-style HAML with Python style
                 attribute_dict_string = re.sub(r'(:|\")(?P<var>[a-zA-Z_][a-zA-Z0-9_.-]+)(\"|) =>', '"\g<var>":',attribute_dict_string)
                 # Put double quotes around key
-                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_]*):\s*(?P<val>\"|\'|\d|None(?![A-Za-z0-9_]))', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_-]*):\s*(?P<val>\"|\'|\d|None(?![A-Za-z0-9_]))', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():

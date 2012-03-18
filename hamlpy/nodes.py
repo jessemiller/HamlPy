@@ -140,6 +140,34 @@ class HamlNode(RootNode):
         self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
         self.spaces = ''.join(haml[0] for i in range(self.indentation))
+
+        self.pre_space = '\n'
+        self.post_space = self.spaces
+        self.space_after_internal = True
+
+    def render_internal_nodes(self):
+        nodes = [node.render() for node in self.internal_nodes]
+
+        # Outer Whitespace removal
+        for i, node in enumerate(self.internal_nodes):
+            if hasattr(node, 'element') and node.element.nuke_outer_whitespace:
+                if i>0:
+                    # If node has previous sibling, strip whitespace after previous sibling
+                    nodes[i-1] = nodes[i-1].rstrip()
+                else:
+                    # If not, whitespace comes from it's parent node,
+                    # so don't print whitespace before the node
+                    self.pre_space = ''
+
+                nodes[i] = nodes[i].strip()
+
+                if i<len(self.internal_nodes)-1:
+                    nodes[i+1] = nodes[i+1].lstrip()
+                else:
+                    self.post_space = ''
+
+        return ''.join(nodes)
+
     
     def render(self):
         return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
@@ -152,16 +180,16 @@ class ElementNode(HamlNode):
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
         self.django_variable = False
-    
+
     def render(self):
         return self._render_tag()
     
     def _render_tag(self):
-        element = Element(self.haml)
-        self.django_variable = element.django_variable
-        return self._generate_html(element)
+        self.element = Element(self.haml)
+        self.django_variable = self.element.django_variable
+        return self._generate_html(self.element)
         
-    def _generate_html(self, element):        
+    def _generate_html(self, element):
         if self.indentation > 0:
             result = "%s<%s" % (self.spaces, element.tag) 
         else:
@@ -175,17 +203,22 @@ class ElementNode(HamlNode):
             result += ' ' + element.attributes            
             
         content = self._render_tag_content(element.inline_content)
+
+        if element.nuke_inner_whitespace:
+            content = content.strip()
         
         if element.self_close and not content:
             result += " />\n"
         else:
             result += ">%s</%s>\n" % (content, element.tag)
-        
+
         return result
-    
+
     def _render_tag_content(self, current_tag_content):
         if self.has_internal_nodes():
-            current_tag_content = '\n' + self.render_internal_nodes() + self.spaces
+            # Must render internal nodes first so that pre_space and post_space are set correctly
+            content = self.render_internal_nodes()
+            current_tag_content = '%s%s%s' % (self.pre_space, content, self.post_space)
         if current_tag_content == None:
             current_tag_content = ''
         if self.django_variable:
@@ -211,9 +244,11 @@ class ConditionalCommentNode(HamlNode):
         conditional = self.haml[1: self.haml.index(']')+1 ]
         content = ''
         content = content + self.haml[self.haml.index(']')+1:]
+        space = ''
         if self.has_internal_nodes():
-            content = '\n' + self.render_internal_nodes()
-        return "<!--%s>%s<![endif]-->" % (conditional, content)
+            content = self.render_internal_nodes()
+            space = self.pre_space
+        return "<!--%s>%s%s%s<![endif]-->" % (conditional, space, content, self.post_space)
         
 
 class DoctypeNode(HamlNode):
@@ -283,9 +318,9 @@ class TagNode(HamlNode):
     
     def render(self):
         internal = self.render_internal_nodes()
-        output = "%s{%% %s %%}\n%s" % (self.spaces, self.tag_statement, internal)
+        output = "%s{%% %s %%}%s%s" % (self.spaces, self.tag_statement, self.pre_space, internal)
         if (self.tag_name in self.self_closing.keys()):
-            output += '%s{%% %s %%}\n' % (self.spaces, self.self_closing[self.tag_name])
+            output += '%s{%% %s %%}\n' % (self.post_space, self.self_closing[self.tag_name])
         return output
     
     def should_contain(self, node):

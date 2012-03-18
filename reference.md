@@ -318,6 +318,32 @@ is compiled to:
 	
 Notice that block, for, if and else, as well as ifequal, ifnotequal, ifchanged and 'with' are all automatically closed.  Using endfor, endif, endifequal, endifnotequal, endifchanged or endblock will throw an exception.
 
+### Whitespace removal:
+
+Sometimes we want to remove whitespace inside or around an element, usually to fix the spacing problem with inline-block elements (see "The Enormous Drawback" section of [this article](http://robertnyman.com/2010/02/24/css-display-inline-block-why-it-rocks-and-why-it-sucks/) for more details).
+
+To remove leading and trailing spaces **inside** a node, use the `<` character after an element. For example, this:
+
+	%div
+		%pre<
+			= Foo
+
+is compiled to:
+
+	<div>
+	  <pre>{{ Foo }}</pre>
+	</div>
+
+To remove leading and trailing spaces **around** a node, use the `>` character after an element. For example, this:
+
+	%li Item one
+	%li> Item two
+	%li Item three
+
+is compiled to:
+
+	<li>Item one</li><li>Item two</li><li>Item three</li>
+
 ## Filters
 
 ### :plain
