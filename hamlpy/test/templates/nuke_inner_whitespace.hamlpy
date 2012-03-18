@@ -1,0 +1,32 @@
+%p
+  %q< Foo
+%p
+  %q{a: "2"}< Foo
+%p
+  %q<= FooBar
+%p
+  %q<
+    Foo
+    Bar
+%p
+  %q{a: "2"}<
+    Foo
+    Bar
+%p
+  %q<
+    %div
+      Foo
+      Bar
+%p
+  %q{a: "2"}<
+    %div
+      Foo
+      Bar
+
+-# Regression test
+%p
+  %q<= foo
+  %q{a: "2"}<
+    bar
+  %q{a: "2"}
+    bar

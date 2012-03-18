@@ -5,6 +5,9 @@ from hamlpy import hamlpy
 
 class TestTemplateCompare(unittest.TestCase):
 
+    def test_nuke_inner_whitespace(self):
+        self._compare_test_files('nuke_inner_whitespace')
+
     def test_comparing_simple_templates(self):
         self._compare_test_files('simple')
         

@@ -152,7 +152,7 @@ class ElementNode(HamlNode):
     def __init__(self, haml):
         HamlNode.__init__(self, haml)
         self.django_variable = False
-    
+
     def render(self):
         return self._render_tag()
     
@@ -175,12 +175,15 @@ class ElementNode(HamlNode):
             result += ' ' + element.attributes            
             
         content = self._render_tag_content(element.inline_content)
+
+        if element.nuke_inner_whitespace:
+            content = content.strip()
         
         if element.self_close and not content:
             result += " />\n"
         else:
             result += ">%s</%s>\n" % (content, element.tag)
-        
+
         return result
     
     def _render_tag_content(self, current_tag_content):
