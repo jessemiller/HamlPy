@@ -5,6 +5,12 @@ from hamlpy import hamlpy
 
 class TestTemplateCompare(unittest.TestCase):
 
+    def test_nuke_inner_whitespace(self):
+        self._compare_test_files('nuke_inner_whitespace')
+
+    def test_nuke_outer_whitespace(self):
+        self._compare_test_files('nuke_outer_whitespace')
+
     def test_comparing_simple_templates(self):
         self._compare_test_files('simple')
         
@@ -81,7 +87,7 @@ class TestTemplateCompare(unittest.TestCase):
         line,col,c1,c2 = self._find_diff(parsed, html)
         if line != -1:
             print 'HAML generated: '
-            print parsed
+            print '\n'.join(["%d. %s" % (i, l) for i, l in enumerate(parsed.split('\n')) ])
             print 'Difference begins at line', line, 'column', col
             print 'Character code in parsed:', ord(c1)
             print 'Character code in HTML file:', ord(c2)

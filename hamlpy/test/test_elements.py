@@ -4,6 +4,16 @@ from hamlpy.elements import Element
 
 class TestElement(object):
 
+        def test_dashes_work_in_attribute_quotes(self):
+            sut = Element('')
+            s1 = sut._parse_attribute_dictionary('''{"data-url":"something", "class":"blah"}''')
+            eq_(s1['data-url'],'something')
+            eq_(s1['class'], 'blah')
+
+            s1 = sut._parse_attribute_dictionary('''{data-url:"something", class:"blah"}''')
+            eq_(s1['data-url'],'something')
+            eq_(s1['class'], 'blah')
+
         def test_escape_quotes_except_django_tags(self):
             sut = Element('')
 
