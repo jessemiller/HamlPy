@@ -26,10 +26,10 @@ class Element(object):
     #Single and double quote regexes from: http://stackoverflow.com/a/5453821/281469
     _SINGLE_QUOTE_STRING_LITERAL_REGEX = r"'([^'\\]*(?:\\.[^'\\]*)*)'"
     _DOUBLE_QUOTE_STRING_LITERAL_REGEX = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
-    _ATTIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?![A-Za-z0-9_])|%s|%s)'%(_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
+    _ATTRIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?![A-Za-z0-9_])|%s|%s)'%(_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
 
     RUBY_HAML_REGEX = re.compile(r'(:|\")%s(\"|) =>'%(_ATTRIBUTE_KEY_REGEX))
-    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s:\s*%s'%(_ATTRIBUTE_KEY_REGEX, _ATTIBUTE_VALUE_REGEX))
+    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s:\s*%s'%(_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX))
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9_-]*)\s*$')
 
 
