@@ -22,6 +22,17 @@ class Element(object):
     (?P<inline>[^\w\.#\{].*)?
     """, re.X|re.MULTILINE|re.DOTALL)
 
+    _ATTRIBUTE_KEY_REGEX = r'(?P<key>[a-zA-Z_][a-zA-Z0-9_-]*)'
+    #Single and double quote regexes from: http://stackoverflow.com/a/5453821/281469
+    _SINGLE_QUOTE_STRING_LITERAL_REGEX = r"'([^'\\]*(?:\\.[^'\\]*)*)'"
+    _DOUBLE_QUOTE_STRING_LITERAL_REGEX = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
+    _ATTIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?![A-Za-z0-9_])|%s|%s)'%(_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
+
+    RUBY_HAML_REGEX = re.compile(r'(:|\")%s(\"|) =>'%(_ATTRIBUTE_KEY_REGEX))
+    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s:\s*%s'%(_ATTRIBUTE_KEY_REGEX, _ATTIBUTE_VALUE_REGEX))
+    DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9_-]*)\s*$')
+
+
     def __init__(self, haml):
         self.haml = haml
         self.tag = None
@@ -98,13 +109,12 @@ class Element(object):
         if (attribute_dict_string):
             attribute_dict_string = attribute_dict_string.replace('\n', ' ')
             try:
-                #attribute_dict_string = re.sub(r'=(?P<variable>[a-zA-Z_][a-zA-Z0-9_.]+)', "'{{\g<variable>}}'", attribute_dict_string)
                 # converting all allowed attributes to python dictionary style
-
+  
                 # Replace Ruby-style HAML with Python style
-                attribute_dict_string = re.sub(r'(:|\")(?P<var>[a-zA-Z_][a-zA-Z0-9_.-]+)(\"|) =>', '"\g<var>":',attribute_dict_string)
+                attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":',attribute_dict_string)
                 # Put double quotes around key
-                attribute_dict_string = re.sub(r'(?P<pre>\{\s*|,\s*)(?P<key>[a-zA-Z_][a-zA-Z0-9_-]*):\s*(?P<val>\"|\'|\d|None(?![A-Za-z0-9_]))', '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
@@ -114,13 +124,14 @@ class Element(object):
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
-                            # Replace variables in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
-                            v = attributes_dict[k] = re.sub('^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9_]*)\s*$', '{{\g<variable>}}', attributes_dict[k])
+                            # Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
+                            v = attributes_dict[k] = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
                             v = v.decode('utf-8')
                             self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s'%attribute_dict_string)
+                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
 

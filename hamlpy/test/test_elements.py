@@ -4,6 +4,24 @@ from hamlpy.elements import Element
 
 class TestElement(object):
 
+        def test_attribute_value_not_quoted_when_looks_like_key(self):
+            sut = Element('')
+            s1 = sut._parse_attribute_dictionary('''{name:"viewport", content:"width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1"}''')
+            eq_(s1['content'], 'width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1')
+            eq_(s1['name'], 'viewport')
+
+            sut = Element('')
+            s1 = sut._parse_attribute_dictionary('''{style:"a:x, b:'y', c:1, e:3"}''')
+            eq_(s1['style'], "a:x, b:'y', c:1, e:3")
+
+            sut = Element('')
+            s1 = sut._parse_attribute_dictionary('''{style:"a:x, b:'y', c:1, d:\\"dk\\", e:3"}''')
+            eq_(s1['style'], '''a:x, b:'y', c:1, d:"dk", e:3''')
+
+            sut = Element('')
+            s1 = sut._parse_attribute_dictionary('''{style:'a:x, b:\\'y\\', c:1, d:"dk", e:3'}''')
+            eq_(s1['style'], '''a:x, b:'y', c:1, d:"dk", e:3''')
+
         def test_dashes_work_in_attribute_quotes(self):
             sut = Element('')
             s1 = sut._parse_attribute_dictionary('''{"data-url":"something", "class":"blah"}''')
