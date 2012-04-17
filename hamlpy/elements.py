@@ -30,7 +30,7 @@ class Element(object):
 
     RUBY_HAML_REGEX = re.compile(r'(:|\")%s(\"|) =>'%(_ATTRIBUTE_KEY_REGEX))
     ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s:\s*%s'%(_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX))
-    DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9_-]*)\s*$')
+    DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
 
     def __init__(self, haml):
