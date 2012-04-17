@@ -43,6 +43,7 @@ You can specify a specific doctype after the !!! The following doctypes are supp
 * `!!! Frameset`: XHTML 1.0 Frameset
 * `!!! 5`: XHTML 5
 * `!!! 1.1`: XHTML 1.1
+* `!!! XML`: XML prolog
 
 ## HTML Elements
 

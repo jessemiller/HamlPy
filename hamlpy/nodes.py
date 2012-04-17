@@ -252,21 +252,28 @@ class ConditionalCommentNode(HamlNode):
         
 
 class DoctypeNode(HamlNode):
-    
+
     def render(self):
-        doctype = self.haml.lstrip(DOCTYPE).strip()
-        
-        if doctype == "":
+        parts = self.haml.lstrip(DOCTYPE).split()
+
+        if len(parts) == 0:
             content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'
-        if doctype == "Strict":
-            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
-        if doctype == "Frameset":
-            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
-        if doctype == "5":
-            content = '<!DOCTYPE html>'
-        if doctype == "1.1":
-            content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
-        
+        else:
+            doctype = parts[0]
+            if doctype == "XML":
+                encoding = 'utf-8'
+                if len(parts) > 1:
+                    encoding = parts[1]
+                content = "<?xml version='1.0' encoding='%s' ?>" % encoding
+            if doctype == "Strict":
+                content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">'
+            if doctype == "Frameset":
+                content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">'
+            if doctype == "5":
+                content = '<!DOCTYPE html>'
+            if doctype == "1.1":
+                content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
+
         return "%s\n" % content
 
 class HamlCommentNode(HamlNode):

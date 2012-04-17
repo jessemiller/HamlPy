@@ -182,7 +182,21 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result.replace('\n', ''))
-        
+
+    def test_doctype_xml_utf8(self):
+        haml = '!!! XML'
+        html = "<?xml version='1.0' encoding='utf-8' ?>"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result.replace('\n', ''))
+
+    def test_doctype_xml_encoding(self):
+        haml = '!!! XML iso-8859-1'
+        html = "<?xml version='1.0' encoding='iso-8859-1' ?>"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result.replace('\n', ''))
+
     def test_plain_filter_with_indentation(self):
         haml = ":plain\n    -This should be plain text\n    .This should be more\n      This should be indented"
         html = "-This should be plain text\n.This should be more\n  This should be indented\n"
