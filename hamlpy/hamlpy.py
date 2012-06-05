@@ -10,6 +10,7 @@ class Compiler:
         root = RootNode()
         line_iter = iter(haml_lines)
 
+        haml_node=None
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
@@ -24,8 +25,13 @@ class Compiler:
                         except StopIteration:
                             raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
                         node_lines += line
-            haml_node = create_node(node_lines)
-            root.add_node(haml_node)
+
+            # Blank lines
+            if haml_node is not None and len(node_lines.strip()) == 0:
+                haml_node.newlines += 1
+            else:
+                haml_node = create_node(node_lines)
+                root.add_node(haml_node)
         return root.render()
 
 def convert_files():
