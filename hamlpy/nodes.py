@@ -210,9 +210,13 @@ class ElementNode(HamlNode):
             content = content.strip()
         
         if element.self_close and not content:
-            result += " />\n" + "\n"*self.newlines
+            result += " />" + "\n"*(self.newlines+1)
         else:
-            result += ">%s%s</%s>\n" % ("\n"*self.newlines, content, element.tag)
+            # If element content is inline, we should put any newlines after the tag
+            if element.inline_content:
+                result += ">%s</%s>\n%s" % (content, element.tag, "\n"*self.newlines)
+            else:
+                result += ">%s%s</%s>\n" % ("\n"*self.newlines, content, element.tag)
 
         return result
 
@@ -284,7 +288,7 @@ class VariableNode(ElementNode):
     
     def render(self):
         tag_content = self.haml.lstrip(VARIABLE)
-        return "%s%s" % (self.spaces, self._render_tag_content(tag_content), '\n'*(self.newlines+1))
+        return "%s%s%s" % (self.spaces, self._render_tag_content(tag_content), '\n'*(self.newlines+1))
 
 
 class TagNode(HamlNode):
