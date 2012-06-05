@@ -63,13 +63,13 @@ class TestTemplateCompare(unittest.TestCase):
         col=1
         
         for i, _ in enumerate(shorter):
+            if s1[i] != s2[i]:
+                return line,col,s1[i],s2[i]
             if shorter[i]=='\n':
                 line += 1
                 col=1
-            if s1[i] != s2[i]:
-                return line,col,s1[i],s2[i]
 
-            col+=1
+        col+=1
 
         return -1,-1,'',''
 
@@ -89,8 +89,8 @@ class TestTemplateCompare(unittest.TestCase):
             print 'HAML generated: '
             print '\n'.join(["%d. %s" % (i, l) for i, l in enumerate(parsed.split('\n')) ])
             print 'Difference begins at line', line, 'column', col
-            print 'Character code in parsed:', ord(c1)
-            print 'Character code in HTML file:', ord(c2)
+            print 'Character code (actual):', ord(c1)
+            print 'Character code (expected):', ord(c2)
         eq_(parsed, html)
         
 if __name__ == '__main__':
