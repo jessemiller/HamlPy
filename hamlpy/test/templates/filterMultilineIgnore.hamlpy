@@ -2,7 +2,9 @@
 	alt: "{{nothing}}"}
 :plain
 	These { { braces
+
 	should } not be interpreted as a multiline string
+
 :css
 	.test {
 		display: inline;
