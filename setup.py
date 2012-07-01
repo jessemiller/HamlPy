@@ -11,8 +11,7 @@ setup(name='hamlpy',
       keywords = 'haml django converter',
       url = 'http://github.com/jessemiller/HamlPy',
       license = 'MIT',
-      requires = [
-        'django',
+      install_requires = [
         'pygments'
       ],
       entry_points = {
