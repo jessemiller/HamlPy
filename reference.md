@@ -2,8 +2,20 @@
 
 ## Installing
 
-	easy_install hamlpy
-	
+### PyPi
+
+    easy_install hamlpy
+
+or
+
+    pip install hamlpy
+
+### Latest from Github
+
+*Go to http://pypi.python.org/pypi/hamlpy to see how current the version is that you will get via regular pip or easy_install.
+
+    pip install https://github.com/jessemiller/HamlPy/tarball/master
+
 ## Usage
 
 To simply output the conversion to your console:
@@ -292,7 +304,23 @@ Variables can also be used in attributes, but only if the attribute contains not
 is compiled to:
 
 	<a href='{{some_url}}'></a>
-	
+
+The quotes around '= var.subar' are necessary for parsing varibles within attribute dictionaries, even if the output of the variable is a string. For example:
+
+    %a{'href':= some_url}
+
+Will fail to parse into .html. It is interpreted as a dictionary first, then the regex to search for Django variables is run on value. Regex:
+
+	r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$'
+
+For hairy variable syntaxes that will not get picked up by this regex, you'll have to output the actual Django template syntax in a string. For example, in django-social-auth logins you need a link that looks like:
+
+    <a href="{% url socialauth_begin 'github' %}">Login with Github</a>
+
+The best way to get there is:
+
+    %a{'href': "{% url socialauth_begin 'github' %}"} Login with Github
+
 ### Django Tags: -
 
 The hypen character at the start of the line followed by a space and a Django tag will be inserted as a Django tag.  For example:
@@ -371,8 +399,9 @@ This will output the filtered text with syntax highlighting using Pygments.
 
 Execute the filtered text as python and outputs the result in the file. For example:
 
-	for i in range(0, 5): print "<p>item %s</p>" % i
-	
+	:python
+		for i in range(0, 5): print "<p>item %s</p>" % i
+
 is compiled to:
 
 	<p>item 0</p>
