@@ -2,17 +2,13 @@
 
 ## Installing
 
-### PyPi
-
     easy_install hamlpy
 
 or
 
     pip install hamlpy
 
-### Latest from Github
-
-*Go to http://pypi.python.org/pypi/hamlpy to see how current the version is that you will get via regular pip or easy_install.
+The latest development version can be installed from:
 
     pip install https://github.com/jessemiller/HamlPy/tarball/master
 
@@ -305,21 +301,7 @@ is compiled to:
 
 	<a href='{{some_url}}'></a>
 
-The quotes around '= var.subar' are necessary for parsing varibles within attribute dictionaries, even if the output of the variable is a string. For example:
-
-    %a{'href':= some_url}
-
-Will fail to parse into .html. It is interpreted as a dictionary first, then the regex to search for Django variables is run on value. Regex:
-
-	r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$'
-
-For hairy variable syntaxes that will not get picked up by this regex, you'll have to output the actual Django template syntax in a string. For example, in django-social-auth logins you need a link that looks like:
-
-    <a href="{% url socialauth_begin 'github' %}">Login with Github</a>
-
-The best way to get there is:
-
-    %a{'href': "{% url socialauth_begin 'github' %}"} Login with Github
+The quotes around `= some_url` are requires when the variable is used as an attribute value. The attribute is first parsed as a dictionary, before HamlyPy looks for the variable syntax.
 
 ### Django Tags: -
 
@@ -346,6 +328,18 @@ is compiled to:
 	
 	
 Notice that block, for, if and else, as well as ifequal, ifnotequal, ifchanged and 'with' are all automatically closed.  Using endfor, endif, endifequal, endifnotequal, endifchanged or endblock will throw an exception.
+
+#### Tags within attributes:
+
+This is not yet supported: `%div{'attr':"- firstof var1 var2 var3"}` will not insert the `{% ... %}`.
+
+The workaround is to insert actual django template tag code into the haml. For example, django-social-auth login links need to look like:
+
+    <a href="{% url socialauth_begin 'github' %}">Login with Github</a>
+
+The haml that will get there:
+
+    %a{'href': "{% url socialauth_begin 'github' %}"} Login with Github
 
 ### Whitespace removal:
 
