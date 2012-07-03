@@ -2,11 +2,7 @@
 
 ## Installing
 
-    easy_install hamlpy
-
-or
-
-    pip install hamlpy
+`easy_install hamlpy` or `pip install hamlpy`
 
 The latest development version can be installed from:
 
