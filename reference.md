@@ -301,7 +301,7 @@ is compiled to:
 
 	<a href='{{some_url}}'></a>
 
-The quotes around `= some_url` are requires when the variable is used as an attribute value. The attribute is first parsed as a dictionary, before HamlyPy looks for the variable syntax.
+The quotes around `= some_url` are required because attributes are first parsed as a dictionary, before HamlyPy looks for the variable syntax.
 
 ### Django Tags: -
 
