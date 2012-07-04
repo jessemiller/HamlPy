@@ -2,8 +2,12 @@
 
 ## Installing
 
-	easy_install hamlpy
-	
+`easy_install hamlpy` or `pip install hamlpy`
+
+The latest development version can be installed from:
+
+    pip install https://github.com/jessemiller/HamlPy/tarball/master
+
 ## Usage
 
 To simply output the conversion to your console:
@@ -292,7 +296,9 @@ Variables can also be used in attributes, but only if the attribute contains not
 is compiled to:
 
 	<a href='{{some_url}}'></a>
-	
+
+The quotes around `= some_url` are required because attributes are first parsed as a dictionary, before HamlyPy looks for the variable syntax.
+
 ### Django Tags: -
 
 The hypen character at the start of the line followed by a space and a Django tag will be inserted as a Django tag.  For example:
@@ -318,6 +324,18 @@ is compiled to:
 	
 	
 Notice that block, for, if and else, as well as ifequal, ifnotequal, ifchanged and 'with' are all automatically closed.  Using endfor, endif, endifequal, endifnotequal, endifchanged or endblock will throw an exception.
+
+#### Tags within attributes:
+
+This is not yet supported: `%div{'attr':"- firstof var1 var2 var3"}` will not insert the `{% ... %}`.
+
+The workaround is to insert actual django template tag code into the haml. For example, django-social-auth login links need to look like:
+
+    <a href="{% url socialauth_begin 'github' %}">Login with Github</a>
+
+The haml that will get there:
+
+    %a{'href': "{% url socialauth_begin 'github' %}"} Login with Github
 
 ### Whitespace removal:
 
@@ -371,8 +389,9 @@ This will output the filtered text with syntax highlighting using Pygments.
 
 Execute the filtered text as python and outputs the result in the file. For example:
 
-	for i in range(0, 5): print "<p>item %s</p>" % i
-	
+	:python
+		for i in range(0, 5): print "<p>item %s</p>" % i
+
 is compiled to:
 
 	<p>item 0</p>
