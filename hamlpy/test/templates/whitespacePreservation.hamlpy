@@ -1,0 +1,130 @@
+-# Test plaintext/elements
+%pre
+
+
+	%div{class:'something'}
+	
+	
+		Some text
+		
+		Some other text
+		
+		
+		Some more text
+
+
+-# Test self-closing tag
+%input{type:'text'}
+
+
+-# Test inline element
+%div{class:'something'}= var
+
+
+-# Test Django tag
+- if something
+	
+	Test 1
+	
+	%div
+	
+	
+		Test 2
+
+
+-# Test filters
+:plain
+	
+	Some text
+	Some plain text
+	
+	Some more text
+	
+	
+	One more text
+	
+:css
+		
+	Some text
+	Some plain text
+	
+	Some more text
+	
+	
+	One more text
+	
+:stylus
+		
+	Some text
+	Some plain text
+	
+	Some more text
+	
+	
+	One more text
+
+:cdata
+		
+	Some text
+	Some plain text
+	
+	Some more text
+	
+	
+	One more text
+	
+:coffee
+	
+	Some text
+	Some plain text
+	
+	Some more text
+	
+	
+	One more text
+
+:javascript
+		
+	Some text
+	Some plain text
+	
+	Some more text
+	
+	
+	One more text
+
+-# Test inner whitespace removal
+
+%div<
+	
+	Test
+	
+	asd
+
+-# Test outer whitespace removal
+	
+%p
+
+	%li Item one
+	
+	%li> Item two
+	
+	%li Item three
+	
+%p
+
+	%li>
+		Item one
+
+%p
+
+	%li> Item one
+	
+	
+	%li Item two
+	
+	%li Item three
+
+%input
+%input>
+%input

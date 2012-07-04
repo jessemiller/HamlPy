@@ -4,4 +4,3 @@
 - blocktrans with object.duration_as_time as dur
   %span.jtimer.bigger {{ dur }}
   remain
-

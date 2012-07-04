@@ -85,10 +85,10 @@ def create_node(haml_line):
     if stripped_line == CDATA_FILTER:
         return CDataFilterNode(haml_line)
 		
-	if stripped_line == PYGMENTS_FILTER:
-		return PygmentsFilterNode(haml_line)
+    if stripped_line == PYGMENTS_FILTER:
+        return PygmentsFilterNode(haml_line)
     
-    return HamlNode(haml_line)
+    return HamlNode(haml_line.rstrip())
 
 class RootNode:
     
@@ -123,7 +123,31 @@ class RootNode:
         return self.render_internal_nodes()
     
     def render_internal_nodes(self):
-        return ''.join([node.render() for node in self.internal_nodes])
+        nodes = [node.render() for node in self.internal_nodes]
+        
+        # Outer Whitespace removal
+        for i, node in enumerate(self.internal_nodes):
+            if hasattr(node, 'element') and node.element.nuke_outer_whitespace:
+                if i>0:
+                    # If node has previous sibling, strip whitespace after previous sibling
+                    nodes[i-1] = nodes[i-1].rstrip()
+                else:
+                    # If not, whitespace comes from it's parent node,
+                    # so don't print whitespace before the node
+                    self.pre_space = ''
+                    self.newlines = 0
+
+                nodes[i] = nodes[i].strip()
+
+                if i<len(self.internal_nodes)-1:
+                    # If we have a sibling to the right, left-strip it
+                    nodes[i+1] = nodes[i+1].lstrip()
+                else:
+                    # We're the last sibling, print nothing after
+                    self.post_space = ''
+                    self.newlines = 0
+
+        return ''.join(nodes)
     
     def has_internal_nodes(self):
         return len(self.internal_nodes) > 0
@@ -137,40 +161,17 @@ class HamlNode(RootNode):
     def __init__(self, haml):
         RootNode.__init__(self)
         self.haml = haml.strip()
+        # For preserving whitespace by tracking the number of blank lines after the node in the HAML file
+        self.newlines = 0
         self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
         self.spaces = ''.join(haml[0] for i in range(self.indentation))
 
         self.pre_space = '\n'
         self.post_space = self.spaces
-        self.space_after_internal = True
 
-    def render_internal_nodes(self):
-        nodes = [node.render() for node in self.internal_nodes]
-
-        # Outer Whitespace removal
-        for i, node in enumerate(self.internal_nodes):
-            if hasattr(node, 'element') and node.element.nuke_outer_whitespace:
-                if i>0:
-                    # If node has previous sibling, strip whitespace after previous sibling
-                    nodes[i-1] = nodes[i-1].rstrip()
-                else:
-                    # If not, whitespace comes from it's parent node,
-                    # so don't print whitespace before the node
-                    self.pre_space = ''
-
-                nodes[i] = nodes[i].strip()
-
-                if i<len(self.internal_nodes)-1:
-                    nodes[i+1] = nodes[i+1].lstrip()
-                else:
-                    self.post_space = ''
-
-        return ''.join(nodes)
-
-    
     def render(self):
-        return ''.join([self.spaces, self.haml, '\n', self.render_internal_nodes()])
+        return ''.join([self.spaces, self.haml, '\n'*(self.newlines+1), self.render_internal_nodes()])
 
     def __repr__(self):
         return '(%s) %s' % (self.__class__, self.haml)
@@ -208,9 +209,15 @@ class ElementNode(HamlNode):
             content = content.strip()
         
         if element.self_close and not content:
-            result += " />\n"
+            result += " />" + "\n"*(self.newlines+1)
         else:
-            result += ">%s</%s>\n" % (content, element.tag)
+            # If element content is inline, we should put any newlines after the tag
+            if element.inline_content:
+                nl = '\n'*(self.newlines+1) if not element.nuke_outer_whitespace else ''
+                result += ">%s</%s>%s" % (content, element.tag, nl)
+            else:
+                nl = '\n'*self.newlines if not element.nuke_inner_whitespace else ''
+                result += ">%s%s</%s>\n" % (nl, content, element.tag)
 
         return result
 
@@ -274,12 +281,12 @@ class DoctypeNode(HamlNode):
             if doctype == "1.1":
                 content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
 
-        return "%s\n" % content
+        return "%s%s" % (content, '\n'*(self.newlines+1))
 
 class HamlCommentNode(HamlNode):
     
     def render(self):
-        return ''
+        return '\n'*self.newlines
 
 
 class VariableNode(ElementNode):
@@ -289,7 +296,7 @@ class VariableNode(ElementNode):
     
     def render(self):
         tag_content = self.haml.lstrip(VARIABLE)
-        return "%s%s\n" % (self.spaces, self._render_tag_content(tag_content))
+        return "%s%s%s" % (self.spaces, self._render_tag_content(tag_content), '\n'*(self.newlines+1))
 
 
 class TagNode(HamlNode):
@@ -325,7 +332,7 @@ class TagNode(HamlNode):
     
     def render(self):
         internal = self.render_internal_nodes()
-        output = "%s{%% %s %%}%s%s" % (self.spaces, self.tag_statement, self.pre_space, internal)
+        output = "%s{%% %s %%}%s%s%s" % (self.spaces, self.tag_statement, '\n'*self.newlines, self.pre_space, internal)
         if (self.tag_name in self.self_closing.keys()):
             output += '%s{%% %s %%}\n' % (self.post_space, self.self_closing[self.tag_name])
         return output
@@ -346,7 +353,7 @@ class PlainFilterNode(FilterNode):
     def render(self):
         if self.internal_nodes:
             first_indentation = self.internal_nodes[0].indentation
-        return "".join([node.raw_haml[first_indentation:] + '\n' for node in self.internal_nodes])
+        return '\n'*self.newlines + "".join([ node.raw_haml[first_indentation:] + '\n'*(node.newlines+1) for node in self.internal_nodes])
 
 
 class PythonFilterNode(FilterNode):
@@ -363,41 +370,46 @@ class PythonFilterNode(FilterNode):
 
 class JavascriptFilterNode(FilterNode):
     def render(self):
-        output = '<script type=\'text/javascript\'>\n// <![CDATA[\n'
-        output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
+        output = '<script type=\'text/javascript\'>\n// <![CDATA['
+        output += '\n'*(self.newlines+1)
+        output += "".join((''.join((node.spaces, node.haml, '\n'*(node.newlines+1))) for node in self.internal_nodes))
         output += '// ]]>\n</script>\n'
         return output
         
         
 class CoffeeScriptFilterNode(FilterNode):
     def render(self):
-        output = '<script type=\'text/coffeescript\'>#<![CDATA[\n'
-        output += ''.join([node.raw_haml for node in self.internal_nodes])
-        output += '\n#]]></script>'
+        output = '<script type=\'text/coffeescript\'>\n#<![CDATA['
+        output += '\n'*(self.newlines+1)
+        output += ''.join([''.join((node.raw_haml,'\n'*(node.newlines+1))) for node in self.internal_nodes])
+        output += '#]]>\n</script>\n'
         return output
 
 
 class CssFilterNode(FilterNode):
     def render(self):
-        output = '<style type=\'text/css\'>\n/*<![CDATA[*/\n'
-        output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
+        output = '<style type=\'text/css\'>\n/*<![CDATA[*/'
+        output += '\n'*(self.newlines+1)
+        output += "".join((''.join((node.spaces, node.haml,'\n'*(node.newlines+1))) for node in self.internal_nodes))
         output += '/*]]>*/\n</style>\n'
         return output
 
 
 class StylusFilterNode(FilterNode):
     def render(self):
-        output = '<style type=\'text/stylus\'>\n/*<![CDATA[*/\n'
+        output = '<style type=\'text/stylus\'>\n/*<![CDATA[*/'
+        output += '\n'*(self.newlines+1)
         first_indentation = self.internal_nodes[0].indentation
-        output += '\n'.join([node.raw_haml[first_indentation:] for node in self.internal_nodes])
-        output += '\n/*]]>*/\n</style>\n'
+        output += ''.join([''.join((node.raw_haml[first_indentation:],'\n'*(node.newlines+1))) for node in self.internal_nodes])
+        output += '/*]]>*/\n</style>\n'
         return output
 
 
 class CDataFilterNode(FilterNode):
     def render(self):
-        output = self.spaces + '<![CDATA[\n'
-        output += "".join((''.join((node.spaces, node.haml,'\n')) for node in self.internal_nodes))
+        output = self.spaces + '<![CDATA['
+        output += '\n'*(self.newlines+1)
+        output += ''.join((''.join((node.spaces, node.haml,'\n'*(node.newlines+1))) for node in self.internal_nodes))
         output += self.spaces + ']]>\n'
         return output
 		
