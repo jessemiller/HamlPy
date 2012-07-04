@@ -12,7 +12,7 @@ setup(name='hamlpy',
       url = 'http://github.com/jessemiller/HamlPy',
       license = 'MIT',
       install_requires = [
-          'Django',
+          'django',
           'pygments'
       ],
       entry_points = {
