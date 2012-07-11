@@ -36,9 +36,6 @@ HAML_ESCAPE = '\\'
 def create_node(haml_line):
     stripped_line = haml_line.strip()
     
-    if not stripped_line:
-        return None
-        
     if stripped_line[0] == HAML_ESCAPE:
         return PlaintextNode(haml_line.lstrip(HAML_ESCAPE))
         
@@ -413,7 +410,7 @@ class FilterNode(HamlNode):
         if (node == None):
             return
         else:
-            self.children.append(node)
+            self.add_child(node)
 
     def _render_children_as_plain_text(self,remove_indentation=True):
         if self.children:
