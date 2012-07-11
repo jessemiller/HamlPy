@@ -132,6 +132,9 @@ class RootNode(TreeNode):
         # Generate HTML
         return self._generate_html()
 
+    def render_newlines(self):
+        return '\n'*(self.newlines+1)
+
     def parent_of(self, node):
         if (self._should_go_inside_last_node(node)):
             ret = self.children[-1].parent_of(node)
@@ -202,10 +205,10 @@ class PlaintextNode(HamlNode):
     '''Node that is not modified or processed when rendering'''
     def _render(self):
         self.before = '%s%s' % (self.spaces, self.replace_inline_variables(self.haml))
-        if self. children:
-            self.before += "\n%s" % ('\n'*self.newlines)
+        if self.children:
+            self.before += self.render_newlines()
         else:
-            self.after = "\n%s" % ('\n'*self.newlines)
+            self.after = self.render_newlines()
         self._render_children()
 
 class ElementNode(HamlNode):
@@ -241,7 +244,7 @@ class ElementNode(HamlNode):
         elif content:
             start.append(">%s" % (content))
         elif self.children:
-            start.append(">\n%s" % ('\n'*(self.newlines)))
+            start.append(">%s" % (self.render_newlines()))
         else:
             start.append(">")
         return ''.join(start)
@@ -249,9 +252,9 @@ class ElementNode(HamlNode):
     def _render_after(self, element):
         '''Render closing tag'''
         if element.self_close:
-            return '\n%s' % ('\n'*(self.newlines))
+            return self.render_newlines()
         elif element.inline_content:
-            return "</%s>\n%s" % (element.tag, '\n'*(self.newlines))
+            return "</%s>%s" % (element.tag, self.render_newlines())
         elif self.children:
             return "%s</%s>\n" % (self.spaces, element.tag)
         else:
@@ -305,7 +308,7 @@ class CommentNode(HamlNode):
     def _render(self):
         self.after =  "-->\n"
         if self.children:
-            self.before ="<!-- %s\n" % ('\n'*self.newlines)
+            self.before ="<!-- %s" % (self.render_newlines())
             self._render_children()
         else:
             self.before = "<!-- %s " % (self.haml.lstrip(HTML_COMMENT).strip())
@@ -339,11 +342,11 @@ class DoctypeNode(HamlNode):
             content = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'
         
         self.before = "%s" % (content)
-        self.after = "\n%s" % ('\n'*self.newlines)
+        self.after = self.render_newlines()
 
 class HamlCommentNode(HamlNode):
     def _render(self):
-        self.after = '\n'*self.newlines
+        self.after = self.render_newlines()[1:]
 
 class VariableNode(ElementNode):
     def __init__(self, haml):
@@ -353,7 +356,7 @@ class VariableNode(ElementNode):
     def _render(self):
         tag_content = self.haml.lstrip(VARIABLE)
         self.before = "%s%s" % (self.spaces, self._render_inline_content(tag_content))
-        self.after = "\n%s" % ('\n'*self.newlines)
+        self.after = self.render_newlines()
 
     def _post_render(self):
         pass
@@ -392,17 +395,16 @@ class TagNode(HamlNode):
     def _render(self):
         self.before = "%s{%% %s %%}" % (self.spaces, self.tag_statement)
         if (self.tag_name in self.self_closing.keys()):
-            self.before += "\n%s" % ('\n'*self.newlines)
-            self.after = '%s{%% %s %%}\n%s' % (self.spaces, self.self_closing[self.tag_name], '\n'*self.newlines)
+            self.before += self.render_newlines()
+            self.after = '%s{%% %s %%}%s' % (self.spaces, self.self_closing[self.tag_name], self.render_newlines())
         else:
             if self.children:
-                self.before += "\n%s" % ('\n'*self.newlines)
+                self.before += self.render_newlines()
             else:
-                self.after = "\n%s" % ('\n'*self.newlines)
+                self.after = self.render_newlines()
         self._render_children()
     
     def should_contain(self, node):
-        print "a", self.haml
         return isinstance(node,TagNode) and node.tag_name in self.may_contain.get(self.tag_name,'')
 
 
@@ -422,7 +424,7 @@ class FilterNode(HamlNode):
                 child.before = child.spaces
             else:
                 child.before = child.spaces[initial_indentation:]
-            child.before += ''.join([child.haml, '\n', '\n'*child.newlines])
+            child.before += ''.join([child.haml, child.render_newlines()])
 
     def _post_render(self):
         # Don't post-render children of filter nodes as we don't want them to be interpreted as HAML
@@ -449,31 +451,31 @@ class PythonFilterNode(FilterNode):
 
 class JavascriptFilterNode(FilterNode):
     def _render(self):
-        self.before = '<script type=\'text/javascript\'>\n// <![CDATA[\n%s' % ('\n'*self.newlines)
+        self.before = '<script type=\'text/javascript\'>\n// <![CDATA[%s' % (self.render_newlines())
         self.after = '// ]]>\n</script>\n'
         self._render_children_as_plain_text(remove_indentation=False)
 
 class CoffeeScriptFilterNode(FilterNode):
     def _render(self):
-        self.before = '<script type=\'text/coffeescript\'>\n#<![CDATA[\n%s' % ('\n'*self.newlines)
+        self.before = '<script type=\'text/coffeescript\'>\n#<![CDATA[%s' % (self.render_newlines())
         self.after = '#]]>\n</script>\n'
         self._render_children_as_plain_text(remove_indentation=False)
 
 class CssFilterNode(FilterNode):
     def _render(self):
-        self.before = '<style type=\'text/css\'>\n/*<![CDATA[*/\n%s' % ('\n'*self.newlines)
+        self.before = '<style type=\'text/css\'>\n/*<![CDATA[*/%s' % (self.render_newlines())
         self.after = '/*]]>*/\n</style>\n'
         self._render_children_as_plain_text(remove_indentation=False)
 
 class StylusFilterNode(FilterNode):
     def _render(self):
-        self.before = '<style type=\'text/stylus\'>\n/*<![CDATA[*/\n%s' % ('\n'*self.newlines)
+        self.before = '<style type=\'text/stylus\'>\n/*<![CDATA[*/%s' % (self.render_newlines())
         self.after = '/*]]>*/\n</style>\n'
         self._render_children_as_plain_text()
 
 class CDataFilterNode(FilterNode):
     def _render(self):
-        self.before = self.spaces + '<![CDATA[\n%s' % ('\n'*self.newlines)
+        self.before = self.spaces + '<![CDATA[%s' % (self.render_newlines())
         self.after = self.spaces + ']]>\n'
         self._render_children_as_plain_text(remove_indentation=False)
 
@@ -481,3 +483,4 @@ class PygmentsFilterNode(FilterNode):
     def _render(self):
         self.before = self.spaces
         self.before += highlighter(self.haml, guess_lexer(self.haml), HtmlFormatter())
+ 
