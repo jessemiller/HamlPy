@@ -330,7 +330,7 @@ class DoctypeNode(HamlNode):
         }
 
         if doctype in types:
-            self.before = content
+            self.before = types[doctype]
 
         self.after = self.render_newlines()
 
