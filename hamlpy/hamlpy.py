@@ -58,7 +58,6 @@ def convert_files():
         compiler = Compiler()
         output = compiler.process_lines(haml_lines, options=options)
         
-        # TODO: I broke this
         if len(args) == 2:
             outfile = codecs.open(args[1], 'w', encoding='utf-8')
             outfile.write(output)

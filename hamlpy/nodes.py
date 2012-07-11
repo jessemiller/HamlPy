@@ -351,7 +351,6 @@ class VariableNode(ElementNode):
         self.django_variable = True
     
     def _render(self):
-        # TODO: Haven't looked at this closely, may need to render children
         tag_content = self.haml.lstrip(VARIABLE)
         self.before = "%s%s" % (self.spaces, self._render_inline_content(tag_content))
         self.after = "\n%s" % ('\n'*self.newlines)
@@ -469,8 +468,6 @@ class CssFilterNode(FilterNode):
 class StylusFilterNode(FilterNode):
     def _render(self):
         self.before = '<style type=\'text/stylus\'>\n/*<![CDATA[*/\n%s' % ('\n'*self.newlines)
-        #first_indentation = self.children[0].indentation
-        #output += ''.join([''.join((node.raw_haml[first_indentation:],'\n'*(node.newlines+1))) for node in self.children])
         self.after = '/*]]>*/\n</style>\n'
         self._render_children_as_plain_text()
 
@@ -482,6 +479,5 @@ class CDataFilterNode(FilterNode):
 
 class PygmentsFilterNode(FilterNode):
     def _render(self):
-        # TODO this will only work with one line?
         self.before = self.spaces
         self.before += highlighter(self.haml, guess_lexer(self.haml), HtmlFormatter())
