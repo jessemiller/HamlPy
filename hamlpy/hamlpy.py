@@ -4,9 +4,9 @@ from optparse import OptionParser
 import sys
 
 class Compiler:
-    def process(self, raw_text):
+    def process(self, raw_text, options=None):
         split_text = raw_text.strip().split('\n')
-        return self.process_lines(split_text)
+        return self.process_lines(split_text, options)
 
     def process_lines(self, haml_lines, options=None):
         

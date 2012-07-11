@@ -178,6 +178,9 @@ class RootNode(TreeNode):
                 output += self._debug_tree(n.children)
         return output
 
+    def __repr__(self):
+        return '(%s)' % (self.__class__)
+
 class HamlNode(RootNode):   
     def __init__(self, haml):
         RootNode.__init__(self)

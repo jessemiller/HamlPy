@@ -147,7 +147,20 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
-        
+    
+    def test_debug_tools_work(self):
+    	class Mock(object):
+          def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+	haml = ".test\n  .test2"
+	hamlParser = hamlpy.Compiler()
+	result = hamlParser.process(haml, options=Mock(debug_tree=True))
+	expected= "(<class 'hamlpy.nodes.RootNode'>)\n"
+	expected+="  (<class 'hamlpy.nodes.ElementNode'> .test)\n"
+	expected+="    (<class 'hamlpy.nodes.ElementNode'> .test2)"
+	eq_(result, expected)
+	
     def test_escaped_haml(self):
         haml = "\\= Escaped"
         html = "= Escaped\n"
