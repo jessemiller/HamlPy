@@ -158,9 +158,6 @@ class RootNode(TreeNode):
         return ''.join(output)
     
     def add_node(self, node):
-        if (node == None):
-            return
-        
         if (self._should_go_inside_last_node(node)):
             self.children[-1].add_node(node)
         else:
@@ -407,10 +404,7 @@ class TagNode(HamlNode):
 
 class FilterNode(HamlNode):
     def add_node(self, node):
-        if (node == None):
-            return
-        else:
-            self.add_child(node)
+        self.add_child(node)
 
     def _render_children_as_plain_text(self,remove_indentation=True):
         if self.children:
