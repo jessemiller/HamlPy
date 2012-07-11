@@ -435,7 +435,6 @@ class PlainFilterNode(FilterNode):
     def _render(self):
         if self.children:
             first_indentation = self.children[0].indentation
-        self.start = '\n'*self.newlines + "".join([ node.raw_haml[first_indentation:] + '\n'*(node.newlines+1) for node in self.children])
         self._render_children_as_plain_text()
 
 class PythonFilterNode(FilterNode):
