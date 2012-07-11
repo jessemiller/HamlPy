@@ -17,16 +17,6 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            # GOT IT! Don't join the lines, preserve them, for parsing as dict and for attribute logic
-            # since python can parse multiline dict anyway. huzzah.
-            # Check for multi-line string when parent is not a FilterNode
-            # TODO: Do we even need to merge the multiline? YES because we need to parse it.
-            # Then why not: Check if it's an element node by checking for the ^\s+% and
-            # the '{' without the '}', then read until we get the '-1' condition.
-            # But we don't want to merge it still if it's in a Filter Node.
-            # Python can
-            # handle multiline dicts. If needed, move to ElementNode
-            # Remove the False
             if not isinstance(root.parent_of( HamlNode(line) ), FilterNode):
                 if line.count('{') - line.count('}') == 1:
                     start_multiline=line_number # For exception handling
