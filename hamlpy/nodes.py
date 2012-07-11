@@ -103,12 +103,9 @@ class TreeNode(object):
         index=siblings.index(self)
         return siblings[index+1] if index<len(siblings)-1 else None
 
-    def add_child(self,child,index=None):
+    def add_child(self,child):
         child.parent=self
-        if index:
-            self.children.insert(index, child)
-        else:
-            self.children.append(child)
+        self.children.append(child)
 
 class RootNode(TreeNode):
     def __init__(self):
