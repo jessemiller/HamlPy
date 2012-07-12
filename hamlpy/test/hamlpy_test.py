@@ -149,17 +149,17 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
     
     def test_debug_tools_work(self):
-    	class Mock(object):
-          def __init__(self, **kwargs):
-            self.__dict__.update(kwargs)
+        class Mock(object):
+            def __init__(self, **kwargs):
+                self.__dict__.update(kwargs)
 
-	haml = ".test\n  .test2"
-	hamlParser = hamlpy.Compiler()
-	result = hamlParser.process(haml, options=Mock(debug_tree=True))
-	expected= "(<class 'hamlpy.nodes.RootNode'>)\n"
-	expected+="  (<class 'hamlpy.nodes.ElementNode'> .test)\n"
-	expected+="    (<class 'hamlpy.nodes.ElementNode'> .test2)"
-	eq_(result, expected)
+        haml = ".test\n  .test2"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml, options=Mock(debug_tree=True))
+        expected= "(<class 'hamlpy.nodes.RootNode'>)\n"
+        expected+="  (<class 'hamlpy.nodes.ElementNode'> .test)\n"
+        expected+="    (<class 'hamlpy.nodes.ElementNode'> .test2)"
+        eq_(result, expected)
 	
     def test_escaped_haml(self):
         haml = "\\= Escaped"
@@ -231,11 +231,24 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
         
-	def test_pygments_filter(self):
-		haml = ":highlight\nprint \"Hello, HamlPy World!"
-		html = "<div class=\"highlight\"><pre><span class=\"k\">print</span> <span class=\"err\">&quot;</span><span class=\"n\">Hello</span><span class=\"p\">,</span> <span class=\"n\">HamlPy</span> <span class=\"n\">World</span><span class=\"o\">!</span></pre></div>"
-				
-		hamlParser = hamlpy.Compiler()
+    def test_pygments_filter(self):
+        haml = '''
+            :highlight
+              print "hi"
+
+              if x:
+                  print "y":
+              else:
+                  print "z":
+        '''
+	html = '\n<div class="highlight"><pre><span class="n">print</span> &quot;<span class="n">hi</span>&quot;' \
+                + '\n\n<span class="k">if</span> <span class="n">x</span><span class="p">:</span>' \
+                + '\n    <span class="n">print</span> &quot;<span class="n">y</span>&quot;<span class="p">:</span>' \
+                + '\n<span class="k">else</span><span class="p">:</span>' \
+                + '\n    <span class="n">print</span> &quot;<span class="n">z</span>&quot;<span class="p">:</span>' \
+                + '\n</pre></div>\n'
+	
+	hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
 		

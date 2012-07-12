@@ -392,7 +392,11 @@ Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for inclu
 
 ### :highlight
 
-This will output the filtered text with syntax highlighting using Pygments.
+This will output the filtered text with syntax highlighting using [Pygments](http://pygments.org).
+
+For syntax highlighting to work correctly, You will need to generate or include a Pygments CSS file. See
+the section ["Generating styles"](http://pygments.org/docs/cmdline/#generating-styles) in the Pygments
+documentation for more information.
 
 ### :python
 

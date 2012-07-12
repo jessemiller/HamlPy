@@ -6,7 +6,7 @@ from elements import Element
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
-from pygments.lexers import guess_lexer, guess_lexer_for_filename
+from pygments.lexers import guess_lexer
 
 ELEMENT = '%'
 ID = '#'
@@ -475,6 +475,10 @@ class CDataFilterNode(FilterNode):
 
 class PygmentsFilterNode(FilterNode):
     def _render(self):
-        self.before = self.spaces
-        self.before += highlighter(self.haml, guess_lexer(self.haml), HtmlFormatter())
- 
+        if self.children:
+            self.before = self.render_newlines()
+            indent_offset = len(self.children[0].spaces)
+            text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
+            self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+        else:
+            self.after = self.render_newlines()
