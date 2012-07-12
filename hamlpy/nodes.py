@@ -434,14 +434,30 @@ class PlainFilterNode(FilterNode):
 
 class PythonFilterNode(FilterNode):
     def _render(self):
-        code = compile("".join([node.raw_haml.strip() + '\n' for node in self.children]), "", "exec")
-        
-        buffer = StringIO()
-        sys.stdout = buffer
-        exec code
-        # restore the original stdout
-        sys.stdout = sys.__stdout__
-        self.before = buffer.getvalue()
+        if self.children:
+            self.before = self.render_newlines()
+            indent_offset = len(self.children[0].spaces)
+            code = "\n".join([node.raw_haml[indent_offset:] for node in self.children]) + '\n'
+            compiled_code = compile(code, "", "exec")
+
+            buffer = StringIO()
+            sys.stdout = buffer
+            try:
+                exec compiled_code
+            except Exception as e:
+                # Change exception message to let developer know that exception comes from
+                # a PythonFilterNode
+                if e.args:
+                    args = list(e.args)
+                    args[0] = "Error in :python filter code: " + e.message
+                    e.args = tuple(args)
+                raise e
+            finally:
+                # restore the original stdout
+                sys.stdout = sys.__stdout__
+            self.before = buffer.getvalue()
+        else:
+            self.after = self.render_newlines()
 
 class JavascriptFilterNode(FilterNode):
     def _render(self):

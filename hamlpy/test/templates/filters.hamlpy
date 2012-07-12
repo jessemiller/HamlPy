@@ -12,3 +12,7 @@
   {
     return 1;
   }
+:python
+  a=1
+  for i in range(5):
+    print a+i

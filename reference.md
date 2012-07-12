@@ -382,7 +382,8 @@ documentation for more information.
 Execute the filtered text as python and output the result in the file. For example:
 
 	:python
-		for i in range(0, 5): print "<p>item %s</p>" % i
+		for i in range(0, 5): 
+			print "<p>item %s</p>" % i
 
 is compiled to:
 
@@ -392,4 +393,3 @@ is compiled to:
 	<p>item 3</p>
 	<p>item 4</p>
 
-**Only one-line script are currently supported.**
