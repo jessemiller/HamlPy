@@ -299,6 +299,15 @@ is compiled to:
 
 The quotes around `= some_url` are required because attributes are first parsed as a dictionary, before HamlyPy looks for the variable syntax.
 
+You can also use inline variables using the classic Ruby style. For example:
+
+	Hello #{name}, how are you today?
+
+is compiled to
+
+	Hello {{ name }}, how are you today?
+
+
 ### Django Tags: -
 
 The hypen character at the start of the line followed by a space and a Django tag will be inserted as a Django tag.  For example:
