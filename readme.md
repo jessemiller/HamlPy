@@ -4,7 +4,7 @@ HamlPy (pronounced "haml pie") is a tool for Django developers who want to use a
 HamlPy is not a template engine in itself but simply a compiler which will convert HamlPy files into templates that Django can understand.
 
 
-But wait, what is Haml?  Haml is an incredible template engine written in Ruby used a lot in the Rails community.  You can read more about it [here](http://www.haml-lang.com "Haml Home")
+But wait, what is Haml?  Haml is an incredible template engine written in Ruby used a lot in the Rails community.  You can read more about it [here](http://www.haml-lang.com "Haml Home").
 
 ## Installing
 

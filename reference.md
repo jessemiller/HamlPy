@@ -45,7 +45,7 @@ is compiled to:
 		</two>
 	</one>
 
-Any string is a valid element name and a opening and closing tag will automatically be generated.
+Any string is a valid element name and an opening and closing tag will automatically be generated.
 
 ### Attributes: {}
 
@@ -139,7 +139,7 @@ You can also use more pythonic array structures in the dictionary, like so:
 	
 #### Implicit div elements
 
-Because divs are used so often, they are the default element.  If you only define a class and/or id using . or # the %div will be implied.  For example:
+Because divs are used so often, they are the default element.  If you only define a class and/or id using `.` or `#` then the %div will be implied.  For example:
 
 	#collection
 		.item
@@ -177,7 +177,7 @@ will compile to:
 	
 ## Comments
 
-There are two types of comments supported.  Those that show up in the HTML and those that don't.
+There are two types of comments supported:  those that show up in the HTML and those that don't.
 
 ### HTML Comments /
 
@@ -316,19 +316,20 @@ Notice that block, for, if and else, as well as ifequal, ifnotequal, ifchanged a
 
 This is not yet supported: `%div{'attr':"- firstof var1 var2 var3"}` will not insert the `{% ... %}`.
 
-The workaround is to insert actual django template tag code into the haml. For example, django-social-auth login links need to look like:
+The workaround is to insert actual django template tag code into the haml. For example:
+
+    %a{'href': "{% url socialauth_begin 'github' %}"} Login with Github
+
+is compiled to:
 
     <a href="{% url socialauth_begin 'github' %}">Login with Github</a>
 
-The haml that will get there:
-
-    %a{'href': "{% url socialauth_begin 'github' %}"} Login with Github
 
 ### Whitespace removal:
 
 Sometimes we want to remove whitespace inside or around an element, usually to fix the spacing problem with inline-block elements (see "The Enormous Drawback" section of [this article](http://robertnyman.com/2010/02/24/css-display-inline-block-why-it-rocks-and-why-it-sucks/) for more details).
 
-To remove leading and trailing spaces **inside** a node, use the `<` character after an element. For example, this:
+To remove leading and trailing spaces **inside** a node ("inner whitespace removal"), use the `<` character after an element. For example, this:
 
 	%div
 		%pre<
@@ -340,7 +341,7 @@ is compiled to:
 	  <pre>{{ Foo }}</pre>
 	</div>
 
-To remove leading and trailing spaces **around** a node, use the `>` character after an element. For example, this:
+To remove leading and trailing spaces **around** a node ("outer whitespace removal"), use the `>` character after an element. For example, this:
 
 	%li Item one
 	%li> Item two
@@ -378,7 +379,7 @@ documentation for more information.
 
 ### :python
 
-Execute the filtered text as python and outputs the result in the file. For example:
+Execute the filtered text as python and output the result in the file. For example:
 
 	:python
 		for i in range(0, 5): print "<p>item %s</p>" % i
