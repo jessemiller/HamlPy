@@ -68,8 +68,7 @@ Or you can have it dump right into a file:
 	
 There is also a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
-	hamlpy-watcher <watch-folder>
-
+	hamlpy-watcher <watch-folder> [destination_folder]
 	
 ## Reference
 
