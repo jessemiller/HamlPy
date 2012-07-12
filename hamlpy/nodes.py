@@ -245,10 +245,10 @@ class ElementNode(HamlNode):
 
     def _render_after(self, element):
         '''Render closing tag'''
-        if element.self_close:
-            return self.render_newlines()
-        elif element.inline_content:
+        if element.inline_content:
             return "</%s>%s" % (element.tag, self.render_newlines())
+        elif element.self_close:
+            return self.render_newlines()
         elif self.children:
             return "%s</%s>\n" % (self.spaces, element.tag)
         else:
