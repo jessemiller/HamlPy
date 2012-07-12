@@ -48,9 +48,9 @@ class TestElementNode(unittest.TestCase):
         no_indentation_node.add_node(two_indentation_node)
         no_indentation_node.add_node(another_one_indentation_node)
         
-        self.assertEqual(one_indentation_node, no_indentation_node.internal_nodes[0])
-        self.assertEqual(two_indentation_node, no_indentation_node.internal_nodes[0].internal_nodes[0])
-        self.assertEqual(another_one_indentation_node, no_indentation_node.internal_nodes[1])
+        self.assertEqual(one_indentation_node, no_indentation_node.children[0])
+        self.assertEqual(two_indentation_node, no_indentation_node.children[0].children[0])
+        self.assertEqual(another_one_indentation_node, no_indentation_node.children[1])
     
     def test_adds_multiple_nodes_to_one(self):
         start = nodes.ElementNode('%div')
@@ -62,7 +62,7 @@ class TestElementNode(unittest.TestCase):
         start.add_node(two)
         start.add_node(three)
         
-        self.assertEqual(3, len(start.internal_nodes))
+        self.assertEqual(3, len(start.children))
 
     def test_html_indentation_vs_haml_indentation(self):
         pass
@@ -78,7 +78,7 @@ class TestElementNode(unittest.TestCase):
         ]
 
         for el in elements:
-            self.assertEqual(root.parent(el['node']), eval(el['expected_parent']))
+            self.assertEqual(root.parent_of(el['node']), eval(el['expected_parent']))
             root.add_node(el['node'])
 
 if __name__ == "__main__":

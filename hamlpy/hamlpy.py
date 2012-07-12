@@ -1,12 +1,15 @@
 #!/usr/bin/env python
 from nodes import RootNode, FilterNode, HamlNode, create_node
+from optparse import OptionParser
+import sys
 
 class Compiler:
-    def process(self, raw_text):
+    def process(self, raw_text, options=None):
         split_text = raw_text.strip().split('\n')
-        return self.process_lines(split_text)
+        return self.process_lines(split_text, options)
 
-    def process_lines(self, haml_lines):
+    def process_lines(self, haml_lines, options=None):
+        
         root = RootNode()
         line_iter = iter(haml_lines)
 
@@ -14,8 +17,7 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            # Check for multi-line string when parent is not a FilterNode
-            if not isinstance(root.parent( HamlNode(line) ), FilterNode):
+            if not isinstance(root.parent_of( HamlNode(line) ), FilterNode):
                 if line.count('{') - line.count('}') == 1:
                     start_multiline=line_number # For exception handling
 
@@ -32,28 +34,35 @@ class Compiler:
             else:
                 haml_node = create_node(node_lines)
                 root.add_node(haml_node)
-        return root.render()
+                
+        if options and options.debug_tree:
+            return root.debug_tree()
+        else:
+            return root.render()
 
 def convert_files():
     import sys
     import codecs
-    
-    if len(sys.argv) < 2:
+
+    parser = OptionParser()
+    parser.add_option("-d", "--debug-tree", dest="debug_tree",
+    action="store_true", help="Print the generated tree instead of the HTML")
+    (options, args) = parser.parse_args()
+
+    if len(args) < 1:
         print "Specify the input file as the first argument."
     else: 
-        infile = sys.argv[1]
+        infile = args[0]
         haml_lines = codecs.open(infile, 'r', encoding='utf-8').read().splitlines()
 
         compiler = Compiler()
-        output = compiler.process_lines(haml_lines)
+        output = compiler.process_lines(haml_lines, options=options)
         
-        if len(sys.argv) == 3:
-            outfile = codecs.open(sys.argv[2], 'w', encoding='utf-8')
+        if len(args) == 2:
+            outfile = codecs.open(args[1], 'w', encoding='utf-8')
             outfile.write(output)
         else:
             print output
-    
-    
+
 if __name__ == '__main__':
     convert_files()
-

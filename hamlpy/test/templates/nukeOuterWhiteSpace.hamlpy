@@ -1,3 +1,7 @@
+%ul#display-inline-block-example
+  %li Item one
+  %li> Item two
+  %li Item three
 %p
   - if something
     %q>
@@ -10,6 +14,11 @@
   /[test]
     %q>
       Foo
+%p
+  :javascript
+    test
+  %q>
+    blah
 -# Tests from Ruby HAML
 %p
   %p

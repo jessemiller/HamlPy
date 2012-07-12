@@ -6,10 +6,10 @@ from hamlpy import hamlpy
 class TestTemplateCompare(unittest.TestCase):
 
     def test_nuke_inner_whitespace(self):
-        self._compare_test_files('nuke_inner_whitespace')
+        self._compare_test_files('nukeInnerWhitespace')
 
     def test_nuke_outer_whitespace(self):
-        self._compare_test_files('nuke_outer_whitespace')
+        self._compare_test_files('nukeOuterWhitespace')
 
     def test_comparing_simple_templates(self):
         self._compare_test_files('simple')
@@ -71,8 +71,12 @@ class TestTemplateCompare(unittest.TestCase):
                 break
             if s1[i] != s2[i]:
                 print 'Difference begins at line', line, 'column', col
-                print 'Character code (actual): %d (%s)' % (ord(s1[i]), s1[i])
-                print 'Character code (expected):  %d (%s)' % (ord(s2[i]), s2[i])
+                actual_line = s1.splitlines()[line-1]
+                expected_line = s2.splitlines()[line-1]
+                print 'HTML (actual, len=%2d)   : %s' % (len(actual_line), actual_line)
+                print 'HTML (expected, len=%2d) : %s' % (len(expected_line), expected_line)
+                print 'Character code (actual)  : %d (%s)' % (ord(s1[i]), s1[i])
+                print 'Character code (expected): %d (%s)' % (ord(s2[i]), s2[i])
                 break
 
             if shorter[i]=='\n':
@@ -95,7 +99,7 @@ class TestTemplateCompare(unittest.TestCase):
         html=html.replace('\r','')
         
         if parsed != html:
-            print 'HAML generated: '
+            print 'HTML (actual): '
             print '\n'.join(["%d. %s" % (i+1, l) for i, l in enumerate(parsed.split('\n')) ])
             self._print_diff(parsed, html)
         eq_(parsed, html)
