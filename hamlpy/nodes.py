@@ -455,7 +455,7 @@ class PythonFilterNode(FilterNode):
             finally:
                 # restore the original stdout
                 sys.stdout = sys.__stdout__
-            self.before = buffer.getvalue()
+            self.before += buffer.getvalue()
         else:
             self.after = self.render_newlines()
 
