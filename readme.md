@@ -6,6 +6,18 @@ HamlPy is not a template engine in itself but simply a compiler which will conve
 
 But wait, what is Haml?  Haml is an incredible template engine written in Ruby used a lot in the Rails community.  You can read more about it [here](http://www.haml-lang.com "Haml Home")
 
+## Installing
+
+### Stable release
+
+The latest stable version of HamlPy can be installed using [setuptools](http://pypi.python.org/pypi/setuptools/) `easy_install hamlpy` or  [pip](http://pypi.python.org/pypi/pip/) (`pip install hamlpy`)
+
+### Development
+
+The latest development version can be installed directly from GitHub:
+
+    pip install https://github.com/jessemiller/HamlPy/tarball/master
+
 ## Syntax
 
 Almost all of the XHTML syntax of Haml is preserved.  
@@ -43,6 +55,21 @@ turns into..
 			<li class='athelete' id='athelete_{{ athelete.pk }}'>{{ athelete.name }}</li>
 		{% endfor %}
 	</ul>
+
+## Usage
+
+To simply output the conversion to your console:
+
+	hamlpy inputFile.haml
+	
+Or you can have it dump right into a file:
+
+	hamlpy inputFile.haml outputFile.html
+	
+There is also a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
+
+	hamlpy-watcher <watch-folder>
+
 	
 ## Reference
 

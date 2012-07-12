@@ -1,27 +1,5 @@
 # HamlPy Reference
 
-## Installing
-
-`easy_install hamlpy` or `pip install hamlpy`
-
-The latest development version can be installed from:
-
-    pip install https://github.com/jessemiller/HamlPy/tarball/master
-
-## Usage
-
-To simply output the conversion to your console:
-
-	hamlpy inputFile.haml
-	
-Or you can have it dump right into a file:
-
-	hamlpy inputFile.haml outputFile.html
-	
-There is also a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
-
-	hamlpy-watcher <watch-folder>
-	
 ## Plain Text
 
 Any line that is not interpreted as something else will be taken as plain text and outputted unmodified.  For example:
