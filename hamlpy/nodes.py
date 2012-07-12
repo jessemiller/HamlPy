@@ -37,7 +37,7 @@ def create_node(haml_line):
     stripped_line = haml_line.strip()
     
     if stripped_line[0] == HAML_ESCAPE:
-        return PlaintextNode(haml_line.lstrip(HAML_ESCAPE))
+        return PlaintextNode(haml_line.replace(HAML_ESCAPE, '', 1))
         
     if stripped_line.startswith(DOCTYPE):
         return DoctypeNode(haml_line)
