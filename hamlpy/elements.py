@@ -1,4 +1,5 @@
 import re
+import sys
 from types import NoneType
 
 class Element(object):
@@ -124,8 +125,14 @@ class Element(object):
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s='%s' " % (k, v)
                         else:
-                            # Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
-                            v = attributes_dict[k] = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
+                            # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
+                            v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
+                            if v != attributes_dict[k]:
+                                sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
+                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." +
+                                                 "\nPlease use inline variables ={...} instead.\n-------------------\n")
+                                
+                            attributes_dict[k] = v
                             v = v.decode('utf-8')
                             self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
                 self.attributes = self.attributes.strip()

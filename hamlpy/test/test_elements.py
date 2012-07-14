@@ -44,27 +44,12 @@ class TestElement(object):
         def test_attributes_parse(self):
             sut = Element('')
 
-            s1 = sut._parse_attribute_dictionary('''{a:'something',"b":None,'c':2,d:"= some_var"}''')
+            s1 = sut._parse_attribute_dictionary('''{a:'something',"b":None,'c':2}''')
             eq_(s1['a'],'something')
             eq_(s1['b'],None)
             eq_(s1['c'],2)
-            eq_(s1['d'],'{{some_var}}')
 
-            eq_(sut.attributes, "a='something' c='2' b d='{{some_var}}'")
-
-        def test_django_variable_in_attribute_detected (self):
-            key = 'something'
-            var_name = 'some_variable'
-            sut = Element('''%%a{'%s' : '= %s'}''' % (key, var_name))
-            eq_ (sut.attributes_dict[key], '{{%s}}' % var_name)
-
-        def test_django_variable_with_dots_in_attribute_detected (self):
-            key = 'something'
-            var_name = 'some_variable.sub_var.more_sub'
-            sut = Element('''%%a{'%s' : '= %s'}''' % (key, var_name))
-            eq_ (sut.attributes_dict[key], '{{%s}}' % var_name)
-
-
+            eq_(sut.attributes, "a='something' c='2' b")
 
         def test_pulls_tag_name_off_front(self):
             sut = Element('%div.class')
