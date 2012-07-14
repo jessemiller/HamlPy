@@ -381,6 +381,10 @@ Surrounds the filtered text with CDATA tags.
 
 Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline CSS.
 
+### :markdown
+
+Converts the filter text from Markdown to HTML, using the Python [Markdown library](http://freewisdom.org/projects/python-markdown/).
+
 ### :highlight
 
 This will output the filtered text with syntax highlighting using [Pygments](http://pygments.org).

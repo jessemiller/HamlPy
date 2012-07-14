@@ -8,6 +8,8 @@ from pygments import highlight
 from pygments.formatters import HtmlFormatter
 from pygments.lexers import guess_lexer
 
+from markdown import markdown
+
 ELEMENT = '%'
 ID = '#'
 CLASS = '.'
@@ -29,6 +31,7 @@ CSS_FILTER = ':css'
 STYLUS_FILTER = ':stylus'
 PLAIN_FILTER = ':plain'
 PYTHON_FILTER = ':python'
+MARKDOWN_FILTER = ':markdown'
 CDATA_FILTER = ':cdata'
 PYGMENTS_FILTER = ':highlight'
 
@@ -90,6 +93,9 @@ def create_node(haml_line):
 		
     if stripped_line == PYGMENTS_FILTER:
         return PygmentsFilterNode(haml_line)
+
+    if stripped_line == MARKDOWN_FILTER:
+        return MarkdownFilterNode(haml_line)
     
     return PlaintextNode(haml_line)
 
@@ -504,5 +510,15 @@ class PygmentsFilterNode(FilterNode):
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
             self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+        else:
+            self.after = self.render_newlines()
+
+class MarkdownFilterNode(FilterNode):
+    def _render(self):
+        if self.children:
+            self.before = self.render_newlines()[1:]
+            indent_offset = len(self.children[0].spaces)
+            text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
+            self.before += markdown(text)
         else:
             self.after = self.render_newlines()

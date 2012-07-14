@@ -13,7 +13,8 @@ setup(name='hamlpy',
       license = 'MIT',
       install_requires = [
           'django',
-          'pygments'
+          'pygments',
+          'markdown'
       ],
       entry_points = {
           'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files',

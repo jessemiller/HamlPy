@@ -68,6 +68,8 @@ class TestTemplateCompare(unittest.TestCase):
         for i, _ in enumerate(shorter):
             if len(shorter) <= i+1:
                 print 'Ran out of characters to compare!'
+                print 'Actual len=%d'%len(s1)
+                print 'Expected len=%d'%len(s2)
                 break
             if s1[i] != s2[i]:
                 print 'Difference begins at line', line, 'column', col
@@ -99,7 +101,7 @@ class TestTemplateCompare(unittest.TestCase):
         html=html.replace('\r','')
         
         if parsed != html:
-            print 'HTML (actual): '
+            print '\nHTML (actual): '
             print '\n'.join(["%d. %s" % (i+1, l) for i, l in enumerate(parsed.split('\n')) ])
             self._print_diff(parsed, html)
         eq_(parsed, html)
