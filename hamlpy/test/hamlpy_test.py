@@ -127,6 +127,20 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    def test_inline_variables_in_attributes_are_parsed_correctly(self):
+        haml = "%a{'b': '={greeting} test'} blah"
+        html = "<a b='{{ greeting }} test'>blah</a>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+
+    def test_inline_variables_in_attributes_are_escaped_correctly(self):
+        haml = "%a{'b': '\\\\={greeting} test'} blah"
+        html = "<a b='={greeting} test'>blah</a>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+
     def test_inline_variables_escaping_works(self):
         haml = "%h1 Hello, \\#{name}, how are you ={ date }?"
         html = "<h1>Hello, #{name}, how are you {{ date }}?</h1>\n"

@@ -267,16 +267,8 @@ is compiled to:
 		<a href='stories/1'>{{ story.teaser }}</a>
 	</h2>
 
-Variables can also be used in attributes, but only if the attribute contains nothing else other than that variable. For example:
-
-	%a{'href':'= some_url'}
-
-is compiled to:
-
-	<a href='{{some_url}}'></a>
-
-The quotes around `= some_url` are required because attributes are first parsed as a dictionary, before HamlyPy looks for the variable syntax.
-
+### Inline Django Variables: ={...}
+	
 You can also use inline variables by surrounding the variable name with curly braces. For example:
 
 	Hello ={name}, how are you today?
@@ -285,6 +277,14 @@ is compiled to
 
 	Hello {{ name }}, how are you today?
 
+Inline variables can also be used in an element's attribute values. For example:
+
+	%a{'title':'Hello ={name}, how are you?'} Hello
+
+is compiled to:
+
+	<a title='Hello {{ name }}, how are you?'>Hello</a>
+
 Inline variables can be escaped by placing a `\` before them. For example:
 
 	Hello \={name}
@@ -292,7 +292,7 @@ Inline variables can be escaped by placing a `\` before them. For example:
 is compiled to
 
 	Hello ={name}
-	
+
 The Ruby style (`#{...}` rather than `={...}`) is also supported and the two can be used interchangeably.
 
 

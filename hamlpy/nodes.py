@@ -234,7 +234,7 @@ class ElementNode(HamlNode):
         if element.classes:
             start.append(" class='%s'" % element.classes )
         if element.attributes:
-            start.append(' ' + element.attributes)
+            start.append(' ' + self.replace_inline_variables(element.attributes))
 
         content = self._render_inline_content(self.element.inline_content)
 
