@@ -277,13 +277,25 @@ is compiled to:
 
 The quotes around `= some_url` are required because attributes are first parsed as a dictionary, before HamlyPy looks for the variable syntax.
 
-You can also use inline variables using the classic Ruby style. For example:
+You can also use inline variables by surrounding the variable name with curly braces. For example:
 
-	Hello #{name}, how are you today?
+	Hello ={name}, how are you today?
 
 is compiled to
 
 	Hello {{ name }}, how are you today?
+
+Inline variables can be escaped by placing a `\` before them. For example:
+
+	Hello \={name}
+
+is compiled to
+
+	Hello ={name}
+	
+The Ruby style (`#{...}` rather than `={...}`) is also supported and the two can be used interchangeably.
+
+
 
 
 ### Django Tags: -
