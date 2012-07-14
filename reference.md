@@ -83,7 +83,7 @@ is compiled to:
 
 	<div id='article_3' class='newest urgent'>Content</div>
 	
-### Class and ID: . and #
+### Class and ID: . and \#
 
 The period and pound sign are borrowed from CSS.  They are used as shortcuts to specify the class and id attributes of an element, respectively.  Multiple class names can be specified by chaining class names together with periods.  They are placed immediately after a tag and before an attribute dictionary.  For example:
 
