@@ -435,7 +435,7 @@ class PlainFilterNode(FilterNode):
 class PythonFilterNode(FilterNode):
     def _render(self):
         if self.children:
-            self.before = self.render_newlines()
+            self.before = self.render_newlines()[1:]
             indent_offset = len(self.children[0].spaces)
             code = "\n".join([node.raw_haml[indent_offset:] for node in self.children]) + '\n'
             compiled_code = compile(code, "", "exec")
