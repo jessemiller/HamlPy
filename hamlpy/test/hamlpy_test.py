@@ -121,12 +121,47 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
         
     def test_inline_variables_are_parsed_correctly(self):
-        haml = "%h1 Hello, #{name}, how are you?"
-        html = "<h1>Hello, {{ name }}, how are you?</h1>\n"
+        haml = "={greeting} #{name}, how are you ={date}?"
+        html = "{{ greeting }} {{ name }}, how are you {{ date }}?\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    def test_inline_variables_escaping_works(self):
+        haml = "%h1 Hello, \\#{name}, how are you ={ date }?"
+        html = "<h1>Hello, #{name}, how are you {{ date }}?</h1>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
+    def test_inline_variables_escaping_works_at_start_of_line(self):
+        haml = "\\={name}, how are you?"
+        html = "={name}, how are you?\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
+    def test_inline_variables_with_hash_escaping_works_at_start_of_line(self):
+        haml = "\\#{name}, how are you?"
+        html = "#{name}, how are you?\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
+    def test_inline_variables_work_at_start_of_line(self):
+        haml = "={name}, how are you?"
+        html = "{{ name }}, how are you?\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
+    def test_inline_variables_with_hash_work_at_start_of_line(self):
+        haml = "#{name}, how are you?"
+        html = "{{ name }}, how are you?\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+    
     def test_inline_variables_with_special_characters_are_parsed_correctly(self):
         haml = "%h1 Hello, #{person.name}, how are you?"
         html = "<h1>Hello, {{ person.name }}, how are you?</h1>\n"
@@ -160,7 +195,7 @@ class HamlPyTest(unittest.TestCase):
         expected+="  (<class 'hamlpy.nodes.ElementNode'> .test)\n"
         expected+="    (<class 'hamlpy.nodes.ElementNode'> .test2)"
         eq_(result, expected)
-	
+    
     def test_escaped_haml(self):
         haml = "\\= Escaped"
         html = "= Escaped\n"
@@ -241,16 +276,16 @@ class HamlPyTest(unittest.TestCase):
               else:
                   print "z":
         '''
-	html = '\n<div class="highlight"><pre><span class="n">print</span> &quot;<span class="n">hi</span>&quot;' \
+        html = '\n<div class="highlight"><pre><span class="n">print</span> &quot;<span class="n">hi</span>&quot;' \
                 + '\n\n<span class="k">if</span> <span class="n">x</span><span class="p">:</span>' \
                 + '\n    <span class="n">print</span> &quot;<span class="n">y</span>&quot;<span class="p">:</span>' \
                 + '\n<span class="k">else</span><span class="p">:</span>' \
                 + '\n    <span class="n">print</span> &quot;<span class="n">z</span>&quot;<span class="p">:</span>' \
                 + '\n</pre></div>\n'
-	
-	hamlParser = hamlpy.Compiler()
+    
+        hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
-		
+        
 if __name__ == '__main__':
     unittest.main()

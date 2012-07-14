@@ -20,6 +20,9 @@ HAML_COMMENTS = ['-#', '=#']
 VARIABLE = '='
 TAG = '-'
 
+INLINE_VARIABLE = re.compile(r'(?<!\\)([#=]\{\s*([a-zA-Z0-9\.\_]+)\s*\})')
+ESCAPED_INLINE_VARIABLE = re.compile(r'\\([#=]\{\s*([a-zA-Z0-9\.\_]+)\s*\})')
+
 COFFEESCRIPT_FILTERS = [':coffeescript', ':coffee']
 JAVASCRIPT_FILTER = ':javascript'
 CSS_FILTER = ':css'
@@ -35,13 +38,16 @@ HAML_ESCAPE = '\\'
 
 def create_node(haml_line):
     stripped_line = haml_line.strip()
+
+    if re.match(INLINE_VARIABLE, stripped_line) or re.match(ESCAPED_INLINE_VARIABLE, stripped_line):
+        return PlaintextNode(haml_line)
     
     if stripped_line[0] == HAML_ESCAPE:
         return PlaintextNode(haml_line.replace(HAML_ESCAPE, '', 1))
         
     if stripped_line.startswith(DOCTYPE):
         return DoctypeNode(haml_line)
-        
+
     if stripped_line[0] in ELEMENT_CHARACTERS:
         return ElementNode(haml_line)
     
@@ -85,7 +91,7 @@ def create_node(haml_line):
     if stripped_line == PYGMENTS_FILTER:
         return PygmentsFilterNode(haml_line)
     
-    return PlaintextNode(haml_line.rstrip())
+    return PlaintextNode(haml_line)
 
 class TreeNode(object):
     ''' Generic parent/child tree class'''
@@ -190,7 +196,9 @@ class HamlNode(RootNode):
         self.spaces = ''.join(haml[0] for i in range(self.indentation))
 
     def replace_inline_variables(self, content):
-        return re.sub(r'#\{([a-zA-Z0-9\.\_]+)\}', r'{{ \1 }}', content)
+        content = re.sub(INLINE_VARIABLE, r'{{ \2 }}', content)
+        content = re.sub(ESCAPED_INLINE_VARIABLE, r'\1', content)
+        return content
 
     def __repr__(self):
         return '(%s %s)' % (self.__class__, self.haml)
