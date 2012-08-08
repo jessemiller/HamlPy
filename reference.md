@@ -1,5 +1,36 @@
 # HamlPy Reference
 
+# Table of Contents
+
+- [Plain Text](#plain-text)
+- [Doctype](#doctype)
+- [HTML Elements](#html-elements)
+	- [Element Name: %](#element-name-)
+	- [Attributes: {}](#attributes-)
+		- [Attributes without values (Boolean attributes)](#attributes-without-values-boolean-attributes)
+		- ['class' and 'id' attributes](#class-and-id-attributes)
+	- [Class and ID: . and #](#class-and-id--and-)
+		- [Implicit div elements](#implicit-div-elements)
+	- [Self-Closing Tags: /](#self-closing-tags-)
+- [Comments](#comments)
+	- [HTML Comments /](#html-comments-)
+	- [Conditional Comments /[]](#conditional-comments-)
+	- [HamlPy Comments: -](#hamlpy-comments--)
+- [Django Specific Elements](#django-specific-elements)
+	- [Django Variables: =](#django-variables-)
+	- [Inline Django Variables: ={...}](#inline-django-variables-)
+	- [Django Tags: -](#django-tags--)
+		- [Tags within attributes:](#tags-within-attributes)
+	- [Whitespace removal](#whitespace-removal)
+- [Filters](#filters)
+	- [:plain](#plain)
+	- [:javascript](#javascript)
+	- [:cdata](#cdata)
+	- [:css](#css)
+	- [:markdown](#markdown)
+	- [:highlight](#highlight)
+	- [:python](#python)
+
 ## Plain Text
 
 Any line that is not interpreted as something else will be taken as plain text and outputted unmodified.  For example:
@@ -337,7 +368,7 @@ is compiled to:
     <a href="{% url socialauth_begin 'github' %}">Login with Github</a>
 
 
-### Whitespace removal:
+### Whitespace removal
 
 Sometimes we want to remove whitespace inside or around an element, usually to fix the spacing problem with inline-block elements (see "The Enormous Drawback" section of [this article](http://robertnyman.com/2010/02/24/css-display-inline-block-why-it-rocks-and-why-it-sucks/) for more details).
 
