@@ -45,3 +45,16 @@
     {
       return 1;
     }
+-# Regression from Culebron (Github issue #90)
+:javascript
+        (
+            {
+                a
+            }
+        );
+:javascript
+
+            {
+                a
+            }
+        )

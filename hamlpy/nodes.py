@@ -148,6 +148,12 @@ class RootNode(TreeNode):
         else:
             return self
 
+    def should_treat_children_as_multiline(self):
+        if self.parent:
+            return self.parent.should_treat_children_as_multiline()
+        else:
+            return True
+
     def _render_children(self):
         for child in self.children:
             child._render()
@@ -423,6 +429,9 @@ class TagNode(HamlNode):
 class FilterNode(HamlNode):
     def add_node(self, node):
         self.add_child(node)
+
+    def should_treat_children_as_multiline(self):
+        return False
 
     def _render_children_as_plain_text(self,remove_indentation=True):
         if self.children:
