@@ -129,6 +129,8 @@ class RootNode(TreeNode):
         self.before=''
         # Rendered text at end of node, e.g. "\n</p>"
         self.after=''
+        # Indicates that a node does not render anything (for whitespace removal)
+        self.empty_node=False
 
     def render(self):
         # Render (sets self.before and self.after)
@@ -213,7 +215,7 @@ class HamlNode(RootNode):
         return content
 
     def __repr__(self):
-        return '(%s %s)' % (self.__class__, self.haml)
+        return '(%s nl=%d: %s)' % (self.__class__, self.newlines, self.haml)
 
 class PlaintextNode(HamlNode):
     '''Node that is not modified or processed when rendering'''
@@ -279,10 +281,21 @@ class ElementNode(HamlNode):
         if self.element.nuke_inner_whitespace:
             self.before = self.before.rstrip()
             self.after = self.after.lstrip()
+
             if self.children:
-                self.children[0].before = self.children[0].before.lstrip()
-                self.children[-1].after = self.children[-1].after.rstrip()
-                
+                node=self
+                # If node renders nothing, do removal on its first child instead
+                if node.children[0].empty_node==True:
+                    node=node.children[0]
+                if node.children:
+                    node.children[0].before=node.children[0].before.lstrip()
+
+                node=self
+                if node.children[-1].empty_node==True:
+                    node=node.children[-1]
+                if node.children:
+                    node.children[-1].after=node.children[-1].after.rstrip()
+
         # Outer whitespace removal
         if self.element.nuke_outer_whitespace:
             left_sibling = self.left_sibling()
@@ -442,7 +455,8 @@ class FilterNode(HamlNode):
                 child.before = child.spaces
             else:
                 child.before = child.spaces[initial_indentation:]
-            child.before += ''.join([child.haml, child.render_newlines()])
+            child.before += child.haml
+            child.after = child.render_newlines()
 
     def _post_render(self):
         # Don't post-render children of filter nodes as we don't want them to be interpreted as HAML
@@ -450,6 +464,10 @@ class FilterNode(HamlNode):
       
 
 class PlainFilterNode(FilterNode):
+    def __init__(self, haml):
+        FilterNode.__init__(self, haml)
+        self.empty_node=True
+    
     def _render(self):
         if self.children:
             first_indentation = self.children[0].indentation

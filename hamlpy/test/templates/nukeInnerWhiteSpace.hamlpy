@@ -37,3 +37,22 @@
     bar
   %q{a: "2"}
     bar
+-# Filters
+%p<
+    :plain
+      test1
+      test2
+%p<
+    :plain
+      blah
+        test3
+        test4
+%p<
+    :plain
+      test5
+      test6
+    :plain
+      test7
+    :plain
+      test8
+      test9
