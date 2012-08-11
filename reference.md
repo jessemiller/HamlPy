@@ -15,7 +15,7 @@
 - [Comments](#comments)
 	- [HTML Comments /](#html-comments-)
 	- [Conditional Comments /[]](#conditional-comments-)
-	- [HamlPy Comments: -](#hamlpy-comments--)
+	- [HamlPy Comments: -#](#hamlpy-comments--)
 - [Django Specific Elements](#django-specific-elements)
 	- [Django Variables: =](#django-variables-)
 	- [Inline Django Variables: ={...}](#inline-django-variables-)
@@ -254,7 +254,7 @@ is compiled to:
         <h1>Get a better browser</h1>
     <![endif]-->
 	
-### HamlPy Comments: -#
+### HamlPy Comments: -# 
 
 The hyphen followed immediately by the pound sign signifies a silent comment.  Any text following this isn't rendered during compilation at all.  For example:
 
