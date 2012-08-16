@@ -9,9 +9,8 @@ import codecs
 import os
 import os.path
 import time
-from hamlpy import Compiler
+import hamlpy
 
-EXTENSIONS = ['.haml', '.hamlpy']    # watched extensions
 CHECK_INTERVAL = 3          # in seconds
 DEBUG = False               # print file paths when a file is compiled
 
@@ -20,8 +19,8 @@ compiled = dict()
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
-    for ext in EXTENSIONS:
-        if extension.endswith(ext):
+    for ext in hamlpy.VALID_EXTENSIONS:
+        if extension.endswith('.'+ext):
             return True
     return False
 
@@ -77,7 +76,7 @@ def compile_file(fullpath, outfile_name):
         if DEBUG:
             print "Compiling %s -> %s" % (fullpath, outfile_name)
         haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
-        compiler = Compiler()
+        compiler = hamlpy.Compiler()
         output = compiler.process_lines(haml_lines)
         outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
         outfile.write(output)

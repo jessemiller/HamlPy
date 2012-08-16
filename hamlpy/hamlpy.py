@@ -3,6 +3,8 @@ from nodes import RootNode, FilterNode, HamlNode, create_node
 from optparse import OptionParser
 import sys
 
+VALID_EXTENSIONS=['haml', 'hamlpy']
+
 class Compiler:
     def process(self, raw_text, options=None):
         split_text = raw_text.strip().split('\n')
