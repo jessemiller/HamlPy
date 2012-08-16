@@ -58,17 +58,49 @@ turns into..
 
 ## Usage
 
-To simply output the conversion to your console:
+### Option 1: Template loader
+
+The template loader was originally written by [Chris Hartjes](https://github.com/chartjes) under the name 'djaml'. This project has now been merged into the HamlPy codebase.
+
+Add the HamlPy template loaders to the Django template loaders:
+
+    TEMPLATE_LOADERS = (
+	    'hamlpy.template.loaders.HamlPyFilesystemLoader',
+	    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',   
+        ...
+    )
+
+If you don't put the HamlPy template loader first, then the standard Django template loaders will try to process
+it first. Make sure your templates have a `.haml` or `.hamlpy` extension, and put them wherever you've told Django
+to expect to find templates (TEMPLATE_DIRS).
+
+#### Template caching
+
+For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_LOADERS:
+
+	TEMPLATE_LOADERS = (
+	    ('django.template.loaders.cached.Loader', (
+		    'hamlpy.template.loaders.HamlPyFilesystemLoader',
+		    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
+		    ...
+	    )),   
+	)
+
+### Option 2: Watcher 
+
+HamlPy can also be used as a stand-alone program. There is a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
+
+	hamlpy-watcher <watch-folder> [destination_folder]
+
+Or to simply convert a file and output the result to your console:
 
 	hamlpy inputFile.haml
 	
-Or you can have it dump right into a file:
+Or you can have it dump to a file:
 
 	hamlpy inputFile.haml outputFile.html
-	
-There is also a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
-	hamlpy-watcher <watch-folder> [destination_folder]
+For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the internal tree structure.
 	
 ## Reference
 
