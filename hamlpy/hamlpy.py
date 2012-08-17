@@ -7,11 +7,10 @@ VALID_EXTENSIONS=['haml', 'hamlpy']
 
 class Compiler:
     def process(self, raw_text, options=None):
-        split_text = raw_text.strip().split('\n')
+        split_text = raw_text.split('\n')
         return self.process_lines(split_text, options)
 
     def process_lines(self, haml_lines, options=None):
-        
         root = RootNode()
         line_iter = iter(haml_lines)
 
@@ -35,7 +34,8 @@ class Compiler:
                 haml_node.newlines += 1
             else:
                 haml_node = create_node(node_lines)
-                root.add_node(haml_node)
+                if haml_node:
+                    root.add_node(haml_node)
                 
         if options and options.debug_tree:
             return root.debug_tree()

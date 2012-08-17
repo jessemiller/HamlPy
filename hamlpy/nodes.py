@@ -42,6 +42,9 @@ HAML_ESCAPE = '\\'
 def create_node(haml_line):
     stripped_line = haml_line.strip()
 
+    if len(stripped_line)==0:
+        return None
+    
     if re.match(INLINE_VARIABLE, stripped_line) or re.match(ESCAPED_INLINE_VARIABLE, stripped_line):
         return PlaintextNode(haml_line)
     
@@ -96,7 +99,7 @@ def create_node(haml_line):
 
     if stripped_line == MARKDOWN_FILTER:
         return MarkdownFilterNode(haml_line)
-    
+
     return PlaintextNode(haml_line)
 
 class TreeNode(object):
@@ -215,7 +218,7 @@ class HamlNode(RootNode):
         return content
 
     def __repr__(self):
-        return '(%s nl=%d: %s)' % (self.__class__, self.newlines, self.haml)
+        return '(%s in=%d, nl=%d: %s)' % (self.__class__, self.indentation, self.newlines, self.haml)
 
 class PlaintextNode(HamlNode):
     '''Node that is not modified or processed when rendering'''
@@ -378,6 +381,9 @@ class DoctypeNode(HamlNode):
 class HamlCommentNode(HamlNode):
     def _render(self):
         self.after = self.render_newlines()[1:]
+
+    def _post_render(self):
+        pass
 
 class VariableNode(ElementNode):
     def __init__(self, haml):

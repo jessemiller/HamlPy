@@ -259,7 +259,7 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
-    
+
     def test_xml_namespaces(self):
         haml = "%fb:tag\n  content"
         html = "<fb:tag>\n  content\n</fb:tag>\n"
