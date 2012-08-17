@@ -1,3 +1,5 @@
+.coverage
+cover/
 *.pyc
 dist
 build
