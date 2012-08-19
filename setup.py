@@ -4,7 +4,7 @@ from setuptools import setup
 setup(name='hamlpy',
       version = '0.82',
       download_url = 'git@github.com:jessemiller/HamlPy.git',
-      packages = ['hamlpy'],
+      packages = ['hamlpy', 'hamlpy.template'],
       author = 'Jesse Miller',
       author_email = 'millerjesse@gmail.com',
       description = 'HAML like syntax for Django templates',
