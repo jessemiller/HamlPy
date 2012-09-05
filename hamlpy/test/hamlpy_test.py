@@ -150,7 +150,7 @@ class HamlPyTest(unittest.TestCase):
 
     def test_inline_variables_in_attributes_are_escaped_correctly(self):
         haml = "%a{'b': '\\\\={greeting} test'} blah"
-        html = "<a b='={greeting} test'>blah</a>\n"
+        html = "<a b='\\={greeting} test'>blah</a>\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)

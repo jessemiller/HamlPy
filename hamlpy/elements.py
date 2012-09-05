@@ -51,8 +51,11 @@ class Element(object):
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
 
-        attributes=AttributeDictParser(split_tags.get('attributes'))
-        self.attributes_dict = attributes.parse()
+        #self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
+
+        attribute_parser=AttributeDictParser(split_tags.get('attributes'))
+        self.attributes_dict = attribute_parser.parse()
+        self.attributes = attribute_parser.render_attributes()
 
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
@@ -81,6 +84,7 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
+
 
         if isinstance(id_dict, str) or isinstance(id_dict, unicode):
             text = '_'+id_dict

@@ -67,7 +67,7 @@ class AttributeParser:
             self.ptr += characters_read
             val="{{ %s }}" % val
         # Django tag
-        elif self.s[self.ptr:self.ptr+2] == '-{':
+        elif self.s[self.ptr:self.ptr+2] in ['-{', '#{']:
             self.ptr+=2
             val,characters_read = self.read_until_unescaped_character('}', pos=self.ptr)
             self.ptr += characters_read
@@ -100,9 +100,9 @@ class AttributeDictParser(AttributeParser):
 
     def __init__(self, s):
         AttributeParser.__init__(self, s, '}')
+        self.dict={}
     
     def parse(self):
-        dic={}
         while self.ptr<len(self.s)-1:
             key = self.__parse_key()
 
@@ -116,8 +116,8 @@ class AttributeDictParser(AttributeParser):
             else:
                 val = self.parse_value()
 
-            dic[key]=val
-        return dic
+            self.dict[key]=val
+        return self.dict
 
     def __parse_key(self):
         '''Parse key variable and consume up to the colon'''
@@ -150,6 +150,19 @@ class AttributeDictParser(AttributeParser):
 
         return key
 
+    def render_attributes(self):
+        attributes=[]
+        for k, v in self.dict.items():
+            if k != 'id' and k != 'class':
+                # Boolean attributes
+                if v==None:
+                    attributes.append( "%s" % (k,))
+                else:
+                    attributes.append( "%s='%s'" % (k,v))
+                                       
+        return ' '.join(attributes)
+    
+
 class AttributeTupleAndListParser(AttributeParser):
     def __init__(self, s):
         if s[0]=='(':
@@ -159,7 +172,6 @@ class AttributeTupleAndListParser(AttributeParser):
         AttributeParser.__init__(self, s, terminator)
 
     def parse(self):
-        print '***', self.s
         lst=[]
 
         # Todo: Must be easier way...
