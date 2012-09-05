@@ -247,9 +247,9 @@ class ElementNode(HamlNode):
         '''Render opening tag and inline content'''
         start = ["%s<%s" % (self.spaces, element.tag)]
         if element.id:
-            start.append(" id='%s'" % element.id)
+            start.append(" id='%s'" % self.replace_inline_variables(element.id))
         if element.classes:
-            start.append(" class='%s'" % element.classes )
+            start.append(" class='%s'" % self.replace_inline_variables(element.classes) )
         if element.attributes:
             start.append(' ' + self.replace_inline_variables(element.attributes))
 

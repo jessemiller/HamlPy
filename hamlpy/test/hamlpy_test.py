@@ -134,6 +134,20 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    def test_inline_variables_in_attributes_work_in_id(self):
+        haml = "%div{'id':'package_={object.id}'}"
+        html = "<div id='package_{{ object.id }}'></div>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+
+    def test_inline_variables_in_attributes_work_in_class(self):
+        haml = "%div{'class':'package_={object.id}'}"
+        html = "<div class='package_{{ object.id }}'></div>\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+
     def test_inline_variables_in_attributes_are_escaped_correctly(self):
         haml = "%a{'b': '\\\\={greeting} test'} blah"
         html = "<a b='={greeting} test'>blah</a>\n"
