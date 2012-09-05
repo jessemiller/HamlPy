@@ -1,6 +1,7 @@
 import re
 import sys
 from types import NoneType
+from attribute_dict_parser import AttributeDictParser
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -49,8 +50,10 @@ class Element(object):
         
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
-        
-        self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
+
+        attributes=AttributeDictParser(split_tags.get('attributes'))
+        self.attributes_dict = attributes.parse()
+
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
         self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), self._parse_class_from_attributes_dict())).strip()
@@ -62,7 +65,7 @@ class Element(object):
 
     def _parse_class_from_attributes_dict(self):
         clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
+        if not isinstance(clazz, str) and not isinstance(clazz, unicode):
             clazz = ''
             for one_class in self.attributes_dict.get('class'):
                 clazz += ' '+one_class
@@ -78,7 +81,8 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+
+        if isinstance(id_dict, str) or isinstance(id_dict, unicode):
             text = '_'+id_dict
         else:
             text = ''
@@ -131,7 +135,7 @@ class Element(object):
                                 sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
                                                  "\nThe Django attribute variable feature is deprecated and may be removed in future versions." +
                                                  "\nPlease use inline variables ={...} instead.\n-------------------\n")
-                                
+                            
                             attributes_dict[k] = v
                             v = v.decode('utf-8')
                             self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
