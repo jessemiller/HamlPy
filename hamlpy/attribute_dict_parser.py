@@ -4,6 +4,10 @@ import re
 re_key = re.compile(r'[a-zA-Z0-9-_]+')
 re_nums = re.compile(r'[0-9\.]+')
 
+re_sq= re.compile(r'(.*?)(?<!\\)(?:\')')
+re_dq= re.compile(r'(.*?)(?<!\\)(?:")')
+re_br= re.compile(r'(.*?)(?<!\\)(?:})')
+
 class AttributeParser:
     """Parses comma-separated HamlPy attribute values"""
     
@@ -37,20 +41,27 @@ class AttributeParser:
         Move the pointer until a *closing* character not preceded by a backslash is found.
         Returns the string found up to that point with any escaping backslashes removed
         """
-        initial_ptr=self.ptr
-                
-        while self.ptr<self.length:
-            if self.s[self.ptr]==closing and (self.ptr==initial_ptr or self.s[self.ptr-1]!='\\'):
-                break
-            self.ptr+=1
-        
-        value=self.s[initial_ptr:self.ptr].replace('\\'+closing,closing)
 
-        # Consume the closing character
-        self.ptr+=1
+        # Hardcoding some closing characters for efficiency
+        # (tried a caching approach but it was too slow)
+        if closing=="'":
+            r=re_sq
+        elif closing=='"':
+            r=re_dq
+        elif closing=='}':
+            r=re_br
+        else:
+            r=re.compile(r'(.*?)(?<!\\)(?:%s)'%closing)
+
+        m=r.match(self.s, pos=self.ptr)
+        if m is None:
+            raise Exception ("Closing character not found")
         
-        return value
-    
+        value = m.group(1)
+        self.ptr+=len(value)+1
+
+        return value.replace('\\'+closing,closing)
+
     def parse_value(self):
         self.ptr=self.consume_whitespace()
 
