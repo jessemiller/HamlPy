@@ -10,14 +10,16 @@ class AttributeParser:
     def __init__(self, data, terminator):
         self.terminator=terminator
         self.s = data.lstrip()
+        self.length=len(self.s)
         # Index of current character being read
         self.ptr=1
 
+    
     def consume_whitespace(self, include_newlines=False):
         """Moves the pointer to the next non-whitespace character"""
         whitespace = (' ', '\t', '\r', '\n') if include_newlines else (' ', '\t')
         
-        while self.ptr<len(self.s) and self.s[self.ptr] in whitespace:
+        while self.ptr<self.length and self.s[self.ptr] in whitespace:
             self.ptr+=1
         return self.ptr
 
@@ -30,22 +32,25 @@ class AttributeParser:
             else:
                 raise Exception("Expected comma for end of value (after ...%s), but got '%s' instead" % (self.s[max(self.ptr-10,0):self.ptr], self.s[self.ptr]))
 
-
-    def read_until_unescaped_character(self, closing, pos=0):
+    def read_until_unescaped_character(self, closing):
         """
-        Moves the dictionary string starting from position *pos*
-        until a *closing* character not preceded by a backslash is found.
-        Returns a tuple containing the string which was read (without any preceding backslashes)
-        and the number of characters which were read.
+        Move the pointer until a *closing* character not preceded by a backslash is found.
+        Returns the string found up to that point with any escaping backslashes removed
         """
-        initial_pos=pos
-
-        while pos<len(self.s):
-            if self.s[pos]==closing and (pos==initial_pos or self.s[pos-1]!='\\'):
+        initial_ptr=self.ptr
+                
+        while self.ptr<self.length:
+            if self.s[self.ptr]==closing and (self.ptr==initial_ptr or self.s[self.ptr-1]!='\\'):
                 break
-            pos+=1
-        return (self.s[initial_pos:pos].replace('\\'+closing,closing), pos-initial_pos+1)
+            self.ptr+=1
+        
+        value=self.s[initial_ptr:self.ptr].replace('\\'+closing,closing)
 
+        # Consume the closing character
+        self.ptr+=1
+        
+        return value
+    
     def parse_value(self):
         self.ptr=self.consume_whitespace()
 
@@ -58,19 +63,16 @@ class AttributeParser:
         if self.s[self.ptr] in ("'",'"'):
             quote=self.s[self.ptr]
             self.ptr += 1
-            val,characters_read = self.read_until_unescaped_character(quote, pos=self.ptr)
-            self.ptr += characters_read
+            val = self.read_until_unescaped_character(quote)
         # Django variable
         elif self.s[self.ptr:self.ptr+2] == '={':
             self.ptr+=2
-            val,characters_read = self.read_until_unescaped_character('}', pos=self.ptr)
-            self.ptr += characters_read
+            val = self.read_until_unescaped_character('}')
             val="{{ %s }}" % val
         # Django tag
         elif self.s[self.ptr:self.ptr+2] in ['-{', '#{']:
             self.ptr+=2
-            val,characters_read = self.read_until_unescaped_character('}', pos=self.ptr)
-            self.ptr += characters_read
+            val = self.read_until_unescaped_character('}')
             val=r"{%% %s %%}" % val
         # Boolean Attributes
         elif self.s[self.ptr:self.ptr+4] in ['none','None']:
@@ -103,7 +105,7 @@ class AttributeDictParser(AttributeParser):
         self.dict={}
     
     def parse(self):
-        while self.ptr<len(self.s)-1:
+        while self.ptr<self.length-1:
             key = self.__parse_key()
 
             # Tuple/List parsing
@@ -132,8 +134,7 @@ class AttributeDictParser(AttributeParser):
 
         # Extract key
         if quote:
-            key,characters_read = self.read_until_unescaped_character(quote, pos=self.ptr)
-            self.ptr+=characters_read
+            key = self.read_until_unescaped_character(quote)
         else:
             key_match = re_key.match(self.s[self.ptr:])
             if key_match is None:
