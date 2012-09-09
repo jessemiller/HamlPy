@@ -55,7 +55,7 @@ class Element(object):
 
         attribute_parser=AttributeDictParser(split_tags.get('attributes'))
         self.attributes_dict = attribute_parser.parse()
-        self.attributes = attribute_parser.render_attributes()
+        self.attributes = self._render_attributes(self.attributes_dict)
 
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
@@ -94,6 +94,19 @@ class Element(object):
                 text += '_'+one_id
         return text
 
+    def _render_attributes(self, dict):
+        attributes=[]
+        for k, v in dict.items():
+            if k != 'id' and k != 'class':
+                # Boolean attributes
+                if v==None:
+                    attributes.append( "%s" % (k,))
+                else:
+                    attributes.append( "%s='%s'" % (k, self._escape_attribute_quotes(v)))
+                                       
+        return ' '.join(attributes)
+    
+    
     def _escape_attribute_quotes(self,v):
         '''
         Escapes quotes with a backslash, except those inside a Django tag
@@ -112,6 +125,7 @@ class Element(object):
             escaped.append(v[i])
 
         return ''.join(escaped)
+
 
     def _parse_attribute_dictionary(self, attribute_dict_string):
         attributes_dict = {}

@@ -162,19 +162,6 @@ class AttributeDictParser(AttributeParser):
 
         return key
 
-    def render_attributes(self):
-        attributes=[]
-        for k, v in self.dict.items():
-            if k != 'id' and k != 'class':
-                # Boolean attributes
-                if v==None:
-                    attributes.append( "%s" % (k,))
-                else:
-                    attributes.append( "%s='%s'" % (k,v))
-                                       
-        return ' '.join(attributes)
-    
-
 class AttributeTupleAndListParser(AttributeParser):
     def __init__(self, s):
         if s[0]=='(':
