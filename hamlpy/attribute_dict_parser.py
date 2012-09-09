@@ -136,7 +136,10 @@ class AttributeDictParser(AttributeParser):
         '''Parse key variable and consume up to the colon'''
 
         self.ptr=self.consume_whitespace(include_newlines=True)
-        
+
+        if self.s[self.ptr] == ':':
+            self.ptr+=1
+                    
         # Consume opening quote
         quote=None
         if self.s[self.ptr] in ("'",'"'):
@@ -157,6 +160,9 @@ class AttributeDictParser(AttributeParser):
         ptr=self.consume_whitespace()
         if self.s[self.ptr]==':':
             self.ptr+=1
+        # Ruby arrow
+        elif self.s[self.ptr:self.ptr+2]=='=>':
+            self.ptr+=2
         else:
             raise Exception("Expected colon for end of key (after ...%s), but got '%s' instead" % (self.s[max(self.ptr-10,0):self.ptr], self.s[self.ptr]))
 
