@@ -1,9 +1,12 @@
 import re
+import hamlpy
 
 # Valid characters for dictionary key
 re_key = re.compile(r'[a-zA-Z0-9-_]+')
 re_nums = re.compile(r'[0-9\.]+')
-
+re_whitespace = re.compile(r'([ \t]+)')
+re_leading_spaces = re.compile(r'^\s+', re.MULTILINE)
+re_line = re.compile(r'.*')
 re_sq= re.compile(r'(.*?)(?<!\\)(?:\')')
 re_dq= re.compile(r'(.*?)(?<!\\)(?:")')
 
@@ -106,9 +109,14 @@ class AttributeDictParser(AttributeParser):
         while self.ptr<self.length-1:
             key = self.__parse_key()
 
-            # Tuple/List parsing
             self.consume_whitespace()
-            if self.s[self.ptr] in ('(', '['):
+            # Multi-line HAML
+            if self.s[self.ptr] == '\n':
+                self.ptr+=1
+                val=self.__parse_haml()
+                self.consume_whitespace()
+            # Tuple/List parsing
+            elif self.s[self.ptr] in ('(', '['):
                 tl_parser = AttributeTupleAndListParser(self.s[self.ptr:])
                 val = tl_parser.parse()
                 self.ptr += tl_parser.ptr
@@ -118,6 +126,22 @@ class AttributeDictParser(AttributeParser):
 
             self.dict[key]=val
         return self.dict
+    
+    def __parse_haml(self):
+        def whitespace_length():
+            r = re_whitespace.match(self.s, pos=self.ptr)
+            return len(r.group(0))
+        
+        initial_indentation=whitespace_length()
+        lines = []
+        while whitespace_length() >= initial_indentation:
+            line=re_line.match(self.s, pos=self.ptr).group(0)
+            lines.append(line)
+            self.ptr += len(line)+1
+        
+        h=hamlpy.Compiler()
+        html = h.process_lines(lines)
+        return re.sub(re_leading_spaces, ' ', html).replace('\n', '').strip()
 
     def __parse_key(self):
         '''Parse key variable and consume up to the colon'''

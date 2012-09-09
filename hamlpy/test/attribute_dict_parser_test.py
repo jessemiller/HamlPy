@@ -85,3 +85,23 @@ class TestAttributeDictParser(object):
         eq_(dict.get('content'), 'width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1')
         eq_(dict.get('name'), 'viewport')
 
+
+    def test_multiline_haml_in_attributes(self):
+        s="""{
+        'class':
+            - if forloop.first
+                link-first
+            - else
+                - if forloop.last
+                    link-last
+        'href':
+            - url 'some_view'
+        }"""
+        dict=AttributeDictParser(s).parse()
+        eq_(dict.get('class'), '{% if forloop.first %} link-first {% else %} {% if forloop.last %} link-last {% endif %} {% endif %}')
+        eq_(dict.get('href'), "{% url 'some_view' %}")
+    
+    # \r\n and \n
+    # Curly braces in multiline HAML
+    # Blank lines in Multiline HAML
+    # Incorrectly indented multiline HAML
