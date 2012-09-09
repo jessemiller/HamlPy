@@ -173,7 +173,6 @@ class AttributeTupleAndListParser(AttributeParser):
     def parse(self):
         lst=[]
 
-        # Todo: Must be easier way...
         val=True
         while val != False:
             val = self.parse_value()
