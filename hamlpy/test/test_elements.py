@@ -50,11 +50,6 @@ class TestElement(object):
             assert "xml:lang='en'" in sut.attributes
             assert "lang='en'" in sut.attributes
 
-        def test_id_and_class_dont_go_in_attributes(self):
-            sut = Element("%div{'class':'hello', 'id':'hi'}")
-            assert 'class=' not in sut.attributes
-            assert 'id=' not in sut.attributes
-            
         def test_attribute_merges_classes_properly(self):
             sut = Element("%div.someClass.anotherClass{'class':'hello'}")
             assert 'someClass' in sut.classes

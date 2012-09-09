@@ -41,30 +41,35 @@ class Element(object):
 
         attribute_parser=AttributeDictParser(split_tags.get('attributes'))
         self.attributes_dict = attribute_parser.parse()
-        self.attributes = self._render_attributes(self.attributes_dict)
 
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
-        self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), self._parse_class_from_attributes_dict())).strip()
+        self.classes = self._parse_classes(split_tags.get('class'))
         self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
+        
+        self.attributes = self._render_attributes(self.attributes_dict, self.id, self.classes)
 
         self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace') != ''
         self.nuke_outer_whitespace = split_tags.get('nuke_outer_whitespace') != ''
         self.django_variable = split_tags.get('django') != ''
         self.inline_content = split_tags.get('inline').strip()
 
+    def _parse_classes(self, classes):
+        tag_classes = classes.lstrip(self.CLASS).replace('.', ' ')
+        dict_classes = self._parse_class_from_attributes_dict()
+        return ('%s %s' % (tag_classes, dict_classes)).strip()
+        
     def _parse_class_from_attributes_dict(self):
-        clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str) and not isinstance(clazz, unicode):
-            clazz = ''
-            for one_class in self.attributes_dict.get('class'):
-                clazz += ' '+one_class
-        return clazz.strip()
+        cla = self.attributes_dict.get('class', '')
+        if isinstance(cla, list) or isinstance(cla, tuple):
+            return ' '.join(cla)
+        else:
+            return cla.strip()
 
     def _parse_id(self, id_haml):
         id_text = id_haml.strip(self.ID)
         if 'id' in self.attributes_dict:
-            if len(id_text)>0:
+            if id_text:
                 id_text += '_'
             id_text += self._parse_id_dict(self.attributes_dict['id'])
         return id_text
@@ -77,8 +82,14 @@ class Element(object):
         else:
             return id_dict
 
-    def _render_attributes(self, dict):
+    def _render_attributes(self, dict, id, classes):
         attributes=[]
+        
+        if len(id) > 0:
+            attributes.append("id='%s'" % self.id)
+        if len(classes) > 0:
+            attributes.append("class='%s'" % self.classes)
+
         for k, v in dict.items():
             if k != 'id' and k != 'class':
                 # Boolean attributes
