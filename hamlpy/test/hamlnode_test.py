@@ -64,9 +64,6 @@ class TestElementNode(unittest.TestCase):
         
         self.assertEqual(3, len(start.children))
 
-    def test_html_indentation_vs_haml_indentation(self):
-        pass
-
     def test_node_parent_function(self):
         root=nodes.ElementNode('%div.a')
         elements = [
