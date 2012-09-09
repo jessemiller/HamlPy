@@ -75,3 +75,9 @@ class TestAttributeDictParser(object):
     def test_tuple_value(self):
         dict=AttributeDictParser("{ class: ('a','b','c')}").parse()
         eq_(dict['class'], ('a','b','c'))
+        
+    def test_attribute_value_not_quoted_when_looks_like_key(self):
+        dict=AttributeDictParser('{name:"viewport", content:"width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1"}').parse()
+        eq_(dict['content'], 'width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1')
+        eq_(dict['name'], 'viewport')
+

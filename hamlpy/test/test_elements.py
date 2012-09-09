@@ -4,35 +4,7 @@ from hamlpy.elements import Element
 
 class TestElement(object):
 
-        def test_attribute_value_not_quoted_when_looks_like_key(self):
-            sut = Element('')
-            s1 = sut._parse_attribute_dictionary('''{name:"viewport", content:"width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1"}''')
-            eq_(s1['content'], 'width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1')
-            eq_(s1['name'], 'viewport')
-
-            sut = Element('')
-            s1 = sut._parse_attribute_dictionary('''{style:"a:x, b:'y', c:1, e:3"}''')
-            eq_(s1['style'], "a:x, b:'y', c:1, e:3")
-
-            sut = Element('')
-            s1 = sut._parse_attribute_dictionary('''{style:"a:x, b:'y', c:1, d:\\"dk\\", e:3"}''')
-            eq_(s1['style'], '''a:x, b:'y', c:1, d:"dk", e:3''')
-
-            sut = Element('')
-            s1 = sut._parse_attribute_dictionary('''{style:'a:x, b:\\'y\\', c:1, d:"dk", e:3'}''')
-            eq_(s1['style'], '''a:x, b:'y', c:1, d:"dk", e:3''')
-
-        def test_dashes_work_in_attribute_quotes(self):
-            sut = Element('')
-            s1 = sut._parse_attribute_dictionary('''{"data-url":"something", "class":"blah"}''')
-            eq_(s1['data-url'],'something')
-            eq_(s1['class'], 'blah')
-
-            s1 = sut._parse_attribute_dictionary('''{data-url:"something", class:"blah"}''')
-            eq_(s1['data-url'],'something')
-            eq_(s1['class'], 'blah')
-
-        def test_escape_quotes_except_django_tags(self):
+        def test_escape_attribute_quotes(self):
             sut = Element('')
 
             s1 = sut._escape_attribute_quotes('''{% url 'blah' %}''')
@@ -40,16 +12,6 @@ class TestElement(object):
 
             s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
             eq_(s2,r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s")
-
-        def test_attributes_parse(self):
-            sut = Element('')
-
-            s1 = sut._parse_attribute_dictionary('''{a:'something',"b":None,'c':2}''')
-            eq_(s1['a'],'something')
-            eq_(s1['b'],None)
-            eq_(s1['c'],2)
-
-            eq_(sut.attributes, "a='something' c='2' b")
 
         def test_pulls_tag_name_off_front(self):
             sut = Element('%div.class')
