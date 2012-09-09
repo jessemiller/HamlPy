@@ -1,6 +1,4 @@
 import re
-import sys
-from types import NoneType
 from attribute_dict_parser import AttributeDictParser
 
 class Element(object):

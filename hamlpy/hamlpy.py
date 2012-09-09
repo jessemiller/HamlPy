@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-from nodes import RootNode, FilterNode, HamlNode, create_node
+from nodes import RootNode, HamlNode, create_node
 from optparse import OptionParser
-import sys
 
 VALID_EXTENSIONS=['haml', 'hamlpy']
 
@@ -43,7 +42,6 @@ class Compiler:
             return root.render()
 
 def convert_files():
-    import sys
     import codecs
 
     parser = OptionParser()

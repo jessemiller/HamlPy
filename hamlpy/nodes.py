@@ -475,9 +475,7 @@ class PlainFilterNode(FilterNode):
         self.empty_node=True
     
     def _render(self):
-        if self.children:
-            first_indentation = self.children[0].indentation
-        self._render_children_as_plain_text()
+        self._render_children_as_plain_text(remove_indentation=True)
 
 class PythonFilterNode(FilterNode):
     def _render(self):
