@@ -102,7 +102,7 @@ class Element(object):
                 if v==None:
                     attributes.append( "%s" % (k,))
                 else:
-                    value = self._escape_attribute_quotes(v.decode('utf-8'))
+                    value = self._escape_attribute_quotes(v)
                     attributes.append( "%s='%s'" % (k, value))
                                        
         return ' '.join(attributes)
