@@ -6,7 +6,6 @@ re_nums = re.compile(r'[0-9\.]+')
 
 re_sq= re.compile(r'(.*?)(?<!\\)(?:\')')
 re_dq= re.compile(r'(.*?)(?<!\\)(?:")')
-re_br= re.compile(r'(.*?)(?<!\\)(?:})')
 
 class AttributeParser:
     """Parses comma-separated HamlPy attribute values"""
@@ -48,8 +47,6 @@ class AttributeParser:
             r=re_sq
         elif closing=='"':
             r=re_dq
-        elif closing=='}':
-            r=re_br
         else:
             r=re.compile(r'(.*?)(?<!\\)(?:%s)'%closing)
 
@@ -75,16 +72,6 @@ class AttributeParser:
             quote=self.s[self.ptr]
             self.ptr += 1
             val = self.read_until_unescaped_character(quote)
-        # Django variable
-        elif self.s[self.ptr:self.ptr+2] == '={':
-            self.ptr+=2
-            val = self.read_until_unescaped_character('}')
-            val="{{ %s }}" % val
-        # Django tag
-        elif self.s[self.ptr:self.ptr+2] in ['-{', '#{']:
-            self.ptr+=2
-            val = self.read_until_unescaped_character('}')
-            val=r"{%% %s %%}" % val
         # Boolean Attributes
         elif self.s[self.ptr:self.ptr+4] in ['none','None']:
             val = None
