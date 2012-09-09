@@ -39,8 +39,6 @@ class Element(object):
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
 
-        #self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
-
         attribute_parser=AttributeDictParser(split_tags.get('attributes'))
         self.attributes_dict = attribute_parser.parse()
         self.attributes = self._render_attributes(self.attributes_dict)
@@ -49,6 +47,7 @@ class Element(object):
         self.id = self._parse_id(split_tags.get('id'))
         self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), self._parse_class_from_attributes_dict())).strip()
         self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
+
         self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace') != ''
         self.nuke_outer_whitespace = split_tags.get('nuke_outer_whitespace') != ''
         self.django_variable = split_tags.get('django') != ''
@@ -65,22 +64,18 @@ class Element(object):
     def _parse_id(self, id_haml):
         id_text = id_haml.strip(self.ID)
         if 'id' in self.attributes_dict:
+            if len(id_text)>0:
+                id_text += '_'
             id_text += self._parse_id_dict(self.attributes_dict['id'])
-        id_text = id_text.lstrip('_')
         return id_text
     
     def _parse_id_dict(self, id_dict):
-        text = ''
         id_dict = self.attributes_dict.get('id')
 
-
-        if isinstance(id_dict, str) or isinstance(id_dict, unicode):
-            text = '_'+id_dict
+        if isinstance(id_dict, tuple) or isinstance(id_dict, list):
+            return '_'.join(id_dict)
         else:
-            text = ''
-            for one_id in id_dict:
-                text += '_'+one_id
-        return text
+            return id_dict
 
     def _render_attributes(self, dict):
         attributes=[]
