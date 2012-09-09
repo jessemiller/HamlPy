@@ -78,7 +78,7 @@ class AttributeParser:
             self.ptr+=4
         # Integers and floats
         else:
-            match=re_nums.match(self.s[self.ptr:])
+            match=re_nums.match(self.s, pos=self.ptr)
             if match:
                 val = match.group(0)
                 self.ptr += len(val)
@@ -137,7 +137,7 @@ class AttributeDictParser(AttributeParser):
         if quote:
             key = self.read_until_unescaped_character(quote)
         else:
-            key_match = re_key.match(self.s[self.ptr:])
+            key_match = re_key.match(self.s, pos=self.ptr)
             if key_match is None:
                 raise Exception("Invalid key beginning at: %s" % self.s[self.ptr:])
             key = key_match.group(0)
