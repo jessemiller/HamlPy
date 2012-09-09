@@ -49,10 +49,14 @@ class TestAttributeDictParser(object):
         eq_(dict['class'], 'test')
         eq_(dict['data-number'], '123')
         
-    def test_whitespace(self):
+    def test_whitespace_between_key_and_value(self):
         dict=AttributeDictParser("{   class:        'test',     data-number:    123}").parse()
         eq_(dict['class'], 'test')
         eq_(dict['data-number'], '123')
+        
+    def test_whitespace_before_colon(self):
+        dict=AttributeDictParser("{   class \t:        'test'}").parse()
+        eq_(dict['class'], 'test')
     
     def test_multiline_after_values(self):
         dict=AttributeDictParser("""{class: 'test',

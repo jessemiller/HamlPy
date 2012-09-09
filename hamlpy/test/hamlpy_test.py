@@ -104,7 +104,7 @@ class HamlPyTest(unittest.TestCase):
     def test_throws_exception_when_trying_to_close_django(self):
         haml = '- endfor'
         hamlParser = hamlpy.Compiler()
-        result = hamlParser.process(haml)
+        hamlParser.process(haml)
     
     def test_handles_dash_in_class_name_properly(self):
         haml = '.header.span-24.last'

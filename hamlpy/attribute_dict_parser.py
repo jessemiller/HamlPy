@@ -28,7 +28,7 @@ class AttributeParser:
 
     def consume_end_of_value(self):
         # End of value comma or end of string
-        self.ptr=self.consume_whitespace()
+        self.consume_whitespace()
         if self.s[self.ptr] != self.terminator:
             if self.s[self.ptr] == ',':
                 self.ptr+=1
@@ -60,7 +60,7 @@ class AttributeParser:
         return value.replace('\\'+closing,closing)
 
     def parse_value(self):
-        self.ptr=self.consume_whitespace()
+        self.consume_whitespace()
 
         # Invalid initial value
         val=False
@@ -107,7 +107,7 @@ class AttributeDictParser(AttributeParser):
             key = self.__parse_key()
 
             # Tuple/List parsing
-            self.ptr=self.consume_whitespace()
+            self.consume_whitespace()
             if self.s[self.ptr] in ('(', '['):
                 tl_parser = AttributeTupleAndListParser(self.s[self.ptr:])
                 val = tl_parser.parse()
@@ -122,7 +122,7 @@ class AttributeDictParser(AttributeParser):
     def __parse_key(self):
         '''Parse key variable and consume up to the colon'''
 
-        self.ptr=self.consume_whitespace(include_newlines=True)
+        self.consume_whitespace(include_newlines=True)
 
         if self.s[self.ptr] == ':':
             self.ptr+=1
@@ -144,7 +144,7 @@ class AttributeDictParser(AttributeParser):
             self.ptr += len(key)
 
         # Consume colon
-        ptr=self.consume_whitespace()
+        self.consume_whitespace()
         if self.s[self.ptr]==':':
             self.ptr+=1
         # Ruby arrow
