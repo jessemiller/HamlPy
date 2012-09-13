@@ -49,7 +49,7 @@ def create_node(haml_line):
         return PlaintextNode(haml_line)
     
     if stripped_line[0] == HAML_ESCAPE:
-        return PlaintextNode(haml_line.replace(HAML_ESCAPE, '', 1))
+        return PlaintextNode(haml_line)
         
     if stripped_line.startswith(DOCTYPE):
         return DoctypeNode(haml_line)
@@ -153,11 +153,11 @@ class RootNode(TreeNode):
         else:
             return self
 
-    def should_treat_children_as_multiline(self):
+    def inside_filter_node(self):
         if self.parent:
-            return self.parent.should_treat_children_as_multiline()
+            return self.parent.inside_filter_node()
         else:
-            return True
+            return False
 
     def _render_children(self):
         for child in self.children:
@@ -223,7 +223,12 @@ class HamlNode(RootNode):
 class PlaintextNode(HamlNode):
     '''Node that is not modified or processed when rendering'''
     def _render(self):
-        self.before = '%s%s' % (self.spaces, self.replace_inline_variables(self.haml))
+        text = self.replace_inline_variables(self.haml)
+        # Remove escape character unless inside filter node
+        if text and text[0]==HAML_ESCAPE and not self.inside_filter_node():
+            text = text.replace(HAML_ESCAPE, '', 1)
+
+        self.before = '%s%s' % (self.spaces, text)
         if self.children:
             self.before += self.render_newlines()
         else:
@@ -449,8 +454,8 @@ class FilterNode(HamlNode):
     def add_node(self, node):
         self.add_child(node)
 
-    def should_treat_children_as_multiline(self):
-        return False
+    def inside_filter_node(self):
+        return True
 
     def _render_children_as_plain_text(self,remove_indentation=True):
         if self.children:

@@ -18,7 +18,7 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            if root.parent_of(HamlNode(line)).should_treat_children_as_multiline():
+            if not root.parent_of(HamlNode(line)).inside_filter_node():
                 if line.count('{') - line.count('}') == 1:
                     start_multiline=line_number # For exception handling
 

@@ -274,6 +274,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    def test_filters_render_escaped_backslash(self):
+        haml = ":plain\n  \\Something"
+        html = "\\Something\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+
     def test_xml_namespaces(self):
         haml = "%fb:tag\n  content"
         html = "<fb:tag>\n  content\n</fb:tag>\n"
