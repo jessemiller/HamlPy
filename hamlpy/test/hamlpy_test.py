@@ -127,6 +127,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    def test_inline_variables_can_use_filter_characters(self):
+        haml = "={value|center:\"15\"}"
+        html = "{{ value|center:\"15\" }}\n"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        eq_(html, result)
+
     def test_inline_variables_in_attributes_are_parsed_correctly(self):
         haml = "%a{'b': '={greeting} test'} blah"
         html = "<a b='{{ greeting }} test'>blah</a>\n"
