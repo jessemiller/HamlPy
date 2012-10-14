@@ -21,16 +21,16 @@ class Element(object):
     (?P<selfclose>/)?
     (?P<django>=)?
     (?P<inline>[^\w\.#\{].*)?
-    """, re.X|re.MULTILINE|re.DOTALL)
+    """, re.X | re.MULTILINE | re.DOTALL)
 
     _ATTRIBUTE_KEY_REGEX = r'(?P<key>[a-zA-Z_][a-zA-Z0-9_-]*)'
     #Single and double quote regexes from: http://stackoverflow.com/a/5453821/281469
     _SINGLE_QUOTE_STRING_LITERAL_REGEX = r"'([^'\\]*(?:\\.[^'\\]*)*)'"
     _DOUBLE_QUOTE_STRING_LITERAL_REGEX = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
-    _ATTRIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?![A-Za-z0-9_])|%s|%s)'%(_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
+    _ATTRIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?![A-Za-z0-9_])|%s|%s)' % (_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
 
-    RUBY_HAML_REGEX = re.compile(r'(:|\")%s(\"|) =>'%(_ATTRIBUTE_KEY_REGEX))
-    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s:\s*%s'%(_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX))
+    RUBY_HAML_REGEX = re.compile(r'(:|\")%s(\"|) =>' % (_ATTRIBUTE_KEY_REGEX))
+    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX))
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
 
@@ -65,7 +65,7 @@ class Element(object):
         if not isinstance(clazz, str):
             clazz = ''
             for one_class in self.attributes_dict.get('class'):
-                clazz += ' '+one_class
+                clazz += ' ' + one_class
         return clazz.strip()
 
     def _parse_id(self, id_haml):
@@ -79,26 +79,26 @@ class Element(object):
         text = ''
         id_dict = self.attributes_dict.get('id')
         if isinstance(id_dict, str):
-            text = '_'+id_dict
+            text = '_' + id_dict
         else:
             text = ''
             for one_id in id_dict:
-                text += '_'+one_id
+                text += '_' + one_id
         return text
 
-    def _escape_attribute_quotes(self,v):
+    def _escape_attribute_quotes(self, v):
         '''
         Escapes quotes with a backslash, except those inside a Django tag
         '''
-        escaped=[]
+        escaped = []
         inside_tag = False
         for i, _ in enumerate(v):
-            if v[i:i+2] == '{%':
-                inside_tag=True
-            elif v[i:i+2] == '%}':
-                inside_tag=False
+            if v[i:i + 2] == '{%':
+                inside_tag = True
+            elif v[i:i + 2] == '%}':
+                inside_tag = False
 
-            if v[i]=="'" and not inside_tag:
+            if v[i] == "'" and not inside_tag:
                 escaped.append('\\')
 
             escaped.append(v[i])
@@ -113,7 +113,7 @@ class Element(object):
                 # converting all allowed attributes to python dictionary style
   
                 # Replace Ruby-style HAML with Python style
-                attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":',attribute_dict_string)
+                attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
                 # Put double quotes around key
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
@@ -129,7 +129,7 @@ class Element(object):
                             v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
                             if v != attributes_dict[k]:
                                 sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
-                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." +
+                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." + 
                                                  "\nPlease use inline variables ={...} instead.\n-------------------\n")
                                 
                             attributes_dict[k] = v
@@ -137,7 +137,7 @@ class Element(object):
                             self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
                 self.attributes = self.attributes.strip()
             except Exception, e:
-                raise Exception('failed to decode: %s'%attribute_dict_string)
+                raise Exception('failed to decode: %s' % attribute_dict_string)
                 #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
