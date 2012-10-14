@@ -6,10 +6,10 @@ from hamlpy import hamlpy
 class TestTemplateCompare(unittest.TestCase):
 
     def test_nuke_inner_whitespace(self):
-        self._compare_test_files('nukeInnerWhitespace')
+        self._compare_test_files('nukeInnerWhiteSpace')
 
     def test_nuke_outer_whitespace(self):
-        self._compare_test_files('nukeOuterWhitespace')
+        self._compare_test_files('nukeOuterWhiteSpace')
 
     def test_comparing_simple_templates(self):
         self._compare_test_files('simple')
@@ -57,52 +57,52 @@ class TestTemplateCompare(unittest.TestCase):
         self._compare_test_files('whitespacePreservation')
 
     def _print_diff(self, s1, s2):
-        if len(s1)>len(s2):
-            shorter=s2
+        if len(s1) > len(s2):
+            shorter = s2
         else:
-            shorter=s1
+            shorter = s1
 
-        line=1
-        col=1
+        line = 1
+        col = 1
         
         for i, _ in enumerate(shorter):
-            if len(shorter) <= i+1:
+            if len(shorter) <= i + 1:
                 print 'Ran out of characters to compare!'
-                print 'Actual len=%d'%len(s1)
-                print 'Expected len=%d'%len(s2)
+                print 'Actual len=%d' % len(s1)
+                print 'Expected len=%d' % len(s2)
                 break
             if s1[i] != s2[i]:
                 print 'Difference begins at line', line, 'column', col
-                actual_line = s1.splitlines()[line-1]
-                expected_line = s2.splitlines()[line-1]
+                actual_line = s1.splitlines()[line - 1]
+                expected_line = s2.splitlines()[line - 1]
                 print 'HTML (actual, len=%2d)   : %s' % (len(actual_line), actual_line)
                 print 'HTML (expected, len=%2d) : %s' % (len(expected_line), expected_line)
                 print 'Character code (actual)  : %d (%s)' % (ord(s1[i]), s1[i])
                 print 'Character code (expected): %d (%s)' % (ord(s2[i]), s2[i])
                 break
 
-            if shorter[i]=='\n':
+            if shorter[i] == '\n':
                 line += 1
-                col=1
+                col = 1
             else:
-                col+=1
+                col += 1
         else:
             print "No Difference Found"
 
     def _compare_test_files(self, name):
-        haml_lines = codecs.open('templates/'+name+'.hamlpy', encoding='utf-8').readlines()
-        html = open('templates/'+name+'.html').read()
+        haml_lines = codecs.open('templates/' + name + '.hamlpy', encoding = 'utf-8').readlines()
+        html = open('templates/' + name + '.html').read()
         
         haml_compiler = hamlpy.Compiler()
         parsed = haml_compiler.process_lines(haml_lines)
 
         # Ignore line ending differences
-        parsed=parsed.replace('\r','')
-        html=html.replace('\r','')
+        parsed = parsed.replace('\r', '')
+        html = html.replace('\r', '')
         
         if parsed != html:
             print '\nHTML (actual): '
-            print '\n'.join(["%d. %s" % (i+1, l) for i, l in enumerate(parsed.split('\n')) ])
+            print '\n'.join(["%d. %s" % (i + 1, l) for i, l in enumerate(parsed.split('\n')) ])
             self._print_diff(parsed, html)
         eq_(parsed, html)
         
