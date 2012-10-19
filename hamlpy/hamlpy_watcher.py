@@ -11,6 +11,7 @@ import os
 import os.path
 import time
 import hamlpy
+import nodes as hamlpynodes
 
 try:
     str = unicode
@@ -26,6 +27,16 @@ class Options(object):
 # dict of compiled files [fullpath : timestamp]
 compiled = dict()
 
+class StoreNameValueTagPair(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string = None):
+        tags = getattr(namespace, 'tags', {})
+        if tags is None:
+            tags = {}
+        for item in values:
+            n, v = item.split(':')
+            tags[n] = v
+        
+        setattr(namespace, 'tags', tags)
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--verbose', help = 'Display verbose output', action = 'store_true')
@@ -34,6 +45,7 @@ arg_parser.add_argument('-ext', '--extension', metavar = 'EXT', default = Option
 arg_parser.add_argument('-r', '--refresh', metavar = 'S', default = Options.CHECK_INTERVAL, help = 'Refresh interval for files. Default is {} seconds'.format(Options.CHECK_INTERVAL), type = int)
 arg_parser.add_argument('input_dir', help = 'Folder to watch', type = str)
 arg_parser.add_argument('output_dir', help = 'Destination folder', type = str, nargs = '?')
+arg_parser.add_argument('--tag', help = 'Add self closing tag. eg. --tag macro:endmacro', type = str, nargs = 1, action = StoreNameValueTagPair)
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
@@ -59,7 +71,9 @@ def watch_folder():
     
     if args.extension:
         Options.OUTPUT_EXT = args.extension
-        
+    
+    if args.tags:
+        hamlpynodes.TagNode.self_closing.update(args.tags)
     
     if args.input_extension:
         hamlpy.VALID_EXTENSIONS += args.input_extension
