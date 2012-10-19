@@ -60,7 +60,6 @@ def watch_folder():
     if args.extension:
         Options.OUTPUT_EXT = args.extension
         
-    print args
     
     if args.input_extension:
         hamlpy.VALID_EXTENSIONS += args.input_extension
