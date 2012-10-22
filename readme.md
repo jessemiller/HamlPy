@@ -90,7 +90,21 @@ For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_L
 
 HamlPy can also be used as a stand-alone program. There is a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
-	hamlpy-watcher <watch-folder> [destination_folder]
+	hamlpy-watcher [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S] input_dir [output_dir]
+
+	positional arguments:
+	  input_dir             Folder to watch
+	  output_dir            Destination folder
+	
+	optional arguments:
+	  -h, --help            show this help message and exit
+	  -v, --verbose         Display verbose output
+	  -i EXT [EXT ...], --input-extension EXT [EXT ...]
+	                        The file extensions to look for
+	  -ext EXT, --extension EXT
+	                        The output file extension. Default is .html
+	  -r S, --refresh S     Refresh interval for files. Default is 3 seconds
+
 
 Or to simply convert a file and output the result to your console:
 
