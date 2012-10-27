@@ -42,7 +42,7 @@ HAML_ESCAPE = '\\'
 def create_node(haml_line):
     stripped_line = haml_line.strip()
 
-    if len(stripped_line)==0:
+    if len(stripped_line) == 0:
         return None
     
     if re.match(INLINE_VARIABLE, stripped_line) or re.match(ESCAPED_INLINE_VARIABLE, stripped_line):
@@ -105,21 +105,21 @@ def create_node(haml_line):
 class TreeNode(object):
     ''' Generic parent/child tree class'''
     def __init__(self):
-        self.parent=None
-        self.children=[]
+        self.parent = None
+        self.children = []
 
     def left_sibling(self):
-        siblings=self.parent.children
-        index=siblings.index(self)
-        return siblings[index-1] if index>0 else None
+        siblings = self.parent.children
+        index = siblings.index(self)
+        return siblings[index - 1] if index > 0 else None
 
     def right_sibling(self):
-        siblings=self.parent.children
-        index=siblings.index(self)
-        return siblings[index+1] if index<len(siblings)-1 else None
+        siblings = self.parent.children
+        index = siblings.index(self)
+        return siblings[index + 1] if index < len(siblings) - 1 else None
 
-    def add_child(self,child):
-        child.parent=self
+    def add_child(self, child):
+        child.parent = self
         self.children.append(child)
 
 class RootNode(TreeNode):
@@ -129,11 +129,11 @@ class RootNode(TreeNode):
         # Number of empty lines to render after node
         self.newlines = 0
         # Rendered text at start of node, e.g. "<p>\n"
-        self.before=''
+        self.before = ''
         # Rendered text at end of node, e.g. "\n</p>"
-        self.after=''
+        self.after = ''
         # Indicates that a node does not render anything (for whitespace removal)
-        self.empty_node=False
+        self.empty_node = False
 
     def render(self):
         # Render (sets self.before and self.after)
@@ -144,7 +144,7 @@ class RootNode(TreeNode):
         return self._generate_html()
 
     def render_newlines(self):
-        return '\n'*(self.newlines+1)
+        return '\n' * (self.newlines + 1)
 
     def parent_of(self, node):
         if (self._should_go_inside_last_node(node)):
@@ -168,7 +168,7 @@ class RootNode(TreeNode):
             child._post_render()
 
     def _generate_html(self):
-        output=[]
+        output = []
         output.append(self.before)
         for child in self.children:
             output.append(child.before)
@@ -184,7 +184,7 @@ class RootNode(TreeNode):
             self.add_child(node)
     
     def _should_go_inside_last_node(self, node):
-        return len(self.children)>0 and (node.indentation > self.children[-1].indentation
+        return len(self.children) > 0 and (node.indentation > self.children[-1].indentation
             or (node.indentation == self.children[-1].indentation and self.children[-1].should_contain(node)))
     
     def should_contain(self, node):
@@ -194,9 +194,9 @@ class RootNode(TreeNode):
         return '\n'.join(self._debug_tree([self]))
 
     def _debug_tree(self, nodes):
-        output=[]
+        output = []
         for n in nodes:
-            output.append('%s%s' % (' '*(n.indentation+2), n))
+            output.append('%s%s' % (' ' * (n.indentation + 2), n))
             if n.children:
                 output += self._debug_tree(n.children)
         return output
@@ -225,7 +225,7 @@ class PlaintextNode(HamlNode):
     def _render(self):
         text = self.replace_inline_variables(self.haml)
         # Remove escape character unless inside filter node
-        if text and text[0]==HAML_ESCAPE and not self.inside_filter_node():
+        if text and text[0] == HAML_ESCAPE and not self.inside_filter_node():
             text = text.replace(HAML_ESCAPE, '', 1)
 
         self.before = '%s%s' % (self.spaces, text)
@@ -238,7 +238,7 @@ class PlaintextNode(HamlNode):
 class ElementNode(HamlNode):
     '''Node which represents a HTML tag'''
     def __init__(self, haml):
-        HamlNode.__init__(self,haml)
+        HamlNode.__init__(self, haml)
         self.django_variable = False
 
     def _render(self):
@@ -254,7 +254,7 @@ class ElementNode(HamlNode):
         if element.id:
             start.append(" id='%s'" % self.replace_inline_variables(element.id))
         if element.classes:
-            start.append(" class='%s'" % self.replace_inline_variables(element.classes) )
+            start.append(" class='%s'" % self.replace_inline_variables(element.classes))
         if element.attributes:
             start.append(' ' + self.replace_inline_variables(element.attributes))
 
@@ -264,7 +264,7 @@ class ElementNode(HamlNode):
             content = content.strip()
 
         if element.self_close and not content:
-            start.append(" />" )
+            start.append(" />")
         elif content:
             start.append(">%s" % (content))
         elif self.children:
@@ -291,18 +291,18 @@ class ElementNode(HamlNode):
             self.after = self.after.lstrip()
 
             if self.children:
-                node=self
+                node = self
                 # If node renders nothing, do removal on its first child instead
-                if node.children[0].empty_node==True:
-                    node=node.children[0]
+                if node.children[0].empty_node == True:
+                    node = node.children[0]
                 if node.children:
-                    node.children[0].before=node.children[0].before.lstrip()
+                    node.children[0].before = node.children[0].before.lstrip()
 
-                node=self
-                if node.children[-1].empty_node==True:
-                    node=node.children[-1]
+                node = self
+                if node.children[-1].empty_node == True:
+                    node = node.children[-1]
                 if node.children:
-                    node.children[-1].after=node.children[-1].after.rstrip()
+                    node.children[-1].after = node.children[-1].after.rstrip()
 
         # Outer whitespace removal
         if self.element.nuke_outer_whitespace:
@@ -330,7 +330,7 @@ class ElementNode(HamlNode):
         super(ElementNode, self)._post_render()    
 
     def _render_inline_content(self, inline_content):
-        if inline_content == None or len(inline_content)==0:
+        if inline_content == None or len(inline_content) == 0:
             return None
 
         if self.django_variable:
@@ -341,31 +341,31 @@ class ElementNode(HamlNode):
         
 class CommentNode(HamlNode):    
     def _render(self):
-        self.after =  "-->\n"
+        self.after = "-->\n"
         if self.children:
-            self.before ="<!-- %s" % (self.render_newlines())
+            self.before = "<!-- %s" % (self.render_newlines())
             self._render_children()
         else:
             self.before = "<!-- %s " % (self.haml.lstrip(HTML_COMMENT).strip())
 
 class ConditionalCommentNode(HamlNode):
     def _render(self):
-        conditional = self.haml[1: self.haml.index(']')+1 ]
+        conditional = self.haml[1: self.haml.index(']') + 1 ]
 
         if self.children:
             self.before = "<!--%s>\n" % (conditional)
         else:
-            content = self.haml[len(CONDITIONAL_COMMENT)+len(conditional)-1:]
+            content = self.haml[len(CONDITIONAL_COMMENT) + len(conditional) - 1:]
             self.before = "<!--%s>%s" % (conditional, content)
             
-        self.after = "<![endif]-->"
+        self.after = "<![endif]-->\n"
         self._render_children()
 
 class DoctypeNode(HamlNode):
     def _render(self):
         doctype = self.haml.lstrip(DOCTYPE).strip()
 
-        parts=doctype.split()
+        parts = doctype.split()
         if parts and parts[0] == "XML":
             encoding = parts[1] if len(parts) > 1 else 'utf-8'
             self.before = "<?xml version='1.0' encoding='%s' ?>" % encoding
@@ -419,11 +419,11 @@ class TagNode(HamlNode):
                     'cache': 'endcache',
                     'localize': 'endlocalize',
                     'compress': 'endcompress'}
-    may_contain = {'if':['else', 'elif'], 
+    may_contain = {'if':['else', 'elif'],
                    'ifchanged':'else',
                    'ifequal':'else',
                    'ifnotequal':'else',
-                   'for':'empty', 
+                   'for':'empty',
                    'with':'with'}
     
     def __init__(self, haml):
@@ -447,7 +447,7 @@ class TagNode(HamlNode):
         self._render_children()
     
     def should_contain(self, node):
-        return isinstance(node,TagNode) and node.tag_name in self.may_contain.get(self.tag_name,'')
+        return isinstance(node, TagNode) and node.tag_name in self.may_contain.get(self.tag_name, '')
 
 
 class FilterNode(HamlNode):
@@ -457,7 +457,7 @@ class FilterNode(HamlNode):
     def inside_filter_node(self):
         return True
 
-    def _render_children_as_plain_text(self,remove_indentation=True):
+    def _render_children_as_plain_text(self, remove_indentation = True):
         if self.children:
             initial_indentation = len(self.children[0].spaces)
         for child in self.children:
@@ -477,7 +477,7 @@ class FilterNode(HamlNode):
 class PlainFilterNode(FilterNode):
     def __init__(self, haml):
         FilterNode.__init__(self, haml)
-        self.empty_node=True
+        self.empty_node = True
     
     def _render(self):
         if self.children:
@@ -515,19 +515,19 @@ class JavascriptFilterNode(FilterNode):
     def _render(self):
         self.before = '<script type=\'text/javascript\'>\n// <![CDATA[%s' % (self.render_newlines())
         self.after = '// ]]>\n</script>\n'
-        self._render_children_as_plain_text(remove_indentation=False)
+        self._render_children_as_plain_text(remove_indentation = False)
 
 class CoffeeScriptFilterNode(FilterNode):
     def _render(self):
         self.before = '<script type=\'text/coffeescript\'>\n#<![CDATA[%s' % (self.render_newlines())
         self.after = '#]]>\n</script>\n'
-        self._render_children_as_plain_text(remove_indentation=False)
+        self._render_children_as_plain_text(remove_indentation = False)
 
 class CssFilterNode(FilterNode):
     def _render(self):
         self.before = '<style type=\'text/css\'>\n/*<![CDATA[*/%s' % (self.render_newlines())
         self.after = '/*]]>*/\n</style>\n'
-        self._render_children_as_plain_text(remove_indentation=False)
+        self._render_children_as_plain_text(remove_indentation = False)
 
 class StylusFilterNode(FilterNode):
     def _render(self):
@@ -539,7 +539,7 @@ class CDataFilterNode(FilterNode):
     def _render(self):
         self.before = self.spaces + '<![CDATA[%s' % (self.render_newlines())
         self.after = self.spaces + ']]>\n'
-        self._render_children_as_plain_text(remove_indentation=False)
+        self._render_children_as_plain_text(remove_indentation = False)
 
 class PygmentsFilterNode(FilterNode):
     def _render(self):
