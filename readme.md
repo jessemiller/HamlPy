@@ -44,15 +44,15 @@ turns into..
 
 The main difference is instead of interpreting Ruby, or even Python we instead can create Django Tags and Variables
 
-	%ul#atheletes
-		- for athelete in athelete_list
-			%li.athelete{'id': 'athelete_{{ athelete.pk }}'}= athelete.name
+	%ul#athletes
+		- for athlete in athlete_list
+			%li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
 
 turns into..
 
-	<ul id='atheletes'>
-		{% for athelete in athelete_list %}
-			<li class='athelete' id='athelete_{{ athelete.pk }}'>{{ athelete.name }}</li>
+	<ul id='athletes'>
+		{% for athlete in athlete_list %}
+			<li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
 		{% endfor %}
 	</ul>
 
