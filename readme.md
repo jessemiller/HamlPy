@@ -86,25 +86,36 @@ For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_L
 	    )),   
 	)
 
+#### Settings
+
+Following values in Django settings affect haml processing:
+
+  * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. This defaults to ' (an apostrophe).
+
 ### Option 2: Watcher 
 
 HamlPy can also be used as a stand-alone program. There is a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
-	hamlpy-watcher [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S] input_dir [output_dir]
 
-	positional arguments:
-	  input_dir             Folder to watch
-	  output_dir            Destination folder
-	
-	optional arguments:
-	  -h, --help            show this help message and exit
-	  -v, --verbose         Display verbose output
-	  -i EXT [EXT ...], --input-extension EXT [EXT ...]
-	                        The file extensions to look for
-	  -ext EXT, --extension EXT
-	                        The output file extension. Default is .html
-	  -r S, --refresh S     Refresh interval for files. Default is 3 seconds
+        usage: hamlpy-watcher [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S]
+                            [--tag TAG] [--attr-wrapper {",'}]
+                            input_dir [output_dir]
 
+        positional arguments:
+        input_dir             Folder to watch
+        output_dir            Destination folder
+
+        optional arguments:
+        -h, --help            show this help message and exit
+        -v, --verbose         Display verbose output
+        -i EXT [EXT ...], --input-extension EXT [EXT ...]
+                                The file extensions to look for
+        -ext EXT, --extension EXT
+                                The output file extension. Default is .html
+        -r S, --refresh S     Refresh interval for files. Default is 3 seconds
+        --tag TAG             Add self closing tag. eg. --tag macro:endmacro
+        --attr-wrapper {",'}  The character that should wrap element attributes.
+                                This defaults to ' (an apostrophe).
 
 Or to simply convert a file and output the result to your console:
 
