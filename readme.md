@@ -125,6 +125,10 @@ Or you can have it dump to a file:
 
 	hamlpy inputFile.haml outputFile.html
 
+Optionally, `--attr-wrapper` can be specified:
+
+    hamlpy inputFile.haml --attr-wrapper='"'
+
 For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the internal tree structure.
 	
 ## Reference
