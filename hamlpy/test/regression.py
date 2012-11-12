@@ -26,7 +26,7 @@ class RegressionTest(unittest.TestCase):
     
     def test_for_newline_after_conditional_comment(self):
         haml = '/[if lte IE 7]\n\ttest\n#test'
-        haml = '<!--[if lte IE 7]>\n\ttest\n<![endif]-->\n<div id="test"></div>'
+        html = "<!--[if lte IE 7]>\n\ttest\n<![endif]-->\n<div id='test'></div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result.strip())

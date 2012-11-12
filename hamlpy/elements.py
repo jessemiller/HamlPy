@@ -34,8 +34,9 @@ class Element(object):
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
 
-    def __init__(self, haml):
+    def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
+        self.attr_wrapper = attr_wrapper
         self.tag = None
         self.id = None
         self.classes = None
@@ -46,7 +47,10 @@ class Element(object):
         self.nuke_outer_whitespace = False
         self.inline_content = ''
         self._parse_haml()
-        
+
+    def attr_wrap(self, value):
+        return '%s%s%s' % (self.attr_wrapper, value, self.attr_wrapper)
+
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
         
@@ -123,7 +127,7 @@ class Element(object):
                         if isinstance(v, NoneType):
                             self.attributes += "%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s='%s' " % (k, v)
+                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
                         else:
                             # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
                             v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
@@ -134,7 +138,7 @@ class Element(object):
                                 
                             attributes_dict[k] = v
                             v = v.decode('utf-8')
-                            self.attributes += "%s='%s' " % (k, self._escape_attribute_quotes(v))
+                            self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s' % attribute_dict_string)
