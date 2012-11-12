@@ -7,6 +7,13 @@ from hamlpy import hamlpy
 from hamlpy.template.utils import get_django_template_loaders
 
 
+# Get options from Django settings
+options_dict = {}
+from django.conf import settings
+if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
+    options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
+
+
 def get_haml_loader(loader):
     if hasattr(loader, 'Loader'):
         baseclass = loader.Loader
@@ -27,7 +34,7 @@ def get_haml_loader(loader):
                 except TemplateDoesNotExist:
                     pass
                 else:
-                    hamlParser = hamlpy.Compiler()
+                    hamlParser = hamlpy.Compiler(options_dict=options_dict)
                     html = hamlParser.process(haml_source)
 
                     return html, template_path
