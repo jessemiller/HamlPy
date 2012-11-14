@@ -109,6 +109,28 @@ class Element(object):
 
         return ''.join(escaped)
 
+    def _prepare_dynamic_attributes(self, attribute_dict_string):
+        try:
+            import ast
+            from codegen import to_source
+            node = ast.parse(attribute_dict_string, mode='eval')
+            s = []
+            for k,v in zip(node.body.keys, node.body.values):
+                if isinstance(k, ast.Name):
+                    #k = '"{{ %s }}"' % k.id # TODO: allow dynamic keys in settings
+                    k = '"%s"' % k.id
+                else:
+                    k = to_source(k)
+                if isinstance(v, ast.Str): # TODO: add allowed types
+                    v = to_source(v)
+                else:
+                    v = '"{{ %s }}"' % to_source(v)
+                s.append('%s: %s' % (k,v))
+            attribute_dict_string = '{%s}' % ', '.join(s)
+        except Exception as e:
+            pass
+        return attribute_dict_string
+
     def _parse_attribute_dictionary(self, attribute_dict_string):
         attributes_dict = {}
         if (attribute_dict_string):
@@ -120,6 +142,8 @@ class Element(object):
                 attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
                 # Put double quotes around key
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+                # replace short notation for inline expressions
+                attribute_dict_string = self._prepare_dynamic_attributes(attribute_dict_string)
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
@@ -138,7 +162,9 @@ class Element(object):
                                 
                             attributes_dict[k] = v
                             v = v.decode('utf-8')
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
+                            if not v.startswith('{{'):
+                                v = self._escape_attribute_quotes(v)
+                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
                 self.attributes = self.attributes.strip()
             except Exception, e:
                 raise Exception('failed to decode: %s' % attribute_dict_string)

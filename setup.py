@@ -12,6 +12,7 @@ setup(name='hamlpy',
       url = 'http://github.com/jessemiller/HamlPy',
       license = 'MIT',
       install_requires = [
+          'codegen',
           'django',
           'pygments',
           'markdown'
