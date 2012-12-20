@@ -35,7 +35,7 @@ class StoreNameValueTagPair(argparse.Action):
         for item in values:
             n, v = item.split(':')
             tags[n] = v
-
+        
         setattr(namespace, 'tags', tags)
 
 arg_parser = argparse.ArgumentParser()
@@ -59,41 +59,39 @@ def watch_folder():
     """Main entry point. Expects one or two arguments (the watch folder + optional destination folder)."""
     argv = sys.argv[1:] if len(sys.argv) > 1 else []
     args = arg_parser.parse_args(sys.argv[1:])
-    args_dict = args.__dict__
-
-    input_folder = os.path.realpath(args_dict.pop('input_dir'))
-    output_folder = args_dict.pop('output_dir', None)
-    refresh_interval = args_dict.pop('refresh')
-    if not output_folder:
+    compiler_args = {}
+    
+    input_folder = os.path.realpath(args.input_dir)
+    if not args.output_dir:
         output_folder = input_folder
     else:
-        output_folder = os.path.realpath(output_folder )
-
-    if args_dict.pop('verbose'):
+        output_folder = os.path.realpath(args.output_dir)
+    
+    if args.verbose:
         Options.VERBOSE = True
-        print "Watching {} at refresh interval {} seconds".format(input_folder, refresh_interval)
-
-    extension = args_dict.pop('extension')
-    if extension:
-        Options.OUTPUT_EXT = extension
-
-    tags = args_dict.pop('tag')
-    if tags:
-        hamlpynodes.TagNode.self_closing.update(tags)
-
-    input_extension = args_dict.pop('input_extension')
-    if input_extension:
-        hamlpy.VALID_EXTENSIONS += input_extension
-
+        print "Watching {} at refresh interval {} seconds".format(input_folder, args.refresh)
+    
+    if args.extension:
+        Options.OUTPUT_EXT = args.extension
+    
+    if args.tags:
+        hamlpynodes.TagNode.self_closing.update(args.tags)
+    
+    if args.input_extension:
+        hamlpy.VALID_EXTENSIONS += args.input_extension
+    
+    if args.attr_wrapper:
+    	compiler_args['attr_wrapper'] = args.attr_wrapper
+    
     while True:
         try:
-            _watch_folder(input_folder, output_folder, args_dict)
-            time.sleep(refresh_interval)
+            _watch_folder(input_folder, output_folder, compiler_args)
+            time.sleep(args.refresh)
         except KeyboardInterrupt:
             # allow graceful exit (no stacktrace output)
             sys.exit(0)
 
-def _watch_folder(folder, destination, args_dict):
+def _watch_folder(folder, destination, compiler_args):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
     if necessary."""
     for dirpath, dirnames, filenames in os.walk(folder):
@@ -103,23 +101,23 @@ def _watch_folder(folder, destination, args_dict):
                 fullpath = os.path.join(dirpath, filename)
                 subfolder = os.path.relpath(dirpath, folder)
                 mtime = os.stat(fullpath).st_mtime
-
+                
                 # Create subfolders in target directory if they don't exist
                 compiled_folder = os.path.join(destination, subfolder)
                 if not os.path.exists(compiled_folder):
                     os.makedirs(compiled_folder)
-
+                
                 compiled_path = _compiled_path(compiled_folder, filename)
                 if (not fullpath in compiled or
                     compiled[fullpath] < mtime or
                     not os.path.isfile(compiled_path)):
-                    compile_file(fullpath, compiled_path, args_dict)
+                    compile_file(fullpath, compiled_path, compiler_args)
                     compiled[fullpath] = mtime
 
 def _compiled_path(destination, filename):
     return os.path.join(destination, filename[:filename.rfind('.')] + Options.OUTPUT_EXT)
 
-def compile_file(fullpath, outfile_name, args_dict):
+def compile_file(fullpath, outfile_name, compiler_args):
     """Calls HamlPy compiler."""
     if Options.VERBOSE:
         print '%s %s -> %s' % (strftime("%H:%M:%S", gmtime()), fullpath, outfile_name)
@@ -127,7 +125,7 @@ def compile_file(fullpath, outfile_name, args_dict):
         if Options.DEBUG:
             print "Compiling %s -> %s" % (fullpath, outfile_name)
         haml_lines = codecs.open(fullpath, 'r', encoding = 'utf-8').read().splitlines()
-        compiler = hamlpy.Compiler(args_dict)
+        compiler = hamlpy.Compiler(compiler_args)
         output = compiler.process_lines(haml_lines)
         outfile = codecs.open(outfile_name, 'w', encoding = 'utf-8')
         outfile.write(output)
