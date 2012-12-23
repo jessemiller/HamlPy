@@ -144,7 +144,6 @@ class TestElement(object):
                 'data-login': '={request.user.login}' if request.user.is_authenticated,
                 'class': 'at-least-three' if x >= 3 else 'less-than-three'
             }""")
-            print sut.attributes
             assert """{% if request.user.is_authenticated %}href='profile'{% else %}href='login'{% endif %}""" in sut.attributes
             assert """{% if request.user.is_authenticated %}data-login='={request.user.login}'{% endif %}""" in sut.attributes
             assert """{% if x>=3 %}at-least-three{% else %}less-than-three{% endif %}""" in sut.classes
