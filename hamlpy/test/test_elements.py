@@ -137,3 +137,14 @@ class TestElement(object):
             assert "href='/long/url/to/stylesheet/resource.css'" in sut.attributes
             assert "type='text/css'" in sut.attributes
             assert "rel='stylesheet'" in sut.attributes
+
+        def test_conditional_arguments(self):
+            sut = Element("""%a{
+                'href': 'profile' if request.user.is_authenticated else 'login',
+                'data-login': '={request.user.login}' if request.user.is_authenticated,
+                'class': 'at-least-three' if x >= 3 else 'less-than-three'
+            }""")
+            print sut.attributes
+            assert """{% if request.user.is_authenticated %}href='profile'{% else %}href='login'{% endif %}""" in sut.attributes
+            assert """{% if request.user.is_authenticated %}data-login='={request.user.login}'{% endif %}""" in sut.attributes
+            assert """{% if x>=3 %}at-least-three{% else %}less-than-three{% endif %}""" in sut.classes

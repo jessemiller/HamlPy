@@ -1,6 +1,7 @@
 import re
 import sys
 from types import NoneType
+from attributes_parser import AttributesParser
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -121,26 +122,55 @@ class Element(object):
                 # Put double quotes around key
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
-                attributes_dict = eval(attribute_dict_string)
-                for k, v in attributes_dict.items():
-                    if k != 'id' and k != 'class':
-                        if isinstance(v, NoneType):
-                            self.attributes += "%s " % (k,)
-                        elif isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
+
+                attributes_dict = AttributesParser(attribute_dict_string).parse()
+                for key, (value, condition, alt_value) in attributes_dict.items():
+                    if condition is None:
+                        attributes_dict[key] = value
+                    elif alt_value is None:
+                        attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% endif %%}' % {
+                            'value': value,
+                            'condition': condition
+                        }
+                    else:
+                        attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% else %%}%(alt_value)s{%% endif %%}' % {
+                            'value': value,
+                            'condition': condition,
+                            'alt_value': alt_value,
+                        }
+
+                    if key not in ('id', 'class'):
+                        if value is None:
+                            attribute = '%s ' % key
                         else:
-                            # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
-                            v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
-                            if v != attributes_dict[k]:
-                                sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
-                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." + 
-                                                 "\nPlease use inline variables ={...} instead.\n-------------------\n")
-                                
-                            attributes_dict[k] = v
-                            v = v.decode('utf-8')
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
+                            if isinstance(value, basestring):
+                                value = self._escape_attribute_quotes(value.decode('utf-8'))
+                            attribute = '%s=%s ' % (key, self.attr_wrap(value))
+
+                        if condition is None:
+                            self.attributes += attribute
+                        elif alt_value is None:
+                            self.attributes += '{%% if %(condition)s %%}%(attribute)s{%% endif %%}' % {
+                                'attribute': attribute.strip(),
+                                'condition': condition.strip()
+                            }
+                        else:
+                            if alt_value is None:
+                                alt_attribute = '%s ' % key
+                            else:
+                                if isinstance(alt_value, basestring):
+                                    alt_value = self._escape_attribute_quotes(alt_value.decode('utf-8'))
+                                alt_attribute = '%s=%s ' % (key, self.attr_wrap(alt_value))
+                            self.attributes += '{%% if %(condition)s %%}%(attribute)s{%% else %%}%(alt_attribute)s{%% endif %%}' % {
+                                'attribute': attribute.strip(),
+                                'condition': condition,
+                                'alt_attribute': alt_attribute.strip(),
+                            }
+
+
                 self.attributes = self.attributes.strip()
             except Exception, e:
+                raise
                 raise Exception('failed to decode: %s' % attribute_dict_string)
                 #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 

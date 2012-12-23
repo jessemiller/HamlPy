@@ -14,7 +14,8 @@ setup(name='hamlpy',
       install_requires = [
           'django',
           'pygments',
-          'markdown'
+          'markdown',
+          'pyparsing'
       ],
       entry_points = {
           'console_scripts' : ['hamlpy = hamlpy.hamlpy:convert_files',
