@@ -142,8 +142,10 @@ class TestElement(object):
             sut = Element("""%a{
                 'href': 'profile' if request.user.is_authenticated else 'login',
                 'data-login': '={request.user.login}' if request.user.is_authenticated,
+                'foo': 'bar' if not x > 5,
                 'class': 'at-least-three' if x >= 3 else 'less-than-three'
             }""")
             assert """{% if request.user.is_authenticated %}href='profile'{% else %}href='login'{% endif %}""" in sut.attributes
             assert """{% if request.user.is_authenticated %}data-login='={request.user.login}'{% endif %}""" in sut.attributes
+            assert """{% if not x > 5 %}foo='bar'{% endif %}""" in sut.attributes
             assert """{% if x >= 3 %}at-least-three{% else %}less-than-three{% endif %}""" in sut.classes

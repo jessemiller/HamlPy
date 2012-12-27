@@ -37,7 +37,7 @@ class AttributesParser:
         COMPARISON_OP = Keyword('<') ^ Keyword('>') ^ Keyword('==') ^ Keyword('>=') ^ Keyword('<=') ^ Keyword('<>') ^ Keyword('!=') ^ Keyword('in') ^ Keyword('not in') ^ Keyword('is') ^ Keyword('is not')
         COMPARISON = Combine(EXPRESSION + ZeroOrMore(COMPARISON_OP + EXPRESSION), adjacent=False, joinString=' ')
         NOT_TEST = Forward()
-        NOT_TEST << ((Keyword('not') + NOT_TEST) ^ COMPARISON)
+        NOT_TEST << Combine((Keyword('not') + NOT_TEST) ^ COMPARISON, adjacent=False, joinString=' ')
         AND_TEST = NOT_TEST + ZeroOrMore(Keyword('and') + NOT_TEST)
         TEST = AND_TEST + ZeroOrMore(Keyword('or') + AND_TEST)
 
