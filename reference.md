@@ -326,8 +326,33 @@ is compiled to
 
 The Ruby style (`#{...}` rather than `={...}`) is also supported and the two can be used interchangeably.
 
+### Conditional attributes
 
+HamlPy now supports conditional attributes. It is an easy way to only include attributes if certain conditions are met.
 
+	%a{'data-foo': 'bar' if x > 5}
+
+Is rendered as...
+
+	<a {% if x>5 %}data-foo='bar'{% endif %}></a>
+
+It's also possible to use an else statement.
+
+	%img{'src': 'error.png' if error else 'ok.png'}
+
+Turns into...
+
+	<img src='{% if error %}error.png{% else %}ok.png{% endif %}'>
+
+Classes and IDs are handled a bit differently by the HamlPy engine, so they always get a value, even if it will be empty.
+
+	%li{'class': 'odd' if i % 2 == 1}
+
+Turns into...
+
+	<li class='{% if i%2==1 %}odd{% endif %}'>
+
+Note: It potentially causes styling problems if you have something like `li[class]` in your CSS.
 
 ### Django Tags: -
 
