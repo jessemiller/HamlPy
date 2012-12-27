@@ -23,7 +23,7 @@ class AttributesParser:
         LIST = (Suppress('[') + DELIMITED_LIST + Suppress(']')).setParseAction(evalCode)
 
         NAME = Word(alphanums + '_')
-        ATOM = NAME ^ STRING ^ NUMBER ^ NONE
+        ATOM = NAME ^ quotedString ^ NUMBER ^ NONE
         TRAILER = '.' + NAME
         FACTOR = Forward()
         POWER = ATOM + ZeroOrMore(TRAILER) + Optional(Literal('**') + FACTOR)
@@ -34,7 +34,7 @@ class AttributesParser:
         AND_EXPRESSION = SHIFT_EXPRESSION + ZeroOrMore('&' + SHIFT_EXPRESSION)
         XOR_EXPRESSION = AND_EXPRESSION + ZeroOrMore('^' + AND_EXPRESSION)
         EXPRESSION = XOR_EXPRESSION + ZeroOrMore('|' + XOR_EXPRESSION)
-        COMPARISON_OP = Literal('<') ^ Literal('>') ^ Literal('==') ^ Literal('>=') ^ Literal('<=') ^ Literal('<>') ^ Literal('!=') ^ Literal('in') ^ Literal('not in') ^ Literal('is') ^ Literal('is not')
+        COMPARISON_OP = ' ' + (Literal('<') ^ Literal('>') ^ Literal('==') ^ Literal('>=') ^ Literal('<=') ^ Literal('<>') ^ Literal('!=') ^ Literal('in') ^ Literal('not in') ^ Literal('is') ^ Literal('is not')) + ' '
         COMPARISON = EXPRESSION + ZeroOrMore(COMPARISON_OP + EXPRESSION)
         NOT_TEST = Forward()
         NOT_TEST << ((Literal('not') + NOT_TEST) ^ COMPARISON)
