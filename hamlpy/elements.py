@@ -127,17 +127,21 @@ class Element(object):
                 for key, (value, condition, alt_value) in attributes_dict.items():
                     if condition is None:
                         attributes_dict[key] = value
-                    elif alt_value is None:
-                        attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% endif %%}' % {
-                            'value': value,
-                            'condition': condition
-                        }
                     else:
-                        attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% else %%}%(alt_value)s{%% endif %%}' % {
-                            'value': value,
-                            'condition': condition,
-                            'alt_value': alt_value,
-                        }
+                        if alt_value is None:
+                            attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% endif %%}' % {
+                                'value': value,
+                                'condition': condition
+                            }
+                        else:
+                            attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% else %%}%(alt_value)s{%% endif %%}' % {
+                                'value': value,
+                                'condition': condition,
+                                'alt_value': alt_value,
+                            }
+
+                        if key in ('id', 'class'):
+                            attributes_dict[key] = [attributes_dict[key]]
 
                     if key not in ('id', 'class'):
                         if value is None:
