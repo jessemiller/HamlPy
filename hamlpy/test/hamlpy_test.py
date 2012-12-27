@@ -334,5 +334,13 @@ class HamlPyTest(unittest.TestCase):
 </html>
 ''')
 
+    def test_conditional_attributes(self):
+        haml = """%a.foo{'class': 'bar' if baz == "bax", 'href': '#'}<
+                Bazinga!"""
+
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertEqual(result, """<a class='foo {% if baz == "bax" %}bar{% endif %}' href='#'>Bazinga!</a>\n""")
+
 if __name__ == '__main__':
     unittest.main()

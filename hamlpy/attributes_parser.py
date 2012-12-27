@@ -23,26 +23,26 @@ class AttributesParser:
         LIST = (Suppress('[') + DELIMITED_LIST + Suppress(']')).setParseAction(evalCode)
 
         NAME = Word(alphanums + '_')
-        ATOM = NAME ^ quotedString ^ NUMBER ^ NONE
+        ATOM = Combine(NAME ^ quotedString ^ NUMBER ^ NONE)
         TRAILER = '.' + NAME
         FACTOR = Forward()
-        POWER = ATOM + ZeroOrMore(TRAILER) + Optional(Literal('**') + FACTOR)
-        FACTOR = ((Literal('+') ^ Literal('-') ^ Literal('~')) + FACTOR) ^ POWER
-        TERM = FACTOR + ZeroOrMore((Literal('*') ^ Literal('/') ^ Literal('%') ^ Literal('//')) + FACTOR)
-        ARITH_EXPRESSION = TERM + ZeroOrMore((Literal('+') ^ Literal('-')) + TERM)
-        SHIFT_EXPRESSION = ARITH_EXPRESSION + ZeroOrMore((Literal('<<') ^ Literal('>>')) + ARITH_EXPRESSION)
-        AND_EXPRESSION = SHIFT_EXPRESSION + ZeroOrMore('&' + SHIFT_EXPRESSION)
-        XOR_EXPRESSION = AND_EXPRESSION + ZeroOrMore('^' + AND_EXPRESSION)
-        EXPRESSION = XOR_EXPRESSION + ZeroOrMore('|' + XOR_EXPRESSION)
-        COMPARISON_OP = ' ' + (Literal('<') ^ Literal('>') ^ Literal('==') ^ Literal('>=') ^ Literal('<=') ^ Literal('<>') ^ Literal('!=') ^ Literal('in') ^ Literal('not in') ^ Literal('is') ^ Literal('is not')) + ' '
-        COMPARISON = EXPRESSION + ZeroOrMore(COMPARISON_OP + EXPRESSION)
+        POWER = Combine(ATOM + ZeroOrMore(TRAILER)) + Optional(Keyword('**') + FACTOR)
+        FACTOR = ((Keyword('+') ^ Keyword('-') ^ Keyword('~')) + FACTOR) ^ POWER
+        TERM = FACTOR + ZeroOrMore((Keyword('*') ^ Keyword('/') ^ Keyword('%') ^ Keyword('//')) + FACTOR)
+        ARITH_EXPRESSION = TERM + ZeroOrMore((Keyword('+') ^ Keyword('-')) + TERM)
+        SHIFT_EXPRESSION = ARITH_EXPRESSION + ZeroOrMore((Keyword('<<') ^ Keyword('>>')) + ARITH_EXPRESSION)
+        AND_EXPRESSION = SHIFT_EXPRESSION + ZeroOrMore(Keyword('&') + SHIFT_EXPRESSION)
+        XOR_EXPRESSION = AND_EXPRESSION + ZeroOrMore(Keyword('^') + AND_EXPRESSION)
+        EXPRESSION = XOR_EXPRESSION + ZeroOrMore(Keyword('|') + XOR_EXPRESSION)
+        COMPARISON_OP = Keyword('<') ^ Keyword('>') ^ Keyword('==') ^ Keyword('>=') ^ Keyword('<=') ^ Keyword('<>') ^ Keyword('!=') ^ Keyword('in') ^ Keyword('not in') ^ Keyword('is') ^ Keyword('is not')
+        COMPARISON = Combine(EXPRESSION + ZeroOrMore(COMPARISON_OP + EXPRESSION), adjacent=False, joinString=' ')
         NOT_TEST = Forward()
-        NOT_TEST << ((Literal('not') + NOT_TEST) ^ COMPARISON)
-        AND_TEST = NOT_TEST + ZeroOrMore(Literal('and') + NOT_TEST)
-        TEST = AND_TEST + ZeroOrMore(Literal('or') + AND_TEST)
+        NOT_TEST << ((Keyword('not') + NOT_TEST) ^ COMPARISON)
+        AND_TEST = NOT_TEST + ZeroOrMore(Keyword('and') + NOT_TEST)
+        TEST = AND_TEST + ZeroOrMore(Keyword('or') + AND_TEST)
 
         VALUE = STRING ^ NUMBER ^ TUPLE ^ LIST ^ NONE
-        ATTRIBUTE = Group(STRING + Suppress(':') + VALUE + Optional(Keyword('if').suppress() + Combine(TEST) + Optional(Keyword('else').suppress() + VALUE)))
+        ATTRIBUTE = Group(STRING + Suppress(':') + VALUE + Optional(Keyword('if').suppress() + TEST + Optional(Keyword('else').suppress() + VALUE)))
         ATTRIBUTES = delimitedList(ATTRIBUTE)
 
         parsed = {}

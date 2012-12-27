@@ -146,4 +146,4 @@ class TestElement(object):
             }""")
             assert """{% if request.user.is_authenticated %}href='profile'{% else %}href='login'{% endif %}""" in sut.attributes
             assert """{% if request.user.is_authenticated %}data-login='={request.user.login}'{% endif %}""" in sut.attributes
-            assert """{% if x>=3 %}at-least-three{% else %}less-than-three{% endif %}""" in sut.classes
+            assert """{% if x >= 3 %}at-least-three{% else %}less-than-three{% endif %}""" in sut.classes
