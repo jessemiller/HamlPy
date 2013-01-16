@@ -139,7 +139,7 @@ There is a very simple solution.
 	
 Where:
 
-  * <project.settings> -- Django configuration file where  module "hamlpy" is configured properly.
+  * project.settings -- Django configuration file where  module "hamlpy" is configured properly.
 	
 ## Reference
 
