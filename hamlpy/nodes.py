@@ -524,25 +524,37 @@ class PythonFilterNode(FilterNode):
 
 class JavascriptFilterNode(FilterNode):
     def _render(self):
-        self.before = '<script type=\'text/javascript\'>\n// <![CDATA[%s' % (self.render_newlines())
+        self.before = '<script type=%(attr_wrapper)stext/javascript%(attr_wrapper)s>\n// <![CDATA[%(new_lines)s' % {
+            'attr_wrapper': self.attr_wrapper,
+            'new_lines': self.render_newlines(),
+        }
         self.after = '// ]]>\n</script>\n'
         self._render_children_as_plain_text(remove_indentation = False)
 
 class CoffeeScriptFilterNode(FilterNode):
     def _render(self):
-        self.before = '<script type=\'text/coffeescript\'>\n#<![CDATA[%s' % (self.render_newlines())
+        self.before = '<script type=%(attr_wrapper)stext/coffeescript%(attr_wrapper)s>\n#<![CDATA[%(new_lines)s' % {
+            'attr_wrapper': self.attr_wrapper,
+            'new_lines': self.render_newlines(),
+        }
         self.after = '#]]>\n</script>\n'
         self._render_children_as_plain_text(remove_indentation = False)
 
 class CssFilterNode(FilterNode):
     def _render(self):
-        self.before = '<style type=\'text/css\'>\n/*<![CDATA[*/%s' % (self.render_newlines())
+        self.before = '<style type=%(attr_wrapper)stext/css%(attr_wrapper)s>\n/*<![CDATA[*/%(new_lines)s' % {
+            'attr_wrapper': self.attr_wrapper,
+            'new_lines': self.render_newlines(),
+        }
         self.after = '/*]]>*/\n</style>\n'
         self._render_children_as_plain_text(remove_indentation = False)
 
 class StylusFilterNode(FilterNode):
     def _render(self):
-        self.before = '<style type=\'text/stylus\'>\n/*<![CDATA[*/%s' % (self.render_newlines())
+        self.before = '<style type=%(attr_wrapper)stext/stylus%(attr_wrapper)s>\n/*<![CDATA[*/%(new_lines)s' % {
+            'attr_wrapper': self.attr_wrapper,
+            'new_lines': self.render_newlines(),
+        }
         self.after = '/*]]>*/\n</style>\n'
         self._render_children_as_plain_text()
 
