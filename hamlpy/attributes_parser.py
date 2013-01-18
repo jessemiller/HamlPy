@@ -38,8 +38,8 @@ class AttributesParser:
         COMPARISON = Combine(EXPRESSION + ZeroOrMore(COMPARISON_OP + EXPRESSION), adjacent=False, joinString=' ')
         NOT_TEST = Forward()
         NOT_TEST << Combine((Keyword('not') + NOT_TEST) ^ COMPARISON, adjacent=False, joinString=' ')
-        AND_TEST = NOT_TEST + ZeroOrMore(Keyword('and') + NOT_TEST)
-        TEST = AND_TEST + ZeroOrMore(Keyword('or') + AND_TEST)
+        AND_TEST = Combine(NOT_TEST + ZeroOrMore(Keyword('and') + NOT_TEST), adjacent=False, joinString=' ')
+        TEST = Combine(AND_TEST + ZeroOrMore(Keyword('or') + AND_TEST), adjacent=False, joinString=' ')
 
         VALUE = STRING ^ NUMBER ^ TUPLE ^ LIST ^ NONE
         ATTRIBUTE = Group(STRING + Suppress(':') + VALUE + Optional(Keyword('if').suppress() + TEST + Optional(Keyword('else').suppress() + VALUE)))
