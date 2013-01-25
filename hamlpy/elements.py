@@ -102,7 +102,7 @@ class Element(object):
             elif v[i:i + 2] == '%}':
                 inside_tag = False
 
-            if v[i] == "'" and not inside_tag:
+            if v[i] == self.attr_wrapper and not inside_tag:
                 escaped.append('\\')
 
             escaped.append(v[i])
