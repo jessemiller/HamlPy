@@ -96,7 +96,7 @@ def watch_folder():
             'call'   : 'endcall',
         })
         
-        hamlpy.nodes.TagNode.may_contain['for'] = 'else'
+        hamlpynodes.TagNode.may_contain['for'] = 'else'
     
     while True:
         try:
