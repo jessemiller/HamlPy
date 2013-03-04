@@ -116,6 +116,7 @@ HamlPy can also be used as a stand-alone program. There is a script which will w
         --tag TAG             Add self closing tag. eg. --tag macro:endmacro
         --attr-wrapper {",'}  The character that should wrap element attributes.
                                 This defaults to ' (an apostrophe).
+        --jinja               Makes the necessary changes to be used with Jinja2
 
 Or to simply convert a file and output the result to your console:
 
@@ -128,6 +129,8 @@ Or you can have it dump to a file:
 Optionally, `--attr-wrapper` can be specified:
 
     hamlpy inputFile.haml --attr-wrapper='"'
+
+Using the `--jinja` compatibility option adds macro and call tags, and changes the `empty` node in the `for` tag to `else`.
 
 For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the internal tree structure.
 	
