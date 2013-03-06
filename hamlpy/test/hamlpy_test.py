@@ -321,7 +321,8 @@ class HamlPyTest(unittest.TestCase):
 %html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}
   %body#main
     %div.wrap
-      %a{:href => '/'}"""
+      %a{:href => '/'}
+:javascript"""
         hamlParser = hamlpy.Compiler(options_dict={'attr_wrapper': '"'})
         result = hamlParser.process(haml)
         self.assertEqual(result,
@@ -332,6 +333,10 @@ class HamlPyTest(unittest.TestCase):
     </div>
   </body>
 </html>
+<script type="text/javascript">
+// <![CDATA[
+// ]]>
+</script>
 ''')
 
 if __name__ == '__main__':
