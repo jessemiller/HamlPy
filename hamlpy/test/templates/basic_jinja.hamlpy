@@ -1,0 +1,16 @@
+-# Jinja has macro and call for self closing nodes
+-macro mymacro(a,b,c=3)
+		={a}
+		={b}
+		={c}
+		={caller}
+
+-call mymacro(1,2)
+	Hello World
+
+-# Jinja also uses "else" instead of "empty" in for loops
+
+-for a in ()
+	-# nothing
+-else
+	There were no elements
