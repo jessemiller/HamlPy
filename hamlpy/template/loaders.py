@@ -24,12 +24,14 @@ def get_haml_loader(loader):
 
     class Loader(baseclass):
         def load_template_source(self, template_name, *args, **kwargs):
-            _name, _extension = os.path.splitext(template_name)
+            name, _extension = os.path.splitext(template_name)
+            # os.path.splitext always returns a period at the start of extension
+            extension = _extension.lstrip('.')
 
-            for extension in hamlpy.VALID_EXTENSIONS:
+            if extension in hamlpy.VALID_EXTENSIONS:
                 try:
                     haml_source, template_path = super(Loader, self).load_template_source(
-                        self._generate_template_name(_name, extension), *args, **kwargs
+                        self._generate_template_name(name, extension), *args, **kwargs
                     )
                 except TemplateDoesNotExist:
                     pass
