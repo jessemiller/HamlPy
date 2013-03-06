@@ -10,9 +10,9 @@ import hamlpy
 def decorate_templatize(func):
 	def templatize(src, origin=None):
 		hamlParser = hamlpy.Compiler()
-		html = hamlParser.process(src)
-		return func(html, origin)
-	
+		html = hamlParser.process(src.decode('utf-8'))
+		return func(html.encode('utf-8'), origin)
+
 	return templatize
 
 trans_real.templatize = decorate_templatize(trans_real.templatize)
