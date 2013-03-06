@@ -46,7 +46,7 @@ arg_parser.add_argument('-r', '--refresh', metavar = 'S', default = Options.CHEC
 arg_parser.add_argument('input_dir', help = 'Folder to watch', type = str)
 arg_parser.add_argument('output_dir', help = 'Destination folder', type = str, nargs = '?')
 arg_parser.add_argument('--tag', help = 'Add self closing tag. eg. --tag macro:endmacro', type = str, nargs = 1, action = StoreNameValueTagPair)
-arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices=('"', "'"), default="'", action='store', help="The character that should wrap element attributes. This defaults to ' (an apostrophe).")
+arg_parser.add_argument('--attr-wrapper', dest = 'attr_wrapper', type = str, choices = ('"', "'"), default = "'", action = 'store', help = "The character that should wrap element attributes. This defaults to ' (an apostrophe).")
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
@@ -74,7 +74,7 @@ def watch_folder():
     if args.extension:
         Options.OUTPUT_EXT = args.extension
     
-    if args.tags:
+    if getattr(args, 'tags', False):
         hamlpynodes.TagNode.self_closing.update(args.tags)
     
     if args.input_extension:
