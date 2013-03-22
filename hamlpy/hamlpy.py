@@ -6,7 +6,6 @@ import sys
 VALID_EXTENSIONS=['haml', 'hamlpy']
 
 class Compiler:
-
     def __init__(self, options_dict=None):
         options_dict = options_dict or {}
         self.debug_tree = options_dict.pop('debug_tree', False)

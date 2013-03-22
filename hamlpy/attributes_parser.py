@@ -1,5 +1,6 @@
 from pyparsing import *
 
+
 class AttributesParser:
     def __init__(self, string):
         self.string = string
@@ -11,9 +12,9 @@ class AttributesParser:
         STRING = quotedString.copy().setParseAction(evalCode)
 
         NUMBER = Combine(
-            Optional('-') + ('0' | Word('123456789',nums)) +
+            Optional('-') + ('0' | Word('123456789', nums)) +
             Optional('.' + Word(nums)) +
-            Optional(Word('eE', exact=1) + Word(nums + '+-',nums))
+            Optional(Word('eE', exact=1) + Word(nums + '+-', nums))
         ).setParseAction(evalCode)
 
         NONE = Keyword('None').setParseAction(replaceWith(None))
@@ -53,6 +54,8 @@ class AttributesParser:
             condition = group[2] if len(group) > 2 else None
             alt_value = group[3] if len(group) > 3 else None
 
-            parsed[key] = (value, condition, alt_value)
+            if key not in parsed:
+                parsed[key] = []
+            parsed[key].append((value, condition, alt_value))
 
         return parsed

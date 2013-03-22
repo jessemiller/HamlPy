@@ -1,11 +1,24 @@
 import re
-import sys
-from types import NoneType
 from attributes_parser import AttributesParser
+
+
+def _conditional_string(value, condition, alt_value=None):
+    if alt_value is None:
+        return '{%% if %(condition)s %%}%(value)s{%% endif %%}' % {
+            'value': value,
+            'condition': condition
+        }
+
+    return '{%% if %(condition)s %%}%(value)s{%% else %%}%(alt_value)s{%% endif %%}' % {
+        'value': value,
+        'condition': condition,
+        'alt_value': alt_value,
+    }
+
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
-    
+
     self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track')
 
     ELEMENT = '%'
@@ -34,7 +47,6 @@ class Element(object):
     ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX))
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
-
     def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
         self.attr_wrapper = attr_wrapper
@@ -54,7 +66,7 @@ class Element(object):
 
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
-        
+
         self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
@@ -79,7 +91,7 @@ class Element(object):
             id_text += self._parse_id_dict(self.attributes_dict['id'])
         id_text = id_text.lstrip('_')
         return id_text
-    
+
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
@@ -116,7 +128,7 @@ class Element(object):
             attribute_dict_string = attribute_dict_string.replace('\n', ' ')
             try:
                 # converting all allowed attributes to python dictionary style
-  
+
                 # Replace Ruby-style HAML with Python style
                 attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
                 # Put double quotes around key
@@ -124,62 +136,42 @@ class Element(object):
                 # Parse string as dictionary
 
                 attributes_dict = AttributesParser(attribute_dict_string).parse()
-                for key, (value, condition, alt_value) in attributes_dict.items():
-                    if condition is None:
-                        attributes_dict[key] = value
-                    else:
-                        if alt_value is None:
-                            attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% endif %%}' % {
-                                'value': value,
-                                'condition': condition
-                            }
-                        else:
-                            attributes_dict[key] = '{%% if %(condition)s %%}%(value)s{%% else %%}%(alt_value)s{%% endif %%}' % {
-                                'value': value,
-                                'condition': condition,
-                                'alt_value': alt_value,
-                            }
+                for attribute_name, values in attributes_dict.items():
+                    if len(values) == 1 and attribute_name not in ('id', 'class'):
+                        attributes_dict[attribute_name] = values[0]
+                        value, condition, alt_value = values[0]
 
-                        if key in ('id', 'class'):
-                            attributes_dict[key] = [attributes_dict[key]]
-
-                    if key not in ('id', 'class'):
                         if value is None:
-                            attribute = '%s ' % key
+                            attribute = '%s ' % attribute_name
                         else:
                             if isinstance(value, basestring):
                                 value = self._escape_attribute_quotes(value.decode('utf-8'))
-                            attribute = '%s=%s ' % (key, self.attr_wrap(value))
+                            attribute = '%s=%s ' % (attribute_name, self.attr_wrap(value))
 
                         if condition is None:
                             self.attributes += attribute
                         elif alt_value is None:
-                            self.attributes += '{%% if %(condition)s %%}%(attribute)s{%% endif %%}' % {
-                                'attribute': attribute.strip(),
-                                'condition': condition.strip()
-                            }
+                            self.attributes += _conditional_string(attribute.strip(), condition.strip()) + ' '
                         else:
-                            if alt_value is None:
-                                alt_attribute = '%s ' % key
-                            else:
-                                if isinstance(alt_value, basestring):
-                                    alt_value = self._escape_attribute_quotes(alt_value.decode('utf-8'))
-                                alt_attribute = '%s=%s ' % (key, self.attr_wrap(alt_value))
-                            self.attributes += '{%% if %(condition)s %%}%(attribute)s{%% else %%}%(alt_attribute)s{%% endif %%}' % {
-                                'attribute': attribute.strip(),
-                                'condition': condition,
-                                'alt_attribute': alt_attribute.strip(),
-                            }
+                            if isinstance(alt_value, basestring):
+                                alt_value = self._escape_attribute_quotes(alt_value.decode('utf-8'))
+                            alt_attribute = '%s=%s ' % (attribute_name, self.attr_wrap(alt_value))
 
+                            self.attributes += _conditional_string(attribute.strip(), condition, alt_attribute.strip()) + ' '
+                    else:
+                        for key, (value, condition, alt_value) in enumerate(values):
+                            if condition is None:
+                                attributes_dict[attribute_name][key] = value
+                            else:
+                                attributes_dict[attribute_name][key] = _conditional_string(value, condition, alt_value)
+
+                        if attribute_name not in ('id', 'class'):
+                            attributes_dict[attribute_name] = u' '.join(attributes_dict[attribute_name])
+                            self.attributes += '%s ' % attributes_dict[attribute_name]
 
                 self.attributes = self.attributes.strip()
-            except Exception, e:
+            except Exception:
                 raise
                 raise Exception('failed to decode: %s' % attribute_dict_string)
-                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
-
-
-        
-        
