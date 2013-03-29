@@ -402,7 +402,11 @@ Does not parse the filtered text. This is useful for large blocks of text withou
 
 ### :javascript
 
-Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline Javascript.
+Surrounds the filtered text with &lt;script type="text/javascript"&gt; and CDATA tags. Useful for including inline Javascript.
+
+### :coffeescript or :coffee
+
+Surrounds the filtered text with &lt;script type="text/coffeescript"&gt; and CDATA tags. Useful for including inline Coffeescript.
 
 ### :cdata
 
@@ -410,7 +414,11 @@ Surrounds the filtered text with CDATA tags.
 
 ### :css
 
-Surrounds the filtered text with &lt;script&gt; and CDATA tags. Useful for including inline CSS.
+Surrounds the filtered text with &lt;style type="text/css"&gt; and CDATA tags. Useful for including inline CSS.
+
+### :stylus
+
+Surrounds the filtered text with &lt;style type="text/stylus"&gt; and CDATA tags. Useful for including inline Stylus.
 
 ### :markdown
 
