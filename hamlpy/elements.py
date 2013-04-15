@@ -78,11 +78,11 @@ class Element(object):
         self.inline_content = split_tags.get('inline').strip()
 
     def _parse_class_from_attributes_dict(self):
-        clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
-            clazz = ''
-            for one_class in self.attributes_dict.get('class'):
-                clazz += ' ' + one_class
+        clazz = ''
+        for classes in self.attributes_dict.get('class', []):
+            if isinstance(classes, basestring):
+                classes = [classes]
+            clazz += ' ' + u' '.join(classes)
         return clazz.strip()
 
     def _parse_id(self, id_haml):
@@ -95,7 +95,9 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+        if isinstance(id_dict, list):
+            id_dict = id_dict[0]
+        if isinstance(id_dict, basestring):
             text = '_' + id_dict
         else:
             text = ''

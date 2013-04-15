@@ -3,6 +3,7 @@ import unittest
 from nose.tools import eq_, raises
 from hamlpy import hamlpy
 
+
 class HamlPyTest(unittest.TestCase):
 
     def test_applies_id_properly(self):
@@ -49,7 +50,6 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
-
 
     def test_html_comments_rendered_properly(self):
         haml = '/ some comment'
@@ -104,7 +104,7 @@ class HamlPyTest(unittest.TestCase):
     def test_throws_exception_when_trying_to_close_django(self):
         haml = '- endfor'
         hamlParser = hamlpy.Compiler()
-        result = hamlParser.process(haml)
+        hamlParser.process(haml)
 
     def test_handles_dash_in_class_name_properly(self):
         haml = '.header.span-24.last'
@@ -306,11 +306,11 @@ class HamlPyTest(unittest.TestCase):
                   print "z":
         '''
         html = '\n<div class="highlight"><pre><span class="n">print</span> &quot;<span class="n">hi</span>&quot;' \
-                + '\n\n<span class="k">if</span> <span class="n">x</span><span class="p">:</span>' \
-                + '\n    <span class="n">print</span> &quot;<span class="n">y</span>&quot;<span class="p">:</span>' \
-                + '\n<span class="k">else</span><span class="p">:</span>' \
-                + '\n    <span class="n">print</span> &quot;<span class="n">z</span>&quot;<span class="p">:</span>' \
-                + '\n</pre></div>\n'
+               + '\n\n<span class="k">if</span> <span class="n">x</span><span class="p">:</span>' \
+               + '\n    <span class="n">print</span> &quot;<span class="n">y</span>&quot;<span class="p">:</span>' \
+               + '\n<span class="k">else</span><span class="p">:</span>' \
+               + '\n    <span class="n">print</span> &quot;<span class="n">z</span>&quot;<span class="p">:</span>' \
+               + '\n</pre></div>\n'
 
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
@@ -335,10 +335,10 @@ class HamlPyTest(unittest.TestCase):
 ''')
 
     def test_conditional_attributes(self):
+        hamlParser = hamlpy.Compiler()
+
         haml = """%a.foo{'class': 'bar' if baz == "bax", 'href': '#'}<
                 Bazinga!"""
-
-        hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(result, """<a class='foo {% if baz == "bax" %}bar{% endif %}' href='#'>Bazinga!</a>\n""")
 
