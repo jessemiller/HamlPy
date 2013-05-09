@@ -3,7 +3,12 @@ This module decorates the django templatize function to parse haml templates
 before the translation utility extracts tags from it.
 """
 
-from django.utils.translation import trans_real
+try:
+    from django.utils.translation import trans_real
+    _django_available = True
+except ImportError, e:
+    _django_available = False
+
 import hamlpy
 
 
@@ -15,5 +20,6 @@ def decorate_templatize(func):
 
 	return templatize
 
-trans_real.templatize = decorate_templatize(trans_real.templatize)
+if _django_available:
+    trans_real.templatize = decorate_templatize(trans_real.templatize)
 
