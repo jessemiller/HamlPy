@@ -1,12 +1,14 @@
 import unittest
 import sys
 
-from django.template.base import TemplateDoesNotExist
-from django.conf import settings
+try:
+  from django.conf import settings
 
-settings.configure(DEBUG=True, TEMPLATE_DEBUG=True)
+  settings.configure(DEBUG=True, TEMPLATE_DEBUG=True)
+except ImportError, e:
+  pass
 
-from hamlpy.template.loaders import get_haml_loader
+from hamlpy.template.loaders import get_haml_loader, TemplateDoesNotExist
 
 class DummyLoader(object):
     """

@@ -295,27 +295,6 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
-    def test_pygments_filter(self):
-        haml = '''
-            :highlight
-              print "hi"
-
-              if x:
-                  print "y":
-              else:
-                  print "z":
-        '''
-        html = '\n<div class="highlight"><pre><span class="n">print</span> &quot;<span class="n">hi</span>&quot;' \
-                + '\n\n<span class="k">if</span> <span class="n">x</span><span class="p">:</span>' \
-                + '\n    <span class="n">print</span> &quot;<span class="n">y</span>&quot;<span class="p">:</span>' \
-                + '\n<span class="k">else</span><span class="p">:</span>' \
-                + '\n    <span class="n">print</span> &quot;<span class="n">z</span>&quot;<span class="p">:</span>' \
-                + '\n</pre></div>\n'
-
-        hamlParser = hamlpy.Compiler()
-        result = hamlParser.process(haml)
-        eq_(html, result)
-
     def test_attr_wrapper(self):
         haml = """
 %html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}

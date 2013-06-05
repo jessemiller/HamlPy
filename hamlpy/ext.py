@@ -1,5 +1,10 @@
 # coding=utf-8
-import jinja2.ext
+try:
+    import jinja2.ext
+    _jinja2_available = True
+except ImportError, e:
+    _jinja2_available = False
+
 import hamlpy
 import os
 
@@ -23,14 +28,15 @@ def has_any_extension(file_path, extensions):
     file_ext = get_file_extension(file_path)
     return file_ext and extensions and file_ext in [clean_extension(e) for e in extensions]
 
-class HamlPyExtension(jinja2.ext.Extension):
+if _jinja2_available:
+    class HamlPyExtension(jinja2.ext.Extension):
 
-    def preprocess(self, source, name, filename=None):
-        if name and has_any_extension(name, HAML_FILE_NAME_EXTENSIONS):
-            compiler = hamlpy.Compiler()
-            try:
-                return compiler.process(source)
-            except Exception as e:
-                raise jinja2.TemplateSyntaxError(e, 1, name=name, filename=filename)
-        else:
-            return source
+        def preprocess(self, source, name, filename=None):
+            if name and has_any_extension(name, HAML_FILE_NAME_EXTENSIONS):
+                compiler = hamlpy.Compiler()
+                try:
+                    return compiler.process(source)
+                except Exception as e:
+                    raise jinja2.TemplateSyntaxError(e, 1, name=name, filename=filename)
+            else:
+                return source
