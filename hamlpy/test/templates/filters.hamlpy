@@ -16,10 +16,3 @@
   a=1
   for i in range(5):
     print a+i
-:markdown
-  hello
-  no paragraph
-
-  New paragraph
-
-      test

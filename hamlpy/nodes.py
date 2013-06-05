@@ -4,11 +4,22 @@ from StringIO import StringIO
 
 from elements import Element
 
-from pygments import highlight
-from pygments.formatters import HtmlFormatter
-from pygments.lexers import guess_lexer
+try:
+    from pygments import highlight
+    from pygments.formatters import HtmlFormatter
+    from pygments.lexers import guess_lexer
+    _pygments_available = True
+except ImportError, e:
+    _pygments_available = False
 
-from markdown import markdown
+try:
+    from markdown import markdown
+    _markdown_available = True
+except ImportError, e:
+    _markdown_available = False
+
+class NotAvailableError(Exception):
+    pass
 
 ELEMENT = '%'
 ID = '#'
@@ -567,6 +578,9 @@ class CDataFilterNode(FilterNode):
 class PygmentsFilterNode(FilterNode):
     def _render(self):
         if self.children:
+            if not _pygments_available:
+                raise NotAvailableError("Pygments is not available")
+
             self.before = self.render_newlines()
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
@@ -577,6 +591,9 @@ class PygmentsFilterNode(FilterNode):
 class MarkdownFilterNode(FilterNode):
     def _render(self):
         if self.children:
+            if not _markdown_available:
+                raise NotAvailableError("Markdown is not available")
+
             self.before = self.render_newlines()[1:]
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
