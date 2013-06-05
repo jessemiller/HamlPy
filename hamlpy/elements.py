@@ -4,7 +4,7 @@ from types import NoneType
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
-    
+
     self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track')
 
     ELEMENT = '%'
@@ -21,16 +21,16 @@ class Element(object):
     (?P<selfclose>/)?
     (?P<django>=)?
     (?P<inline>[^\w\.#\{].*)?
-    """, re.X | re.MULTILINE | re.DOTALL)
+    """, re.X | re.MULTILINE | re.DOTALL | re.UNICODE)
 
     _ATTRIBUTE_KEY_REGEX = r'(?P<key>[a-zA-Z_][a-zA-Z0-9_-]*)'
     #Single and double quote regexes from: http://stackoverflow.com/a/5453821/281469
     _SINGLE_QUOTE_STRING_LITERAL_REGEX = r"'([^'\\]*(?:\\.[^'\\]*)*)'"
     _DOUBLE_QUOTE_STRING_LITERAL_REGEX = r'"([^"\\]*(?:\\.[^"\\]*)*)"'
-    _ATTRIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?![A-Za-z0-9_])|%s|%s)' % (_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
+    _ATTRIBUTE_VALUE_REGEX = r'(?P<val>\d+|None(?!\w)|%s|%s)' % (_SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
 
     RUBY_HAML_REGEX = re.compile(r'(:|\")%s(\"|) =>' % (_ATTRIBUTE_KEY_REGEX))
-    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX))
+    ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX), re.UNICODE)
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
 
@@ -53,7 +53,7 @@ class Element(object):
 
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
-        
+
         self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
         self.id = self._parse_id(split_tags.get('id'))
@@ -78,7 +78,7 @@ class Element(object):
             id_text += self._parse_id_dict(self.attributes_dict['id'])
         id_text = id_text.lstrip('_')
         return id_text
-    
+
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
@@ -115,7 +115,7 @@ class Element(object):
             attribute_dict_string = attribute_dict_string.replace('\n', ' ')
             try:
                 # converting all allowed attributes to python dictionary style
-  
+
                 # Replace Ruby-style HAML with Python style
                 attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
                 # Put double quotes around key
@@ -133,9 +133,9 @@ class Element(object):
                             v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
                             if v != attributes_dict[k]:
                                 sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
-                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." + 
+                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." +
                                                  "\nPlease use inline variables ={...} instead.\n-------------------\n")
-                                
+
                             attributes_dict[k] = v
                             v = v.decode('utf-8')
                             self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
@@ -147,5 +147,5 @@ class Element(object):
         return attributes_dict
 
 
-        
-        
+
+
