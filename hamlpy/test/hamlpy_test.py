@@ -13,8 +13,8 @@ class HamlPyTest(unittest.TestCase):
         self.assertEqual(html, result.replace('\n', ''))
 
     def test_non_ascii_id_allowed(self):
-        haml = '%div#これはテストです test'
-        html = "<div id='これはテストです'>test</div>"
+        haml = u'%div#これはテストです test'
+        html = u"<div id='これはテストです'>test</div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
