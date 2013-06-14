@@ -596,7 +596,7 @@ class MarkdownFilterNode(FilterNode):
 
             self.before = self.render_newlines()[1:]
             indent_offset = len(self.children[0].spaces)
-            text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
+            text = ''.join(''.join([c.spaces[indent_offset:], c.raw_haml.lstrip(), c.render_newlines()]) for c in self.children)
             self.before += markdown(text)
         else:
             self.after = self.render_newlines()
