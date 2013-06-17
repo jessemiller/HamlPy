@@ -18,6 +18,16 @@ try:
 except ImportError, e:
     _markdown_available = False
 
+try:
+    from indentedsass import compile_to_scss
+    from scss import Scss
+    def sass_compile(text):
+        scss_text = compile_to_scss(text)
+        return Scss().compile(scss_text)
+    _sass_available = True
+except ImportError, e:
+    _sass_available = False
+
 class NotAvailableError(Exception):
     pass
 
@@ -45,6 +55,8 @@ PYTHON_FILTER = ':python'
 MARKDOWN_FILTER = ':markdown'
 CDATA_FILTER = ':cdata'
 PYGMENTS_FILTER = ':highlight'
+SCSS_FILTER = ':scss'
+SASS_FILTER = ':sass'
 
 ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
@@ -110,6 +122,9 @@ def create_node(haml_line):
 
     if stripped_line == MARKDOWN_FILTER:
         return MarkdownFilterNode(haml_line)
+
+    if stripped_line == SASS_FILTER:
+        return SassFilterNode(haml_line)
 
     return PlaintextNode(haml_line)
 
@@ -598,5 +613,22 @@ class MarkdownFilterNode(FilterNode):
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.raw_haml.lstrip(), c.render_newlines()]) for c in self.children)
             self.before += markdown(text)
+        else:
+            self.after = self.render_newlines()
+
+class SassFilterNode(FilterNode):
+    def _render(self):
+        if self.children:
+            if not _sass_available:
+                raise NotAvailableError("Markdown is not available")
+
+            self.before = '<style type=%(attr_wrapper)stext/css%(attr_wrapper)s>\n/*<![CDATA[*/%(new_lines)s' % {
+                'attr_wrapper': self.attr_wrapper,
+                'new_lines': self.render_newlines(),
+            }
+            self.after = '/*]]>*/\n</style>\n'
+            indent_offset = len(self.children[0].spaces)
+            text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
+            self.before += sass_compile(text)
         else:
             self.after = self.render_newlines()
