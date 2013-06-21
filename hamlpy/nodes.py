@@ -593,10 +593,14 @@ class MarkdownFilterNode(FilterNode):
         if self.children:
             if not _markdown_available:
                 raise NotAvailableError("Markdown is not available")
-
             self.before = self.render_newlines()[1:]
             indent_offset = len(self.children[0].spaces)
-            text = ''.join(''.join([c.spaces[indent_offset:], c.raw_haml.lstrip(), c.render_newlines()]) for c in self.children)
-            self.before += markdown(text)
+            lines = []
+            for c in self.children:
+                haml = c.raw_haml.lstrip()
+                if haml[-1] == '\n':
+                    haml = haml[:-1]
+                lines.append(c.spaces[indent_offset:] + haml + c.render_newlines())
+            self.before += markdown( ''.join(lines))
         else:
             self.after = self.render_newlines()
