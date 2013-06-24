@@ -94,6 +94,7 @@ def watch_folder():
         hamlpynodes.TagNode.self_closing.update({
             'macro'  : 'endmacro',
             'call'   : 'endcall',
+            'raw'    : 'endraw'
         })
         
         hamlpynodes.TagNode.may_contain['for'] = 'else'
