@@ -19,11 +19,7 @@ except ImportError, e:
     _markdown_available = False
 
 try:
-    from indentedsass import compile_to_scss
-    from scss import Scss
-    def sass_compile(text):
-        scss_text = compile_to_scss(text)
-        return Scss().compile(scss_text)
+    from sassin import compile_with_scss as sass_compile
     _sass_available = True
 except ImportError, e:
     _sass_available = False
