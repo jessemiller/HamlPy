@@ -1,0 +1,11 @@
+:sass
+  $highlight: #9F2
+  /* our special border
+  @mixin big-border
+    border: 3px solid $highlightcolor
+  #main, 
+  #another_main
+    font:
+      color: $highlight
+    @include big-border
+
