@@ -113,7 +113,23 @@ The 'class' and 'id' attributes can also be specified as a Python tuple whose el
 is compiled to:
 
 	<div id='article_3' class='newest urgent'>Content</div>
-	
+
+
+### Attributes: ()
+
+Brackets represent HTML attributes that is used for specifying the attributes of an element.  For example:
+
+	%html('xmlns'='http://www.w3.org/1999/xhtml' 'xml:lang'='en', 'lang':'en')
+
+is compiled to:
+
+	<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'></html>
+
+Long attribute lines can be separated into multiple lines:
+
+    %script('type': 'text/javascript' 'charset': 'utf-8'
+            'href': '/long/url/to/javascript/resource.js')
+
 ### Class and ID: . and # 
 
 The period and pound sign are borrowed from CSS.  They are used as shortcuts to specify the class and id attributes of an element, respectively.  Multiple class names can be specified by chaining class names together with periods.  They are placed immediately after a tag and before an attribute dictionary.  For example:
