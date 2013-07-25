@@ -1,4 +1,5 @@
 from nose.tools import eq_
+from .. import hamlpy
 from hamlpy.elements import Element
 
 
@@ -66,8 +67,8 @@ class TestElement(object):
         assert 'hello' in sut.classes
 
     def test_attribute_merges_ids_properly(self):
-        sut = Element("%div#someId('id'='hello')")
-        eq_(sut.id, 'someId_hello')
+        sut = Element(u"%div#someId('id'='hello')")
+        eq_(sut.id, u'someId_hello')
 
     def test_can_use_arrays_for_id_in_attributes(self):
         return
@@ -92,7 +93,40 @@ class TestElement(object):
         assert "rel='stylesheet'" in sut.attributes
 
     def test_attributes_without_quotes(self):
-        sut = Element("""%html(xmlns=http://www.w3.org/1999/xhtml xml:lang=en lang=en)""")
+        sut = Element(u"""%html(xmlns='http://www.w3.org/1999/xhtml' xml:lang=en lang=en)""")
         assert "xmlns='http://www.w3.org/1999/xhtml'" in sut.attributes
         assert "xml:lang='en'" in sut.attributes
         assert "lang='en'" in sut.attributes
+
+    def test_broken_attributes(self):
+        sut = Element('')
+        attrs = '''(method="post" action="" class="asdas {{ form.non_field_errors|yesno:'novalid,' }}")'''
+        s1 = sut._parse_attribute_dictionary(attrs)
+        eq_(s1['method'], 'post')
+        eq_(s1['action'], '')
+        eq_(s1['class'], '''asdas {{ form.non_field_errors|yesno:'novalid,' }}''')
+
+
+    def test_broken_case1(self):
+        sut = Element(u"""%form(method="post" action="" class="class1 ={ form.non_field_errors|yesno:'novalid,'}")""")
+        print sut.classes
+        assert "method='post'" in sut.attributes
+        assert "action=''" in sut.attributes
+        assert "class1" in sut.classes
+        assert "={ form.non_field_errors|yesno:'novalid,'}" in sut.classes
+
+
+    def test_dictionaries_define_attributes(self):
+        haml = unicode("""
+            %form(method="post" action="" class="class1 ={ form.non_field_errors|yesno:'novalid,'}")
+                text
+        """)
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        print result
+        assert "<form" in result
+        assert "method='post'" in result
+        assert "action=''" in result
+        assert "class='class1 {{ form.non_field_errors|yesno:'novalid,' }}'" in result
+        assert result.endswith("</form>") or result.endswith("</form>\n")
+

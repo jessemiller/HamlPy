@@ -71,7 +71,7 @@ class Element(object):
 
     def _parse_class_from_attributes_dict(self):
         clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
+        if not isinstance(clazz, (str, unicode)):
             clazz = ''
             for one_class in self.attributes_dict.get('class'):
                 clazz += ' ' + one_class
@@ -87,7 +87,7 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+        if isinstance(id_dict, (str, unicode)):
             text = '_' + id_dict
         else:
             text = ''
@@ -125,6 +125,9 @@ class Element(object):
                     # self.attributes = ' '.join(['='.join([p[0][0].strip('"\''), p[1][0]]) for p in attributes_array[0]])
                     # print attribute_dict_string
                     # print attributes_array
+                    for p in attributes_array[0]:
+                        if len(p[1]) > 0:
+                            p[1] = [u''.join(p[1])]
                     attributes_dict = dict([p[0][0].strip('"\''), p[1][0].strip('"\'')] for p in attributes_array[0])
                     # return attributes_dict
                 else:
@@ -139,9 +142,9 @@ class Element(object):
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
                         if isinstance(v, NoneType):
-                            self.attributes += "%s " % (k,)
+                            self.attributes += u"%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
+                            self.attributes += u"%s=%s " % (k, self.attr_wrap(v))
                         else:
                             # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
                             v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
