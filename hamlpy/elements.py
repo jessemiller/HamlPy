@@ -1,6 +1,8 @@
 import re
 import sys
 from types import NoneType
+from structmatch import structmatch
+
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -15,7 +17,7 @@ class Element(object):
     (?P<tag>%\w+(\:\w+)?)?
     (?P<id>\#[\w-]*)?
     (?P<class>\.[\w\.-]*)*
-    (?P<attributes>\{.*\})?
+    (?P<attributes>(?:\{.*\})|(?:\(.*\)))?
     (?P<nuke_outer_whitespace>\>)?
     (?P<nuke_inner_whitespace>\<)?
     (?P<selfclose>/)?
@@ -33,6 +35,9 @@ class Element(object):
     ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX), re.UNICODE)
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
+
+    HTML_ATTRIBUTE_REGEX = r'''\((("?'?[\w\-_:]+"?'?)=("[^"]+"|'[^']'|[^\s]+)\s*)+\s*\)'''
+    HTML_ATTRIBUTE_REGEX_COMPILED = re.compile(HTML_ATTRIBUTE_REGEX)
 
     def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
@@ -66,7 +71,7 @@ class Element(object):
 
     def _parse_class_from_attributes_dict(self):
         clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
+        if not isinstance(clazz, (str, unicode)):
             clazz = ''
             for one_class in self.attributes_dict.get('class'):
                 clazz += ' ' + one_class
@@ -82,7 +87,7 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+        if isinstance(id_dict, (str, unicode)):
             text = '_' + id_dict
         else:
             text = ''
@@ -114,20 +119,32 @@ class Element(object):
         if (attribute_dict_string):
             attribute_dict_string = attribute_dict_string.replace('\n', ' ')
             try:
-                # converting all allowed attributes to python dictionary style
+                # HTML-style attributs
+                if attribute_dict_string.startswith('('):
+                    attributes_array = structmatch(self.HTML_ATTRIBUTE_REGEX, attribute_dict_string)
+                    # self.attributes = ' '.join(['='.join([p[0][0].strip('"\''), p[1][0]]) for p in attributes_array[0]])
+                    # print attribute_dict_string
+                    # print attributes_array
+                    for p in attributes_array[0]:
+                        if len(p[1]) > 0:
+                            p[1] = [u''.join(p[1])]
+                    attributes_dict = dict([p[0][0].strip('"\''), p[1][0].strip('"\'')] for p in attributes_array[0])
+                    # return attributes_dict
+                else:
+                    # converting all allowed attributes to python dictionary style
 
-                # Replace Ruby-style HAML with Python style
-                attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
-                # Put double quotes around key
-                attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
-                # Parse string as dictionary
-                attributes_dict = eval(attribute_dict_string)
+                    # Replace Ruby-style HAML with Python style
+                    attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
+                    # Put double quotes around key
+                    attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
+
+                    attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
                         if isinstance(v, NoneType):
-                            self.attributes += "%s " % (k,)
+                            self.attributes += u"%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
+                            self.attributes += u"%s=%s " % (k, self.attr_wrap(v))
                         else:
                             # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
                             v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
@@ -140,9 +157,11 @@ class Element(object):
                             v = v.decode('utf-8')
                             self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
                 self.attributes = self.attributes.strip()
-            except Exception, e:
-                raise Exception('failed to decode: %s' % attribute_dict_string)
-                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
+            # except Exception, e:
+            except GeneratorExit, e:
+                pass
+                # raise Exception('failed to decode: %s' % attribute_dict_string)
+                # raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
 

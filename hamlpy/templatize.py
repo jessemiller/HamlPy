@@ -13,12 +13,12 @@ import hamlpy
 
 
 def decorate_templatize(func):
-	def templatize(src, origin=None):
-		hamlParser = hamlpy.Compiler()
-		html = hamlParser.process(src.decode('utf-8'))
-		return func(html.encode('utf-8'), origin)
+    def templatize(src, origin=None):
+        hamlParser = hamlpy.Compiler()
+        html = hamlParser.process(src.decode('utf-8'))
+        return func(html.encode('utf-8'), origin)
 
-	return templatize
+    return templatize
 
 if _django_available:
     trans_real.templatize = decorate_templatize(trans_real.templatize)
