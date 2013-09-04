@@ -34,7 +34,8 @@ class AttributeParser:
         self.consume_whitespace()
         if self.s[self.ptr] != self.terminator:
             if self.s[self.ptr] == ',':
-                self.ptr+=1
+                self.ptr += 1
+                self.consume_whitespace()
             else:
                 raise Exception("Expected comma for end of value (after ...%s), but got '%s' instead" % (self.s[max(self.ptr-10,0):self.ptr], self.s[self.ptr]))
 
