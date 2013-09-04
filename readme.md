@@ -44,15 +44,15 @@ turns into..
 
 The main difference is instead of interpreting Ruby, or even Python we instead can create Django Tags and Variables
 
-	%ul#atheletes
-		- for athelete in athelete_list
-			%li.athelete{'id': 'athelete_{{ athelete.pk }}'}= athelete.name
+	%ul#athletes
+		- for athlete in athlete_list
+			%li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
 
 turns into..
 
-	<ul id='atheletes'>
-		{% for athelete in athelete_list %}
-			<li class='athelete' id='athelete_{{ athelete.pk }}'>{{ athelete.name }}</li>
+	<ul id='athletes'>
+		{% for athlete in athlete_list %}
+			<li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
 		{% endfor %}
 	</ul>
 
@@ -86,11 +86,37 @@ For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_L
 	    )),   
 	)
 
+#### Settings
+
+Following values in Django settings affect haml processing:
+
+  * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. This defaults to ' (an apostrophe).
+
 ### Option 2: Watcher 
 
 HamlPy can also be used as a stand-alone program. There is a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
-	hamlpy-watcher <watch-folder> [destination_folder]
+
+        usage: hamlpy-watcher [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S]
+                            [--tag TAG] [--attr-wrapper {",'}]
+                            input_dir [output_dir]
+
+        positional arguments:
+        input_dir             Folder to watch
+        output_dir            Destination folder
+
+        optional arguments:
+        -h, --help            show this help message and exit
+        -v, --verbose         Display verbose output
+        -i EXT [EXT ...], --input-extension EXT [EXT ...]
+                                The file extensions to look for
+        -ext EXT, --extension EXT
+                                The output file extension. Default is .html
+        -r S, --refresh S     Refresh interval for files. Default is 3 seconds
+        --tag TAG             Add self closing tag. eg. --tag macro:endmacro
+        --attr-wrapper {",'}  The character that should wrap element attributes.
+                                This defaults to ' (an apostrophe).
+        --jinja               Makes the necessary changes to be used with Jinja2
 
 Or to simply convert a file and output the result to your console:
 
@@ -100,7 +126,23 @@ Or you can have it dump to a file:
 
 	hamlpy inputFile.haml outputFile.html
 
+Optionally, `--attr-wrapper` can be specified:
+
+    hamlpy inputFile.haml --attr-wrapper='"'
+
+Using the `--jinja` compatibility option adds macro and call tags, and changes the `empty` node in the `for` tag to `else`.
+
 For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the internal tree structure.
+	
+### Create message files for translation
+
+There is a very simple solution.
+
+	django-admin.py makemessages --settings=<project.settings> -a
+	
+Where:
+
+  * project.settings -- Django configuration file where  module "hamlpy" is configured properly.
 	
 ## Reference
 
@@ -115,6 +157,6 @@ HamlPy currently:
 
 ## Contributing
 
-Very happy to have contributions to this project. Please write tests for any new features and always ensure the current tests pass. You can run the tests from the hamlpy/test using nosetests by typing
+Very happy to have contributions to this project. Please write tests for any new features and always ensure the current tests pass. You can run the tests from the **hamlpy/test** folder using nosetests by typing
 
     nosetests *.py

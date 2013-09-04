@@ -7,12 +7,12 @@ re_nums = re.compile(r'[0-9\.]+')
 re_whitespace = re.compile(r'([ \t]+)')
 re_leading_spaces = re.compile(r'^\s+', re.MULTILINE)
 re_line = re.compile(r'.*')
-re_sq= re.compile(r'(.*?)(?<!\\)(?:\')')
-re_dq= re.compile(r'(.*?)(?<!\\)(?:")')
+re_sq = re.compile(r'\'([^\'\\]|\\.)*\'')
+re_dq = re.compile(r'\"([^\"\\]|\\.)*\"')
 
 class AttributeParser:
     """Parses comma-separated HamlPy attribute values"""
-    
+
     def __init__(self, data, terminator):
         self.terminator=terminator
         self.s = data.lstrip()
@@ -20,11 +20,11 @@ class AttributeParser:
         # Index of current character being read
         self.ptr=1
 
-    
+
     def consume_whitespace(self, include_newlines=False):
         """Moves the pointer to the next non-whitespace character"""
         whitespace = (' ', '\t', '\r', '\n') if include_newlines else (' ', '\t')
-        
+
         while self.ptr<self.length and self.s[self.ptr] in whitespace:
             self.ptr+=1
         return self.ptr
@@ -34,7 +34,8 @@ class AttributeParser:
         self.consume_whitespace()
         if self.s[self.ptr] != self.terminator:
             if self.s[self.ptr] == ',':
-                self.ptr+=1
+                self.ptr += 1
+                self.consume_whitespace()
             else:
                 raise Exception("Expected comma for end of value (after ...%s), but got '%s' instead" % (self.s[max(self.ptr-10,0):self.ptr], self.s[self.ptr]))
 
@@ -51,16 +52,17 @@ class AttributeParser:
         elif closing=='"':
             r=re_dq
         else:
-            r=re.compile(r'(.*?)(?<!\\)(?:%s)'%closing)
+            r = re.compile(r'%(c)s([^%(c)s\\]|\\.)*%(c)s' % dict(c=closing))
 
         m=r.match(self.s, pos=self.ptr)
         if m is None:
             raise Exception ("Closing character not found")
-        
-        value = m.group(1)
-        self.ptr+=len(value)+1
 
-        return value.replace('\\'+closing,closing)
+        value = m.group(0)
+        self.ptr += len(value)
+
+        # Return all values in unicode
+        return eval('u' + value)
 
     def parse_value(self):
         self.consume_whitespace()
@@ -69,11 +71,10 @@ class AttributeParser:
         val=False
         if self.s[self.ptr]==self.terminator:
             return val
-        
+
         # String
         if self.s[self.ptr] in ("'",'"'):
             quote=self.s[self.ptr]
-            self.ptr += 1
             val = self.read_until_unescaped_character(quote)
         # Boolean Attributes
         elif self.s[self.ptr:self.ptr+4] in ['none','None']:
@@ -90,7 +91,7 @@ class AttributeParser:
             raise Exception("Failed to parse dictionary value beginning at: %s" % self.s[self.ptr:])
 
         self.consume_end_of_value()
-        
+
         return val
 
 
@@ -104,7 +105,7 @@ class AttributeDictParser(AttributeParser):
     def __init__(self, s):
         AttributeParser.__init__(self, s, '}')
         self.dict={}
-    
+
     def parse(self):
         while self.ptr<self.length-1:
             key = self.__parse_key()
@@ -126,19 +127,19 @@ class AttributeDictParser(AttributeParser):
 
             self.dict[key]=val
         return self.dict
-    
+
     def __parse_haml(self):
         def whitespace_length():
             r = re_whitespace.match(self.s, pos=self.ptr)
             return len(r.group(0))
-        
+
         initial_indentation=whitespace_length()
         lines = []
         while whitespace_length() >= initial_indentation:
             line=re_line.match(self.s, pos=self.ptr).group(0)
             lines.append(line)
             self.ptr += len(line)+1
-        
+
         h=hamlpy.Compiler()
         html = h.process_lines(lines)
         return re.sub(re_leading_spaces, ' ', html).replace('\n', '').strip()
@@ -150,12 +151,11 @@ class AttributeDictParser(AttributeParser):
 
         if self.s[self.ptr] == ':':
             self.ptr+=1
-                    
+
         # Consume opening quote
         quote=None
         if self.s[self.ptr] in ("'",'"'):
             quote = self.s[self.ptr]
-            self.ptr += 1
 
         # Extract key
         if quote:
@@ -197,9 +197,9 @@ class AttributeTupleAndListParser(AttributeParser):
                 lst.append(val)
 
         self.ptr +=1
-        
+
         if self.terminator==')':
             return tuple(lst)
         else:
             return lst
-        
+

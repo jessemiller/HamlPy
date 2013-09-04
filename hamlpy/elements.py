@@ -3,7 +3,7 @@ from attribute_dict_parser import AttributeDictParser
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
-    
+
     self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track', 'area', 'base', 'col', 'command', 'embed', 'keygen', 'param', 'wbr')
 
     ELEMENT = '%'
@@ -20,11 +20,12 @@ class Element(object):
     (?P<selfclose>/)?
     (?P<django>=)?
     (?P<inline>[^\w\.#\{].*)?
-    """, re.X|re.MULTILINE|re.DOTALL)
+    """, re.X | re.MULTILINE | re.DOTALL | re.UNICODE)
 
 
-    def __init__(self, haml):
+    def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
+        self.attr_wrapper = attr_wrapper
         self.tag = None
         self.id = None
         self.classes = None
@@ -35,7 +36,10 @@ class Element(object):
         self.nuke_outer_whitespace = False
         self.inline_content = ''
         self._parse_haml()
-        
+
+    def attr_wrap(self, value):
+        return '%s%s%s' % (self.attr_wrapper, value, self.attr_wrapper)
+
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
 
@@ -46,7 +50,7 @@ class Element(object):
         self.id = self._parse_id(split_tags.get('id'))
         self.classes = self._parse_classes(split_tags.get('class'))
         self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
-        
+
         self.attributes = self._render_attributes(self.attributes_dict, self.id, self.classes)
 
         self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace') != ''
@@ -58,7 +62,7 @@ class Element(object):
         tag_classes = classes.lstrip(self.CLASS).replace('.', ' ')
         dict_classes = self._parse_class_from_attributes_dict()
         return ('%s %s' % (tag_classes, dict_classes)).strip()
-        
+
     def _parse_class_from_attributes_dict(self):
         cla = self.attributes_dict.get('class', '')
         if isinstance(cla, list) or isinstance(cla, tuple):
@@ -73,7 +77,7 @@ class Element(object):
                 id_text += '_'
             id_text += self._parse_id_dict(self.attributes_dict['id'])
         return id_text
-    
+
     def _parse_id_dict(self, id_dict):
         id_dict = self.attributes_dict.get('id')
 
@@ -84,11 +88,11 @@ class Element(object):
 
     def _render_attributes(self, dict, id, classes):
         attributes=[]
-        
+
         if len(id) > 0:
-            attributes.append("id='%s'" % self.id)
+            attributes.append("id=%s" % self.attr_wrap(self.id))
         if len(classes) > 0:
-            attributes.append("class='%s'" % self.classes)
+            attributes.append("class=%s" % self.attr_wrap(self.classes))
 
         for k, v in dict.items():
             if k != 'id' and k != 'class':
@@ -97,24 +101,23 @@ class Element(object):
                     attributes.append( "%s" % (k,))
                 else:
                     value = self._escape_attribute_quotes(v)
-                    attributes.append( "%s='%s'" % (k, value))
-                                       
+                    attributes.append( "%s=%s" % (k, self.attr_wrap(value)))
+
         return ' '.join(attributes)
-    
-    
-    def _escape_attribute_quotes(self,v):
+
+    def _escape_attribute_quotes(self, v):
         '''
-        Escapes single quotes with a backslash, except those inside a Django tag
+        Escapes quotes with a backslash, except those inside a Django tag
         '''
-        escaped=[]
+        escaped = []
         inside_tag = False
         for i, _ in enumerate(v):
-            if v[i:i+2] == '{%':
-                inside_tag=True
-            elif v[i:i+2] == '%}':
-                inside_tag=False
+            if v[i:i + 2] == '{%':
+                inside_tag = True
+            elif v[i:i + 2] == '%}':
+                inside_tag = False
 
-            if v[i]=="'" and not inside_tag:
+            if v[i] == self.attr_wrapper and not inside_tag:
                 escaped.append('\\')
 
             escaped.append(v[i])
