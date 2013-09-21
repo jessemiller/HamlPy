@@ -57,6 +57,22 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
 
+    def test_dictionaries_allow_conditionals(self):
+        for (haml, html) in (
+            ("%img{'src': 'hello' if coming}",
+             "<img {% if coming %} src='hello' {% endif %} />"),
+            ("%img{'src': 'hello' if coming else 'goodbye' }",
+             "<img {% if coming %} src='hello' {% else %} src='goodbye' {% endif %} />"),
+            # For id and class attributes, conditions work on individual parts
+            # of the value (more parts can be added from HAML tag).
+            ("%div{'id': 'No1' if tree is TheLarch, 'class': 'quite-a-long-way-away'}",
+             "<div id='{% if tree is TheLarch %}No1{% endif %}' class='quite-a-long-way-away'></div>"),
+             ("%div{'id': 'dog_kennel' if assisant.name == 'Mr Lambert' else 'mattress'}",
+              "<div id='{% if assisant.name == 'Mr Lambert' %}dog_kennel{% else %}mattress{% endif %}'></div>"),
+        ):
+            hamlParser = hamlpy.Compiler()
+            result = hamlParser.process(haml)
+            self.assertEqual(html, result.replace('\n', ''))
 
     def test_html_comments_rendered_properly(self):
         haml = '/ some comment'
