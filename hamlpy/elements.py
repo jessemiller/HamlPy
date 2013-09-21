@@ -169,8 +169,8 @@ class Element(object):
                     attributes_dict[key] = value
                 self.attributes = self.attributes.strip()
             except Exception, e:
-                #raise Exception('failed to decode: %s' % attribute_dict_string)
-                raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
+                raise Exception('failed to decode: %s' % attribute_dict_string)
+                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
 
