@@ -312,7 +312,7 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler(options_dict={'attr_wrapper': '"'})
         result = hamlParser.process(haml)
         self.assertEqual(result,
-                         '''<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                         '''<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <body id="main">
     <div class="wrap">
       <a href="/"></a>

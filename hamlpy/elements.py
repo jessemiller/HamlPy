@@ -33,6 +33,20 @@ class Element(object):
     ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX), re.UNICODE)
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
+    # Attribute dictionary parsing
+    ATTRKEY_REGEX = re.compile(r"\s*(%s|%s)\s*:\s*" % (
+        _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX),
+        re.UNICODE)
+    _VALUE_LIST_REGEX = r"\[\s*(?:(?:%s|%s)\s*,?\s*)*\]" % (
+        _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
+    _VALUE_TUPLE_REGEX = r"\(\s*(?:(?:%s|%s)\s*,?\s*)*\)" % (
+        _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
+    ATTRVAL_REGEX = re.compile(r"\d+|None(?!\w)|%s|%s|%s|%s" % (
+        _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX,
+        _VALUE_LIST_REGEX, _VALUE_TUPLE_REGEX), re.UNICODE)
+
+    NEWLINE_REGEX = re.compile("[\r\n]+")
+
 
     def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
@@ -66,7 +80,7 @@ class Element(object):
 
     def _parse_class_from_attributes_dict(self):
         clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
+        if not isinstance(clazz, basestring):
             clazz = ''
             for one_class in self.attributes_dict.get('class'):
                 clazz += ' ' + one_class
@@ -82,7 +96,7 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+        if isinstance(id_dict, basestring):
             text = '_' + id_dict
         else:
             text = ''
@@ -112,7 +126,7 @@ class Element(object):
     def _parse_attribute_dictionary(self, attribute_dict_string):
         attributes_dict = {}
         if (attribute_dict_string):
-            attribute_dict_string = attribute_dict_string.replace('\n', ' ')
+            attribute_dict_string = self.NEWLINE_REGEX.sub(" ", attribute_dict_string)
             try:
                 # converting all allowed attributes to python dictionary style
 
@@ -121,31 +135,71 @@ class Element(object):
                 # Put double quotes around key
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
-                attributes_dict = eval(attribute_dict_string)
-                for k, v in attributes_dict.items():
-                    if k != 'id' and k != 'class':
-                        if isinstance(v, NoneType):
-                            self.attributes += "%s " % (k,)
-                        elif isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
-                        else:
-                            # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
-                            v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
-                            if v != attributes_dict[k]:
-                                sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
-                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." +
-                                                 "\nPlease use inline variables ={...} instead.\n-------------------\n")
-
-                            attributes_dict[k] = v
-                            v = v.decode('utf-8')
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
+                for (key, val) in self.parse_attr(attribute_dict_string[1:-1]):
+                    value = self.add_attr(key, val)
+                    attributes_dict[key] = value
                 self.attributes = self.attributes.strip()
             except Exception, e:
-                raise Exception('failed to decode: %s' % attribute_dict_string)
-                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
+                #raise Exception('failed to decode: %s' % attribute_dict_string)
+                raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
 
+    def parse_attr(self, string):
+        """Generate (key, value) pairs from attributes dictionary string"""
+        string = string.strip()
+        while string:
+            match = self.ATTRKEY_REGEX.match(string)
+            if not match:
+                raise SyntaxError("Dictionary key expected at %r" % string)
+            key = eval(match.group(1))
+            string = string[match.end():]
+            match = self.ATTRVAL_REGEX.match(string)
+            if not match:
+                raise SyntaxError("Dictionary value expected at %r" % string)
+            val = eval(match.group(0))
+            string = string[match.end():].strip()
+            if string.startswith(","):
+                string = string[1:].strip()
+            yield (key, val)
 
+    def add_attr(self, key, value):
+        """Add attribute definition to self.attributes
 
+        For "id" and "class" attributes, return attribute value
+        (possibly modified by replacing deprecated syntax).
 
+        For other attributes, return the "key=value" string
+        appropriate for the value type and also add this string
+        to self.attributes.
+
+        """
+        if isinstance(value, basestring):
+            # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
+            newval = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', value)
+            if newval != value:
+                sys.stderr.write("""
+---------------------
+DEPRECATION WARNING: %s
+The Django attribute variable feature is deprecated
+and may be removed in future versions.
+Please use inline variables ={...} instead.
+-------------------
+""" % self.haml.lstrip())
+
+            value = newval.decode('utf-8')
+        if key in ("id", "class"):
+            return value
+        if isinstance(value, NoneType):
+            attr = "%s" % key
+        elif isinstance(value, int) or isinstance(value, float):
+            attr = "%s=%s" % (key, self.attr_wrap(value))
+        elif isinstance(value, basestring):
+            attr = "%s=%s" % (key,
+                self.attr_wrap(self._escape_attribute_quotes(value)))
+        else:
+            raise ValueError(
+                "Non-scalar value %r (type %s) passed for HTML attribute %r"
+                % (value, type(value), key))
+        self.attributes += attr + " "
+        return attr
