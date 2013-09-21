@@ -63,6 +63,8 @@ class HamlPyTest(unittest.TestCase):
              "<img {% if coming %} src='hello' {% endif %} />"),
             ("%img{'src': 'hello' if coming else 'goodbye' }",
              "<img {% if coming %} src='hello' {% else %} src='goodbye' {% endif %} />"),
+            ("%item{'a': 'one' if b == 1 else 'two' if b == [1, 2] else None}",
+             "<item {% if b == 1 %} a='one' {% elif b == [1, 2] %} a='two' {% else %} a {% endif %}></item>"),
             # For id and class attributes, conditions work on individual parts
             # of the value (more parts can be added from HAML tag).
             ("%div{'id': 'No1' if tree is TheLarch, 'class': 'quite-a-long-way-away'}",

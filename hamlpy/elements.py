@@ -13,6 +13,13 @@ class Conditional(object):
         self.body = body
         self.orelse = orelse
 
+    def __repr__(self):
+        if self.orelse is self.NOTHING:
+            attrs = [self.test, self.body]
+        else:
+            attrs = [self.test, self.body, self.orelse]
+        return "<%s@0X%X %r>" % (self.__class__.__name__, id(self), attrs)
+
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
 
@@ -48,17 +55,17 @@ class Element(object):
     ATTRKEY_REGEX = re.compile(r"\s*(%s|%s)\s*:\s*" % (
         _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX),
         re.UNICODE)
-    _VALUE_LIST_REGEX = r"\[\s*(?:(?:%s|%s)\s*,?\s*)*\]" % (
+    _VALUE_LIST_REGEX = r"\[\s*(?:(?:%s|%s|None(?!\w)|\d+)\s*,?\s*)*\]" % (
         _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
-    _VALUE_TUPLE_REGEX = r"\(\s*(?:(?:%s|%s)\s*,?\s*)*\)" % (
+    _VALUE_TUPLE_REGEX = r"\(\s*(?:(?:%s|%s|None(?!\w)|\d+)\s*,?\s*)*\)" % (
         _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX)
-    ATTRVAL_REGEX = re.compile(r"\d+|None(?!\w)|%s|%s|%s|%s" % (
+    ATTRVAL_REGEX = re.compile(r"None(?!\w)|%s|%s|%s|%s|\d+" % (
         _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX,
         _VALUE_LIST_REGEX, _VALUE_TUPLE_REGEX), re.UNICODE)
 
-    CONDITION_REGEX = re.compile(r"(.|%s|%s)+?(?=,| else |$)" % (
-        _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX),
-        re.UNICODE)
+    CONDITION_REGEX = re.compile(r"(%s|%s|%s|%s|(?!,| else ).)+" % (
+        _SINGLE_QUOTE_STRING_LITERAL_REGEX, _DOUBLE_QUOTE_STRING_LITERAL_REGEX,
+        _VALUE_LIST_REGEX, _VALUE_TUPLE_REGEX), re.UNICODE)
 
     NEWLINE_REGEX = re.compile("[\r\n]+")
 
@@ -156,6 +163,12 @@ class Element(object):
                             self.attributes += "{%% %s %%} " % val.test
                         value = "{%% %s %%}%s" % (val.test,
                             self.add_attr(key, val.body))
+                        while isinstance(val.orelse, Conditional):
+                            val = val.orelse
+                            if key not in ("id", "class"):
+                                self.attributes += "{%% el%s %%} " % val.test
+                            value += "{%% el%s %%}%s" % (val.test,
+                                self.add_attr(key, val.body))
                         if val.orelse is not val.NOTHING:
                             if key not in ("id", "class"):
                                 self.attributes += "{% else %} "
@@ -182,30 +195,34 @@ class Element(object):
             if not match:
                 raise SyntaxError("Dictionary key expected at %r" % string)
             key = eval(match.group(1))
-            string = string[match.end():]
-            match = self.ATTRVAL_REGEX.match(string)
-            if not match:
-                raise SyntaxError("Dictionary value expected at %r" % string)
-            val = eval(match.group(0))
-            string = string[match.end():].lstrip()
-            if string.startswith("if "):
-                match = self.CONDITION_REGEX.match(string)
-                # Note: cannot fail.  At least the "if" word must match.
-                condition = match.group(0)
-                string = string[len(condition):].lstrip()
-                if string.startswith("else "):
-                    string = string[5:].lstrip()
-                    match = self.ATTRVAL_REGEX.match(string)
-                    if not match:
-                        raise SyntaxError(
-                            "Missing \"else\" expression at %r" % string)
-                    val = Conditional(condition, val, eval(match.group(0)))
-                    string = string[match.end():].lstrip()
-                else:
-                    val = Conditional(condition, val)
+            (val, string) = self.parse_attribute_value(string[match.end():])
             if string.startswith(","):
                 string = string[1:].lstrip()
             yield (key, val)
+
+    def parse_attribute_value(self, string):
+        """Parse an attribute value from dictionary string
+
+        Return a (value, tail) pair where tail is remainder of the string.
+
+        """
+        match = self.ATTRVAL_REGEX.match(string)
+        if not match:
+            raise SyntaxError("Dictionary value expected at %r" % string)
+        val = eval(match.group(0))
+        string = string[match.end():].lstrip()
+        if string.startswith("if "):
+            match = self.CONDITION_REGEX.match(string)
+            # Note: cannot fail.  At least the "if" word must match.
+            condition = match.group(0)
+            string = string[len(condition):].lstrip()
+            if string.startswith("else "):
+                (orelse, string) = self.parse_attribute_value(
+                    string[5:].lstrip())
+                val = Conditional(condition, val, orelse)
+            else:
+                val = Conditional(condition, val)
+        return (val, string)
 
     def add_attr(self, key, value):
         """Add attribute definition to self.attributes

@@ -135,6 +135,10 @@ The 'else' part may be omitted, for example:
 
 	%div{'id': 'No1' if tree is TheLarch}
 
+The 'else' part also may contain conditional expression:
+
+	'score': '29.9' if name == 'St Stephan' else '29.3' if name == 'Richard III'
+
 For the 'class' and 'id' attributes conditional expressions are processed in a different way: condition tags are placed inside the value rather than around the whole attribute.  That is done so because these attributes may get additional value parts from [HAML syntax](#class-and-id--and-).  The downside is that conditional expression cannot remove 'class' or 'id' attribute altogether, as it happens with common attributes.  Example:
 
 	%div{'id': 'dog_kennel' if assisant.name == 'Mr Lambert' else 'mattress',
