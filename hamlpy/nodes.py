@@ -123,7 +123,7 @@ class TreeNode(object):
         self.children.append(child)
 
 class RootNode(TreeNode):
-    def __init__(self, attr_wrapper="'"):
+    def __init__(self, attr_wrapper="'", self_closing_slash=True):
         TreeNode.__init__(self)
         self.indentation = -2
         # Number of empty lines to render after node
@@ -137,6 +137,7 @@ class RootNode(TreeNode):
 
         # Options
         self.attr_wrapper = attr_wrapper
+        self.self_closing_slash = self_closing_slash
 
     def add_child(self, child):
         '''Add child node, and copy all options to it'''
@@ -272,7 +273,10 @@ class ElementNode(HamlNode):
             content = content.strip()
 
         if element.self_close and not content:
-            start.append(" />")
+            if self.self_closing_slash:
+                start.append(" />")
+            else:
+                start.append(">")
         elif content:
             start.append(">%s" % (content))
         elif self.children:
