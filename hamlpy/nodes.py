@@ -143,6 +143,7 @@ class RootNode(TreeNode):
         '''Add child node, and copy all options to it'''
         super(RootNode, self).add_child(child)
         child.attr_wrapper = self.attr_wrapper
+        child.self_closing_slash = self.self_closing_slash
 
     def render(self):
         # Render (sets self.before and self.after)
