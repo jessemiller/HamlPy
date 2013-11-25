@@ -53,7 +53,7 @@ def get_haml_loader(loader):
 
 
 haml_loaders = dict((name, get_haml_loader(loader))
-        for (name, loader) in get_django_template_loaders())
+                    for (name, loader) in get_django_template_loaders())
 
 
 HamlPyFilesystemLoader = get_haml_loader(filesystem)
