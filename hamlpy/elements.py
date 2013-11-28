@@ -115,20 +115,23 @@ class Element(object):
             from codegen import to_source
             node = ast.parse(attribute_dict_string, mode='eval')
             s = []
-            for k,v in zip(node.body.keys, node.body.values):
+            for k, v in zip(node.body.keys, node.body.values):
                 if isinstance(k, ast.Name):
                     #k = '"{{ %s }}"' % k.id # TODO: allow dynamic keys in settings
                     k = '"%s"' % k.id
                 else:
                     k = to_source(k)
-                if isinstance(v, ast.Str): # TODO: add allowed types
+                if isinstance(v, ast.Str):  # TODO: add allowed types
                     v = to_source(v)
                 else:
                     v = '"{{ %s }}"' % to_source(v)
-                s.append('%s: %s' % (k,v))
+                s.append('%s: %s' % (k, v))
             attribute_dict_string = '{%s}' % ', '.join(s)
         except Exception as e:
-            pass
+            import traceback
+            traceback.print_exc()
+            print repr(e)
+            attribute_dict_string = 'error: "%s"' % repr(e).replace('"', "'")
         return attribute_dict_string
 
     def _parse_attribute_dictionary(self, attribute_dict_string):
@@ -167,8 +170,7 @@ class Element(object):
                             self.attributes += "%s=%s " % (k, self.attr_wrap(v))
                 self.attributes = self.attributes.strip()
             except Exception, e:
-                raise Exception('failed to decode: %s' % attribute_dict_string)
-                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
+                raise Exception('failed to decode: %s. Error: %r' % (attribute_dict_string, e))
 
         return attributes_dict
 
