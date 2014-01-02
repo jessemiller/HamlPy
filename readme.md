@@ -91,6 +91,7 @@ For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_L
 Following values in Django settings affect haml processing:
 
   * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. This defaults to ' (an apostrophe).
+  * `HAMLPY_VALID_EXTENSIONS` -- A list of additional file extensions that are loaded/watched by HamlPy. By default, HamlPy monitors files with `.haml` and `.hamlpy` extensions.
 
 ### Option 2: Watcher 
 
