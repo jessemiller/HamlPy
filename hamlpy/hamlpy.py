@@ -4,6 +4,13 @@ from optparse import OptionParser
 import sys
 
 VALID_EXTENSIONS=['haml', 'hamlpy']
+try:
+    from django.conf import settings
+except ImportError, e:
+    pass
+else:
+    if hasattr(settings, 'HAMLPY_VALID_EXTENSIONS'):
+        VALID_EXTENSIONS.extend(settings.HAMLPY_VALID_EXTENSIONS)
 
 class Compiler:
 
