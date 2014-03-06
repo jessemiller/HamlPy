@@ -19,6 +19,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
 
+    def test_applies_class_and_id_properly(self):
+        haml = '%div.someClass#someId'
+        html = "<div id='someId' class='someClass'></div>"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertEqual(html, result.replace('\n', ''))
+
     def test_applies_class_properly(self):
         haml = '%div.someClass Some text'
         html = "<div class='someClass'>Some text</div>"

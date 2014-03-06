@@ -52,17 +52,17 @@ class Element(object):
         return '%s%s%s' % (self.attr_wrapper, value, self.attr_wrapper)
 
     def _parse_haml(self):
-        split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
+        split_tags = self._split_haml(self.haml)
 
-        self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes'))
-        self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
-        self.id = self._parse_id(split_tags.get('id'))
-        self.classes = ('%s %s' % (split_tags.get('class').lstrip(self.CLASS).replace('.', ' '), self._parse_class_from_attributes_dict())).strip()
-        self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
-        self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace') != ''
-        self.nuke_outer_whitespace = split_tags.get('nuke_outer_whitespace') != ''
-        self.django_variable = split_tags.get('django') != ''
-        self.inline_content = split_tags.get('inline').strip()
+        self.attributes_dict = self._parse_attribute_dictionary(split_tags.get('attributes', ''))
+        self.tag = split_tags.get('tag', '').strip(self.ELEMENT) or 'div'
+        self.id = self._parse_id(split_tags.get('id', ''))
+        self.classes = ('%s %s' % (split_tags.get('class', '').lstrip(self.CLASS).replace('.', ' '), self._parse_class_from_attributes_dict())).strip()
+        self.self_close = split_tags.get('selfclose', '') or self.tag in self.self_closing_tags
+        self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace', '') != ''
+        self.nuke_outer_whitespace = split_tags.get('nuke_outer_whitespace', '') != ''
+        self.django_variable = split_tags.get('django', '') != ''
+        self.inline_content = split_tags.get('inline', '').strip()
 
     def _parse_class_from_attributes_dict(self):
         clazz = self.attributes_dict.get('class', '')
@@ -146,6 +146,13 @@ class Element(object):
 
         return attributes_dict
 
+    def _split_haml(self, txt):
+        result = {}
+        def merge(data):
+            kwargs = {key: value for key, value in data.iteritems() if value}
+            if bool(kwargs):
+                result.update(kwargs)
 
-
-
+        groups = [m.groupdict() for m in self.HAML_REGEX.finditer(txt)]
+        map(merge, groups)
+        return result
