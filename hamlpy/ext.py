@@ -29,6 +29,13 @@ def has_any_extension(file_path, extensions):
     return file_ext and extensions and file_ext in [clean_extension(e) for e in extensions]
 
 if _jinja2_available:
+    import re
+    begin_tag_rx = r'\{%\-?\s*haml.*?%\}'
+    end_tag_rx = r'\{%\-?\s*endhaml\s*\-?%\}'
+
+    begin_tag_m = re.compile(begin_tag_rx)
+    end_tag_m = re.compile(end_tag_rx)
+    
     class HamlPyExtension(jinja2.ext.Extension):
 
         def preprocess(self, source, name, filename=None):
@@ -40,3 +47,47 @@ if _jinja2_available:
                     raise jinja2.TemplateSyntaxError(e, 1, name=name, filename=filename)
             else:
                 return source
+
+    class HamlPyTagExtension(jinja2.ext.Extension):
+        tags = set(['haml'])
+        
+        def _get_lineno(self, source):
+            matches = re.finditer(r'\n', source)
+            if matches:
+                return len(tuple(matches))
+            return 0
+        
+        def parse(self, parser):
+            haml_data = parser.parse_statements(['name:endhaml'])
+            parser.stream.expect('name:endhaml')
+            return [haml_data]
+        
+        def preprocess(self, source, name, filename = None):
+            ret_source = ''
+            start_pos = 0
+            
+            h = hamlpy.Compiler()
+            
+            while True:
+                tag_match = begin_tag_m.search(source, start_pos)
+                
+                if tag_match:
+                    end_tag = end_tag_m.search(source, tag_match.end())
+                    
+                    if not end_tag:
+                        raise jinja2.TemplateSyntaxError('Expecting "endhaml" tag', self._get_lineno(source[:start_pos]))
+                    
+                    haml_source = source[tag_match.end():end_tag.start()]
+                    
+                    try:
+                        ret_source += source[start_pos:tag_match.start()] + h.process(haml_source)
+                    except jinja2.TemplateSyntaxError as e:
+                        raise jinja2.TemplateSynxtaxError(e.message, e.lineno, name=name,filename=filename)
+                    
+                    start_pos = end_tag.end()
+                else:
+                    ret_source += source[start_pos:]
+                    break
+            
+            return ret_source
+

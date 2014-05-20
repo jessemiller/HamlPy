@@ -22,6 +22,8 @@
 	- [Django Tags: -](#django-tags--)
 		- [Tags within attributes:](#tags-within-attributes)
 	- [Whitespace removal](#whitespace-removal)
+- [Jinja2 Extension](#jinja2-specific)
+	- [Hamlpy Tag](#jinja2-hamlpy-tag)
 - [Filters](#filters)
 	- [:plain](#plain)
 	- [:javascript](#javascript)
@@ -396,6 +398,31 @@ is compiled to:
 
 	<li>Item one</li><li>Item two</li><li>Item three</li>
 
+## Jinja2 Extension
+
+### Hamlpy Tag
+
+You can embed hamlpy within jinja templates with the `{% haml %}` tag
+
+	:python
+		import jinja2
+		from hamlpy.ext import HamlPyTagExtension
+		
+		env = jinja2.Environment(extensions=[HamlPyTagExtension])
+		
+		haml = """\
+		Before:
+		{% haml %}
+		- if something
+			%p hello
+		- else
+			%p goodbye
+		{% endhaml %}
+		After"""
+		
+		print(env.from_string(haml).render())
+		# Before:\n   <p>goodbye</p>\nAfter
+		
 ## Filters
 
 ### :plain
