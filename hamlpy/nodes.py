@@ -445,6 +445,7 @@ class TagNode(HamlNode):
                    'ifchanged':'else',
                    'ifequal':'else',
                    'ifnotequal':'else',
+                   'blocktrans':'plural',
                    'for':'empty',
                    'with':'with'}
 
