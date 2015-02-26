@@ -313,6 +313,12 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    @raises(Exception)
+    def test_throws_exception_when_break_last_line(self):
+        haml = '-width a=1 \\'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+
     def test_xml_namespaces(self):
         haml = "%fb:tag\n  content"
         html = "<fb:tag>\n  content\n</fb:tag>\n"
