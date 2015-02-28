@@ -41,6 +41,9 @@ class TestTemplateCompare(unittest.TestCase):
     def test_line_break(self):
         self._compare_test_files('lineBreak')
 
+    def test_line_break_in_node_params(self):
+        self._compare_test_files('lineBreakInNode')
+
     def test_filters(self):
         self._compare_test_files('filters')
 

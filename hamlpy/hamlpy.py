@@ -43,6 +43,9 @@ class Compiler:
                     while line.count('{') - line.count('}') != -1:
                         try:
                             line = line_iter.next()
+                            # support for line breaks inside Node parameters
+                            if line.rstrip().endswith("\\"):
+                                line = line.rstrip()[:-1]
                         except StopIteration:
                             raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
                         node_lines += line
