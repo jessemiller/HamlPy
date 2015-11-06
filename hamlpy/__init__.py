@@ -1,1 +1,1 @@
-import templatize
+from . import templatize

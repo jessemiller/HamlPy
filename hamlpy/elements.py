@@ -122,7 +122,7 @@ class Element(object):
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
-                for k, v in attributes_dict.items():
+                for k, v in list(attributes_dict.items()):
                     if k != 'id' and k != 'class':
                         if isinstance(v, NoneType):
                             self.attributes += "%s " % (k,)
@@ -140,7 +140,7 @@ class Element(object):
                             v = v.decode('utf-8')
                             self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
                 self.attributes = self.attributes.strip()
-            except Exception, e:
+            except Exception as e:
                 raise Exception('failed to decode: %s' % attribute_dict_string)
                 #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 

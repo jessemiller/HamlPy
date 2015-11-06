@@ -4,7 +4,7 @@ try:
     from django.template import TemplateDoesNotExist
     from django.template.loaders import filesystem, app_directories
     _django_available = True
-except ImportError, e:
+except ImportError as e:
     class TemplateDoesNotExist(Exception):
         pass
 
