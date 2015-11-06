@@ -70,7 +70,7 @@ def watch_folder():
     
     if args.verbose:
         Options.VERBOSE = True
-        print("Watching {} at refresh interval {} seconds".format(input_folder, args.refresh))
+        print(("Watching {} at refresh interval {} seconds".format(input_folder, args.refresh)))
     
     if args.extension:
         Options.OUTPUT_EXT = args.extension
@@ -136,10 +136,10 @@ def _compiled_path(destination, filename):
 def compile_file(fullpath, outfile_name, compiler_args):
     """Calls HamlPy compiler."""
     if Options.VERBOSE:
-        print('%s %s -> %s' % (strftime("%H:%M:%S"), fullpath, outfile_name))
+        print(('%s %s -> %s' % (strftime("%H:%M:%S"), fullpath, outfile_name)))
     try:
         if Options.DEBUG:
-            print("Compiling %s -> %s" % (fullpath, outfile_name))
+            print(("Compiling %s -> %s" % (fullpath, outfile_name)))
         haml_lines = codecs.open(fullpath, 'r', encoding = 'utf-8').read().splitlines()
         compiler = hamlpy.Compiler(compiler_args)
         output = compiler.process_lines(haml_lines)
@@ -147,7 +147,7 @@ def compile_file(fullpath, outfile_name, compiler_args):
         outfile.write(output)
     except Exception as e:
         # import traceback
-        print("Failed to compile %s -> %s\nReason:\n%s" % (fullpath, outfile_name, e))
+        print(("Failed to compile %s -> %s\nReason:\n%s" % (fullpath, outfile_name, e)))
         # print traceback.print_exc()
 
 if __name__ == '__main__':

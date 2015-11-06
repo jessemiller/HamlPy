@@ -15,4 +15,4 @@
 :python
   a=1
   for i in range(5):
-    print a+i
+    print(a+i)

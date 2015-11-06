@@ -85,17 +85,17 @@ class TestTemplateCompare(unittest.TestCase):
         for i, _ in enumerate(shorter):
             if len(shorter) <= i + 1:
                 print('Ran out of characters to compare!')
-                print('Actual len=%d' % len(s1))
-                print('Expected len=%d' % len(s2))
+                print(('Actual len=%d' % len(s1)))
+                print(('Expected len=%d' % len(s2)))
                 break
             if s1[i] != s2[i]:
-                print('Difference begins at line', line, 'column', col)
+                print(('Difference begins at line', line, 'column', col))
                 actual_line = s1.splitlines()[line - 1]
                 expected_line = s2.splitlines()[line - 1]
-                print('HTML (actual, len=%2d)   : %s' % (len(actual_line), actual_line))
-                print('HTML (expected, len=%2d) : %s' % (len(expected_line), expected_line))
-                print('Character code (actual)  : %d (%s)' % (ord(s1[i]), s1[i]))
-                print('Character code (expected): %d (%s)' % (ord(s2[i]), s2[i]))
+                print(('HTML (actual, len=%2d)   : %s' % (len(actual_line), actual_line)))
+                print(('HTML (expected, len=%2d) : %s' % (len(expected_line), expected_line)))
+                print(('Character code (actual)  : %d (%s)' % (ord(s1[i]), s1[i])))
+                print(('Character code (expected): %d (%s)' % (ord(s2[i]), s2[i])))
                 break
 
             if shorter[i] == '\n':
@@ -119,7 +119,7 @@ class TestTemplateCompare(unittest.TestCase):
         
         if parsed != html:
             print('\nHTML (actual): ')
-            print('\n'.join(["%d. %s" % (i + 1, l) for i, l in enumerate(parsed.split('\n')) ]))
+            print(('\n'.join(["%d. %s" % (i + 1, l) for i, l in enumerate(parsed.split('\n')) ])))
             self._print_diff(parsed, html)
         eq_(parsed, html)
         
