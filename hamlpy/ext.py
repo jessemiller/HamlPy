@@ -2,17 +2,17 @@
 try:
     import jinja2.ext
     _jinja2_available = True
-except ImportError, e:
+except ImportError as e:
     _jinja2_available = False
 
-import hamlpy
+from . import hamlpy
 import os
 
 HAML_FILE_NAME_EXTENSIONS = ['haml', 'hamlpy']
 
 
 def clean_extension(file_ext):
-    if not isinstance(file_ext, basestring):
+    if not isinstance(file_ext, str):
         raise Exception('Wrong file extension format: %r' % file_ext)
     if len(file_ext) > 1 and file_ext.startswith('.'):
         file_ext = file_ext[1:]

@@ -13,8 +13,8 @@ class HamlPyTest(unittest.TestCase):
         self.assertEqual(html, result.replace('\n', ''))
 
     def test_non_ascii_id_allowed(self):
-        haml = u'%div#これはテストです test'
-        html = u"<div id='これはテストです'>test</div>"
+        haml = '%div#これはテストです test'
+        html = "<div id='これはテストです'>test</div>"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
@@ -233,14 +233,14 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
 
     def test_utf8_with_regular_text(self):
-        haml = u"%a{'href':'', 'title':'링크(Korean)'} Some Link"
-        html = u"<a href='' title='\ub9c1\ud06c(Korean)'>Some Link</a>\n"
+        haml = "%a{'href':'', 'title':'링크(Korean)'} Some Link"
+        html = "<a href='' title='\\ub9c1\\ud06c(Korean)'>Some Link</a>\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
 
     def test_python_filter(self):
-        haml = ":python\n   for i in range(0, 5): print \"<p>item \%s</p>\" % i"
+        haml = ":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)"
         html = '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>\n'
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)

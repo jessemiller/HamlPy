@@ -1,6 +1,5 @@
 import re
 import sys
-from types import NoneType
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -122,9 +121,9 @@ class Element(object):
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
-                for k, v in attributes_dict.items():
+                for k, v in list(attributes_dict.items()):
                     if k != 'id' and k != 'class':
-                        if isinstance(v, NoneType):
+                        if v is None:
                             self.attributes += "%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s=%s " % (k, self.attr_wrap(v))
@@ -137,15 +136,15 @@ class Element(object):
                                                  "\nPlease use inline variables ={...} instead.\n-------------------\n")
 
                             attributes_dict[k] = v
-                            v = v.decode('utf-8')
+                            try:
+                                v = v.decode('utf-8')
+                            except Exception:
+                                # Everyting is unicde in python 3
+                                pass
                             self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
                 self.attributes = self.attributes.strip()
-            except Exception, e:
+            except Exception as e:
                 raise Exception('failed to decode: %s' % attribute_dict_string)
                 #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
-
-
-
-

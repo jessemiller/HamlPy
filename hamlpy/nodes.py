@@ -1,21 +1,21 @@
 import re
 import sys
-from StringIO import StringIO
+from io import StringIO
 
-from elements import Element
+from .elements import Element
 
 try:
     from pygments import highlight
     from pygments.formatters import HtmlFormatter
     from pygments.lexers import guess_lexer
     _pygments_available = True
-except ImportError, e:
+except ImportError as e:
     _pygments_available = False
 
 try:
     from markdown import markdown
     _markdown_available = True
-except ImportError, e:
+except ImportError as e:
     _markdown_available = False
 
 class NotAvailableError(Exception):
@@ -453,12 +453,12 @@ class TagNode(HamlNode):
         self.tag_statement = self.haml.lstrip(TAG).strip()
         self.tag_name = self.tag_statement.split(' ')[0]
 
-        if (self.tag_name in self.self_closing.values()):
+        if (self.tag_name in list(self.self_closing.values())):
             raise TypeError("Do not close your Django tags manually.  It will be done for you.")
 
     def _render(self):
         self.before = "%s{%% %s %%}" % (self.spaces, self.tag_statement)
-        if (self.tag_name in self.self_closing.keys()):
+        if (self.tag_name in list(self.self_closing.keys())):
             self.before += self.render_newlines()
             self.after = '%s{%% %s %%}%s' % (self.spaces, self.self_closing[self.tag_name], self.render_newlines())
         else:
@@ -517,7 +517,7 @@ class PythonFilterNode(FilterNode):
             buffer = StringIO()
             sys.stdout = buffer
             try:
-                exec compiled_code
+                exec(compiled_code)
             except Exception as e:
                 # Change exception message to let developer know that exception comes from
                 # a PythonFilterNode
