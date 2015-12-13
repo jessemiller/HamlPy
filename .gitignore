@@ -8,3 +8,4 @@ hamlpy.egg-info
 .project
 .pydevproject
 .DS_Store
+*egg-info/*
