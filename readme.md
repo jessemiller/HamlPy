@@ -157,6 +157,6 @@ HamlPy currently:
 
 ## Contributing
 
-Very happy to have contributions to this project. Please write tests for any new features and always ensure the current tests pass. You can run the tests from the **hamlpy/test** folder using nosetests by typing
+Very happy to have contributions to this project. Please write tests for any new features and always ensure the current tests pass. You can run the tests from the base direcotry by running
 
-    nosetests *.py
+    python setup.py nosetests

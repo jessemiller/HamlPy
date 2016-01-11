@@ -49,7 +49,6 @@ class Compiler:
             return root.render()
 
 def convert_files():
-    import sys
     import codecs
 
     parser = OptionParser()

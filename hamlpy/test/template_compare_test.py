@@ -107,8 +107,10 @@ class TestTemplateCompare(unittest.TestCase):
             print "No Difference Found"
 
     def _compare_test_files(self, name):
-        haml_lines = codecs.open('templates/' + name + '.hamlpy', encoding = 'utf-8').readlines()
-        html = open('templates/' + name + '.html').read()
+        import os
+        dir = os.path.dirname(__file__)
+        haml_lines = codecs.open(dir + '/templates/' + name + '.hamlpy', encoding = 'utf-8').readlines()
+        html = open(dir + '/templates/' + name + '.html').read()
         
         haml_compiler = hamlpy.Compiler()
         parsed = haml_compiler.process_lines(haml_lines)
