@@ -12,7 +12,6 @@ except ImportError:
 setup(
     name='django-hamlpy',
     version='0.83',
-    download_url='git@github.com:jessemiller/HamlPy.git',
     packages=['hamlpy', 'hamlpy.template'],
     author='Jesse Miller',
     author_email='millerjesse@gmail.com',
