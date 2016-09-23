@@ -138,7 +138,7 @@ For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the in
 
 There is a very simple solution.
 
-	django-admin.py makemessages --settings=<project.settings> -a
+	django-admin.py makemessages --settings=<project.settings> -a --extension haml,html,py,txt
 	
 Where:
 
