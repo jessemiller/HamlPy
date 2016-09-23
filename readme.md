@@ -13,6 +13,9 @@ Major differences with the original hamlpy:
 * the pypi release have been renamed "django-hamlpy" instead of "hamlpy"
 * compatible with django>=1.9 thanks to https://github.com/jessemiller/HamlPy/pull/166
 
+You might also be interested in [hamlpy3](hamlpy3) which is a python 3 **only**
+version of hamlpy. Supporting both python 2 and python 3 in django-hamlpy would be great.
+
 Thanks a lot to Jesse Miller for his work, it really helped me a lot.
 
 # django-hamlpy
