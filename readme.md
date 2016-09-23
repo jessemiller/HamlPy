@@ -1,9 +1,21 @@
-# HamlPy
+# Introduction
 
 Fork of https://github.com/jessemiller/HamlPy because it seems unmaintained
-since Aug 2013 and that it's not compatible with django>=1.9.
+since Aug 2013 and that it's not compatible with django>=1.9. 3 years seemed a
+reasonable time to consider forking.
 
-I've merged https://github.com/jessemiller/HamlPy/pull/166 in that regard.
+Since I don't want to redo the previous of no maintainership (and that I don't
+have a special interest in being the sole maintainer) I'm looking for 1-3 other
+people to co-maintained this project.
+
+Major differences with the original hamlpy:
+
+* the pypi release have been renamed "django-hamlpy" instead of "hamlpy"
+* compatible with django>=1.9 thanks to https://github.com/jessemiller/HamlPy/pull/166
+
+Thanks a lot to Jesse Miller for his work, it really helped me a lot.
+
+# django-hamlpy
 
 HamlPy (pronounced "haml pie") is a tool for Django developers who want to use a Haml like syntax for their templates.
 HamlPy is not a template engine in itself but simply a compiler which will convert HamlPy files into templates that Django can understand.
@@ -15,13 +27,13 @@ But wait, what is Haml?  Haml is an incredible template engine written in Ruby u
 
 ### Stable release
 
-The latest stable version of HamlPy can be installed using [setuptools](http://pypi.python.org/pypi/setuptools/) `easy_install hamlpy` or  [pip](http://pypi.python.org/pypi/pip/) (`pip install hamlpy`)
+The latest stable version of HamlPy can be installed using [pip](http://pypi.python.org/pypi/pip/) (`pip install django-hamlpy`)
 
 ### Development
 
 The latest development version can be installed directly from GitHub:
 
-    pip install https://github.com/jessemiller/HamlPy/tarball/master
+    pip install git+https://github.com/psycojoker/django-hamlpy
 
 ## Syntax
 
@@ -65,9 +77,9 @@ turns into..
 
 ### Option 1: Template loader
 
-The template loader was originally written by [Chris Hartjes](https://github.com/chartjes) under the name 'djaml'. This project has now been merged into the HamlPy codebase.
+The template loader was originally written by [Chris Hartjes](https://github.com/chartjes) under the name 'djaml'. This project has now been merged into the django-hamlpy codebase.
 
-Add the HamlPy template loaders to the Django template loaders:
+Add the django-hamlpy template loaders to the Django template loaders:
 
     TEMPLATE_LOADERS = (
 	    'hamlpy.template.loaders.HamlPyFilesystemLoader',
@@ -75,7 +87,7 @@ Add the HamlPy template loaders to the Django template loaders:
         ...
     )
 
-If you don't put the HamlPy template loader first, then the standard Django template loaders will try to process
+If you don't put the django-hamlpy template loader first, then the standard Django template loaders will try to process
 it first. Make sure your templates have a `.haml` or `.hamlpy` extension, and put them wherever you've told Django
 to expect to find templates (TEMPLATE_DIRS).
 
@@ -151,7 +163,7 @@ Where:
 	
 ## Reference
 
-Check out the [reference.md](http://github.com/jessemiller/HamlPy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
+Check out the [reference.md](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
 
 ## Status
 
