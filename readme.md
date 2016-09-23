@@ -1,5 +1,10 @@
 # HamlPy
 
+Fork of https://github.com/jessemiller/HamlPy because it seems unmaintained
+since Aug 2013 and that it's not compatible with django>=1.9.
+
+I've merged https://github.com/jessemiller/HamlPy/pull/166 in that regard.
+
 HamlPy (pronounced "haml pie") is a tool for Django developers who want to use a Haml like syntax for their templates.
 HamlPy is not a template engine in itself but simply a compiler which will convert HamlPy files into templates that Django can understand.
 
