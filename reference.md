@@ -97,7 +97,15 @@ Long attribute dictionaries can be separated into multiple lines:
 
 #### Attributes without values (Boolean attributes)
 
-Attributes without values can be specified using Python's ```None``` keyword (without quotes). For example:
+Attributes without values can be specified using singe variable. For example:
+
+	%input{'type':'checkbox', value:'Test', checked}
+
+is compiled to:
+
+	<input type="checkbox" value="Test" checked />
+
+Alternatively the values can be specified using Python's ```None``` keyword (without quotes). For example:
 
 	%input{'type':'checkbox', value:'Test', checked: None}
 
