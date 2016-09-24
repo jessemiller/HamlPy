@@ -90,11 +90,11 @@ class HamlPyTest(unittest.TestCase):
         self.assertTrue(result.rstrip().endswith("/>"))
 
     def test_dictionaries_define_no_value_attribute_several_a_lot(self):
-        haml = "%%input{a: 'b', %s}" % ", ".join(string.ascii_letters)
+        haml = "%%input{baba: 'b', %s}" % ", ".join(string.ascii_letters)
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         self.assertTrue("<input" in result)
-        self.assertTrue("a='b'" in result)
+        self.assertTrue("baba='b'" in result)
         for i in string.ascii_letters:
             self.assertTrue((" %s " % i) in result)
         self.assertTrue(result.rstrip().endswith("/>"))

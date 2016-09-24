@@ -112,25 +112,20 @@ class Element(object):
         return ''.join(escaped)
 
     def _parse_attribute_dictionary(self, attribute_dict_string):
-        class SingleVariableMarker(object):
-            pass
-
         attributes_dict = {}
+
         if (attribute_dict_string):
             attribute_dict_string = attribute_dict_string.replace('\n', ' ')
             try:
                 # converting all allowed attributes to python dictionary style
 
                 # When encountering single variables (like "required" or
-                # "visible") use an empty class instance as a trick to have
-                # both a unique and a non coliding marker because all of this
-                # will be converted as a python dictionary
-                attribute_dict_string = re.sub(self.SINGLE_VARIABLE_REGEX, '\g<before>SingleVariableMarker(): "\g<key>"\g<after>', attribute_dict_string)
-                print attribute_dict_string
+                # "visible") set its value to None
+                attribute_dict_string = re.sub(self.SINGLE_VARIABLE_REGEX, '\g<before>"\g<key>": None\g<after>', attribute_dict_string)
 
                 # do it both because the regex is too greedy and doesn't do it
                 # with single variable in between
-                attribute_dict_string = re.sub(self.SINGLE_VARIABLE_REGEX, '\g<before>SingleVariableMarker(): "\g<key>"\g<after>', attribute_dict_string)
+                attribute_dict_string = re.sub(self.SINGLE_VARIABLE_REGEX, '\g<before>"\g<key>": None\g<after>', attribute_dict_string)
 
                 # Replace Ruby-style HAML with Python style
                 attribute_dict_string = re.sub(self.RUBY_HAML_REGEX, '"\g<key>":', attribute_dict_string)
@@ -139,15 +134,13 @@ class Element(object):
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
 
                 # Parse string as dictionary
-                attributes_dict = eval(attribute_dict_string, {"SingleVariableMarker": SingleVariableMarker})
+                attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
                         if isinstance(v, NoneType):
                             self.attributes += "%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s=%s " % (k, self.attr_wrap(v))
-                        elif isinstance(k, SingleVariableMarker):
-                            self.attributes += "%s " % (v)
                         else:
                             # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
                             v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
