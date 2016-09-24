@@ -12,7 +12,7 @@ except ImportError:
 setup(
     name='django-hamlpy',
     version='0.83',
-    packages=['hamlpy', 'hamlpy.template'],
+    packages=['hamlpy', 'hamlpy.template', 'hamlpy.views', 'hamlpy.views.generic'],
     author='Jesse Miller',
     author_email='millerjesse@gmail.com',
     maintainer='Laurent Peuch',
