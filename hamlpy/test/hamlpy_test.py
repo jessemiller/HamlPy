@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import string
 from nose.tools import eq_, raises
 from hamlpy import hamlpy
 
@@ -42,6 +43,61 @@ class HamlPyTest(unittest.TestCase):
         self.assertTrue("xml:lang='en'" in result)
         self.assertTrue("lang='en'" in result)
         self.assertTrue(result.endswith("></html>") or result.endswith("></html>\n"))
+
+    def test_dictionaries_define_no_value_attribute_single(self):
+        haml = "%input{required}"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertTrue("<input" in result)
+        self.assertTrue(" required " in result)
+        self.assertTrue(result.rstrip().endswith("/>"))
+
+    def test_dictionaries_define_no_value_attribute_start(self):
+        haml = "%input{required, a: 'b'}"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertTrue("<input" in result)
+        self.assertTrue("a='b'" in result)
+        self.assertTrue(" required " in result)
+        self.assertTrue(result.rstrip().endswith("/>"))
+
+    def test_dictionaries_define_no_value_attribute_middle(self):
+        haml = "%input{a: 'b', required, b: 'c'}"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertTrue("<input" in result)
+        self.assertTrue("a='b'" in result)
+        self.assertTrue(" required " in result)
+        self.assertTrue(result.rstrip().endswith("/>"))
+
+    def test_dictionaries_define_no_value_attribute_end(self):
+        haml = "%input{a: 'b', required}"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertTrue("<input" in result)
+        self.assertTrue("a='b'" in result)
+        self.assertTrue(" required " in result)
+        self.assertTrue(result.rstrip().endswith("/>"))
+
+    def test_dictionaries_define_no_value_attribute_several(self):
+        haml = "%input{checked, required, visible}"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertTrue("<input" in result)
+        self.assertTrue(" checked " in result)
+        self.assertTrue(" visible " in result)
+        self.assertTrue(" required " in result)
+        self.assertTrue(result.rstrip().endswith("/>"))
+
+    def test_dictionaries_define_no_value_attribute_several_a_lot(self):
+        haml = "%%input{a: 'b', %s}" % ", ".join(string.ascii_letters)
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertTrue("<input" in result)
+        self.assertTrue("a='b'" in result)
+        for i in string.ascii_letters:
+            self.assertTrue((" %s " % i) in result)
+        self.assertTrue(result.rstrip().endswith("/>"))
 
     def test_dictionaries_support_arrays_for_id(self):
         haml = "%div{'id':('itemType', '5')}"
