@@ -1,6 +1,6 @@
 language: python
 install:
-  - pip install pytest pygments mock
+  - pip install -r requirements-test.txt
 python:
   - "2.7"
 script:
