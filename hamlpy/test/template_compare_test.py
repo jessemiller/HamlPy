@@ -1,3 +1,4 @@
+import os
 import codecs
 import unittest
 from nose.tools import eq_
@@ -107,7 +108,6 @@ class TestTemplateCompare(unittest.TestCase):
             print "No Difference Found"
 
     def _compare_test_files(self, name):
-        import os
         dir = os.path.dirname(__file__)
         haml_lines = codecs.open(dir + '/templates/' + name + '.hamlpy', encoding = 'utf-8').readlines()
         html = open(dir + '/templates/' + name + '.html').read()
@@ -124,6 +124,7 @@ class TestTemplateCompare(unittest.TestCase):
             print '\n'.join(["%d. %s" % (i + 1, l) for i, l in enumerate(parsed.split('\n')) ])
             self._print_diff(parsed, html)
         eq_(parsed, html)
+
 
 if __name__ == '__main__':
     unittest.main()
