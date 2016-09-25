@@ -4,4 +4,4 @@ install:
 python:
   - "2.7"
 script:
-  - cd hamlpy && py.test tests
+  - cd hamlpy && py.test
