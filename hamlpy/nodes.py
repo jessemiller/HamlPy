@@ -7,7 +7,8 @@ from elements import Element
 try:
     from pygments import highlight
     from pygments.formatters import HtmlFormatter
-    from pygments.lexers import guess_lexer
+    from pygments.lexers import guess_lexer, PythonLexer
+    from pygments.util import ClassNotFound
     _pygments_available = True
 except ImportError, e:
     _pygments_available = False
@@ -584,7 +585,10 @@ class PygmentsFilterNode(FilterNode):
             self.before = self.render_newlines()
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
-            self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+            try:
+                self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+            except ClassNotFound:
+                self.before += highlight(text, PythonLexer(), HtmlFormatter())
         else:
             self.after = self.render_newlines()
 
