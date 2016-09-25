@@ -14,6 +14,7 @@ Major differences with the original hamlpy:
 * compatible with django>=1.9 thanks to https://github.com/jessemiller/HamlPy/pull/166
 * single variables syntax is allowed in haml dict for single variables see [Attributes without values (Boolean attributes)](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes)
 * ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones. https://github.com/Psycojoker/django-hamlpy#class-based-generic-views
+* test using py.test and CI using travis-ci https://travis-ci.org/Psycojoker/django-hamlpy
 
 You might also be interested in [hamlpy3](hamlpy3) which is a python 3 **only**
 version of hamlpy. Supporting both python 2 and python 3 in django-hamlpy would be great.
@@ -263,6 +264,11 @@ HamlPy currently:
 
 ## Contributing
 
-Very happy to have contributions to this project. Please write tests for any new features and always ensure the current tests pass. You can run the tests from the base direcotry by running
+Very happy to have contributions to this project. Please write tests for any
+new features and always ensure the current tests pass. You can run the tests
+from the base direcotry by running
 
-    python setup.py nosetests
+    virtualenv ve
+    source ve/bin/activate
+    pip install -r requirements-test.txt
+    cd hamlpy && py.test
