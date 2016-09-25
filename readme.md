@@ -44,39 +44,47 @@ The latest development version can be installed directly from GitHub:
 
 Almost all of the XHTML syntax of Haml is preserved.  
 
-	#profile
-		.left.column
-			#date 2010/02/18
-			#address Toronto, ON
-		.right.column
-			#bio Jesse Miller
-			
-turns into..
+```haml
+#profile
+    .left.column
+        #date 2010/02/18
+        #address Toronto, ON
+    .right.column
+        #bio Jesse Miller
+```
 
-	<div id='profile'>
-		<div class='left column'>
-			<div id='date'>2010/02/18</div>
-			<div id='address'>Toronto, ON</div>
-		</div>
-		<div class='right column'>
-			<div id='bio'>Jesse Miller</div>
-		</div>
-	</div>
-	
+turns into:
+
+```html
+<div id='profile'>
+    <div class='left column'>
+        <div id='date'>2010/02/18</div>
+        <div id='address'>Toronto, ON</div>
+    </div>
+    <div class='right column'>
+        <div id='bio'>Jesse Miller</div>
+    </div>
+</div>
+```
+
 
 The main difference is instead of interpreting Ruby, or even Python we instead can create Django Tags and Variables
 
-	%ul#athletes
-		- for athlete in athlete_list
-			%li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
+```haml
+%ul#athletes
+    - for athlete in athlete_list
+        %li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
+```
 
 turns into..
 
-	<ul id='athletes'>
-		{% for athlete in athlete_list %}
-			<li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
-		{% endfor %}
-	</ul>
+```html
+<ul id='athletes'>
+    {% for athlete in athlete_list %}
+        <li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
+    {% endfor %}
+</ul>
+```
 
 ## Usage
 
@@ -86,11 +94,13 @@ The template loader was originally written by [Chris Hartjes](https://github.com
 
 Add the django-hamlpy template loaders to the Django template loaders:
 
-    TEMPLATE_LOADERS = (
-	    'hamlpy.template.loaders.HamlPyFilesystemLoader',
-	    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',   
-        ...
-    )
+```python
+TEMPLATE_LOADERS = (
+    'hamlpy.template.loaders.HamlPyFilesystemLoader',
+    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',   
+    ...
+)
+```
 
 If you don't put the django-hamlpy template loader first, then the standard Django template loaders will try to process
 it first. Make sure your templates have a `.haml` or `.hamlpy` extension, and put them wherever you've told Django
@@ -100,13 +110,15 @@ to expect to find templates (TEMPLATE_DIRS).
 
 For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_LOADERS:
 
-	TEMPLATE_LOADERS = (
-	    ('django.template.loaders.cached.Loader', (
-		    'hamlpy.template.loaders.HamlPyFilesystemLoader',
-		    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
-		    ...
-	    )),   
-	)
+```python
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', (
+        'hamlpy.template.loaders.HamlPyFilesystemLoader',
+        'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
+        ...
+    )),   
+)
+```
 
 #### Settings
 
@@ -142,15 +154,21 @@ HamlPy can also be used as a stand-alone program. There is a script which will w
 
 Or to simply convert a file and output the result to your console:
 
-	hamlpy inputFile.haml
-	
+```bash
+hamlpy inputFile.haml
+```
+
 Or you can have it dump to a file:
 
-	hamlpy inputFile.haml outputFile.html
+```bash
+hamlpy inputFile.haml outputFile.html
+```
 
 Optionally, `--attr-wrapper` can be specified:
 
-    hamlpy inputFile.haml --attr-wrapper='"'
+```bash
+hamlpy inputFile.haml --attr-wrapper='"'
+```
 
 Using the `--jinja` compatibility option adds macro and call tags, and changes the `empty` node in the `for` tag to `else`.
 
@@ -160,8 +178,10 @@ For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the in
 
 There is a very simple solution.
 
-	django-admin.py makemessages --settings=<project.settings> -a --extension haml,html,py,txt
-	
+```bash
+django-admin.py makemessages --settings=<project.settings> -a --extension haml,html,py,txt
+```
+
 Where:
 
   * project.settings -- Django configuration file where  module "hamlpy" is configured properly.
