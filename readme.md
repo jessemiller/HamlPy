@@ -55,7 +55,7 @@ Almost all of the XHTML syntax of Haml is preserved.
 
 turns into:
 
-```html
+```htmldjango
 <div id='profile'>
     <div class='left column'>
         <div id='date'>2010/02/18</div>
@@ -78,7 +78,7 @@ The main difference is instead of interpreting Ruby, or even Python we instead c
 
 turns into..
 
-```html
+```htmldjango
 <ul id='athletes'>
     {% for athlete in athlete_list %}
         <li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
