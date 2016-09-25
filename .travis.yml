@@ -1,0 +1,7 @@
+language: python
+install:
+  - pip install pytest pygments mock
+python:
+  - "2.7"
+script:
+  - cd hamlpy && py.test tests
