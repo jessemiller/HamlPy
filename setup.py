@@ -11,7 +11,7 @@ except ImportError:
 # Note to Jesse - only push sdist to PyPi, bdist seems to always break pip installer
 setup(
     name='django-hamlpy',
-    version='0.83',
+    version='0.84',
     packages=['hamlpy', 'hamlpy.template', 'hamlpy.views', 'hamlpy.views.generic'],
     author='Jesse Miller',
     author_email='millerjesse@gmail.com',
