@@ -104,8 +104,10 @@ is compiled to:
 
 Long attribute dictionaries can be separated into multiple lines:
 
-    %script{'type': 'text/javascript', 'charset': 'utf-8',
-            'href': '/long/url/to/javascript/resource.js'}
+```haml
+%script{'type': 'text/javascript', 'charset': 'utf-8',
+        'href': '/long/url/to/javascript/resource.js'}
+```
 
 #### Attributes without values (Boolean attributes)
 
@@ -202,7 +204,9 @@ These shortcuts can be combined with the attribute dictionary and they will be c
 
 is equivalent to:
 
+```haml
 %div{'id':('Article','1'), 'class':('article','entry','visible')} Booyaka
+```
 
 and would compile to:
 
