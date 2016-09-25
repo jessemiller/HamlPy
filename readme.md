@@ -181,11 +181,11 @@ from hamlpy.views.generic import DetailView, ListView
 from my_app.models import SomeModel
 
 # will look for the templates `my_app/somemodel_detail.haml`,
-`my_app/somemodel_detail.hamlpy` and  `my_app/somemodel_detail.html`
+# `my_app/somemodel_detail.hamlpy` and  `my_app/somemodel_detail.html`
 DetailView.as_view(model=SomeModel)
 
 # will look for the templates `my_app/somemodel_list.haml`,
-`my_app/somemodel_list.hamlpy` and  `my_app/somemodel_list.html`
+# `my_app/somemodel_list.hamlpy` and  `my_app/somemodel_list.html`
 ListView.as_view(model=SomeModel)
 ```
 
