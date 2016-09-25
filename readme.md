@@ -42,7 +42,7 @@ The latest development version can be installed directly from GitHub:
 
 ## Syntax
 
-Almost all of the XHTML syntax of Haml is preserved.  
+Almost all of the XHTML syntax of Haml is preserved.
 
 ```haml
 #profile
@@ -97,7 +97,7 @@ Add the django-hamlpy template loaders to the Django template loaders:
 ```python
 TEMPLATE_LOADERS = (
     'hamlpy.template.loaders.HamlPyFilesystemLoader',
-    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',   
+    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
     ...
 )
 ```
@@ -116,7 +116,7 @@ TEMPLATE_LOADERS = (
         'hamlpy.template.loaders.HamlPyFilesystemLoader',
         'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
         ...
-    )),   
+    )),
 )
 ```
 
@@ -126,7 +126,7 @@ Following values in Django settings affect haml processing:
 
   * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. This defaults to ' (an apostrophe).
 
-### Option 2: Watcher 
+### Option 2: Watcher
 
 HamlPy can also be used as a stand-alone program. There is a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
 
@@ -173,7 +173,7 @@ hamlpy inputFile.haml --attr-wrapper='"'
 Using the `--jinja` compatibility option adds macro and call tags, and changes the `empty` node in the `for` tag to `else`.
 
 For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the internal tree structure.
-	
+
 ### Create message files for translation
 
 There is a very simple solution.
@@ -185,7 +185,7 @@ django-admin.py makemessages --settings=<project.settings> -a --extension haml,h
 Where:
 
   * project.settings -- Django configuration file where  module "hamlpy" is configured properly.
-	
+
 ## Reference
 
 Check out the [reference.md](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
