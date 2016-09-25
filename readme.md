@@ -13,6 +13,7 @@ Major differences with the original hamlpy:
 * the pypi release have been renamed "django-hamlpy" instead of "hamlpy"
 * compatible with django>=1.9 thanks to https://github.com/jessemiller/HamlPy/pull/166
 * single variables syntax is allowed in haml dict for single variables see [Attributes without values (Boolean attributes)](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes)
+* ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones.
 
 You might also be interested in [hamlpy3](hamlpy3) which is a python 3 **only**
 version of hamlpy. Supporting both python 2 and python 3 in django-hamlpy would be great.
@@ -168,6 +169,70 @@ Where:
 ## Reference
 
 Check out the [reference.md](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
+
+## Class Based Generic Views
+
+django-hamlpy provides [the same class based generic views than django](https://docs.djangoproject.com/en/1.10/topics/class-based-views/generic-display/) with the enhancement that they start by looking for templates endings with `*.haml` and `*.hamlpy` in additions to their default templates. Appart from that they are exactly the same class based generic views.
+
+Example:
+
+```python
+from hamlpy.views.generic import DetailView, ListView
+from my_app.models import SomeModel
+
+# will look for the templates `my_app/somemodel_detail.haml`,
+`my_app/somemodel_detail.hamlpy` and  `my_app/somemodel_detail.html`
+DetailView.as_view(model=SomeModel)
+
+# will look for the templates `my_app/somemodel_list.haml`,
+`my_app/somemodel_list.hamlpy` and  `my_app/somemodel_list.html`
+ListView.as_view(model=SomeModel)
+```
+
+The available generic views are:
+
+Display views:
+
+* [DetailView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#detailview)
+* [ListView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#listview)
+
+Edit views:
+
+* [CreateView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#createview)
+* [UpdateView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#updateview)
+* [DeleteView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#deleteview)
+
+Date related views:
+
+* [DateDetailView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#datedetailview)
+* [ArchiveIndexView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#archiveindexview)
+* [YearArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#yeararchiveview)
+* [MonthArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#montharchiveview)
+* [WeekArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#weekarchiveview)
+* [DayArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#dayarchiveview)
+* [TodayArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#todayarchiveview)
+
+All views are importable from `hamlpy.views.generic` so you just need to switch
+`django` to `hamlpy` in your files to benefit from them.
+
+### Uses HamlExtensionTemplateView to create similar views
+
+All those views are built using `HamlExtensionTemplateView` mixin. It calls
+[get_template_names](https://docs.djangoproject.com/en/1.10/ref/class-based-views/mixins-simple/#django.views.generic.base.TemplateResponseMixin.get_template_names) from its super classes, looks for all template names
+endings with `.html`, `.htm` and `.xml` and had at the beginning of this list
+of templates name the same template base names but with the `.haml` and
+`.hamlpy` extensions.
+
+Example usage:
+
+```python
+from hamlpy.views.generic import HamlExtensionTemplateView
+
+class MyNewView(HamlExtensionTemplateView, ParentViewWithAGetTemplateNames):
+    pass
+```
+
+`HamlExtensionTemplateView` *needs* to be first in the inheritance list.
 
 ## Status
 
