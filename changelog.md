@@ -2,7 +2,7 @@
 =================
 
 * single variables syntax is allowed in haml dict for single variables see [Attributes without values (Boolean attributes)](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes)
-* ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones.
+* ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones. https://github.com/Psycojoker/django-hamlpy#class-based-generic-views
 
 0.83 (2016-09-23)
 =================

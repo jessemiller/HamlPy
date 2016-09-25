@@ -13,7 +13,7 @@ Major differences with the original hamlpy:
 * the pypi release have been renamed "django-hamlpy" instead of "hamlpy"
 * compatible with django>=1.9 thanks to https://github.com/jessemiller/HamlPy/pull/166
 * single variables syntax is allowed in haml dict for single variables see [Attributes without values (Boolean attributes)](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes)
-* ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones.
+* ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones. https://github.com/Psycojoker/django-hamlpy#class-based-generic-views
 
 You might also be interested in [hamlpy3](hamlpy3) which is a python 3 **only**
 version of hamlpy. Supporting both python 2 and python 3 in django-hamlpy would be great.
