@@ -6,7 +6,7 @@ reasonable time to consider forking.
 
 Since I don't want to redo the previous of no maintainership (and that I don't
 have a special interest in being the sole maintainer) I'm looking for 1-3 other
-people to co-maintained this project.
+people to co-maintained this project. Open a ticket if you are interested :)
 
 Major differences with the original hamlpy:
 
