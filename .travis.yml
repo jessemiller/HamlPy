@@ -3,5 +3,14 @@ install:
   - pip install -r requirements-test.txt
 python:
   - "2.7"
+sudo: false
+cache:
+  directories:
+   - $HOME/.cache/pip
+env:
+ - TOXENV=py27
+ - TOXENV=py34
+install:
+ - pip install -q --use-mirrors tox
 script:
-  - cd hamlpy && py.test
+ - tox
