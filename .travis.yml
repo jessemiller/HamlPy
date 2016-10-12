@@ -13,4 +13,4 @@ env:
 install:
  - pip install -q --use-mirrors tox
 script:
- - tox
+ - tox --hashseed=noset
