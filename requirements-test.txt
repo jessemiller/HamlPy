@@ -2,3 +2,4 @@ pytest
 pygments
 markdown
 mock
+nose
