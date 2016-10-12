@@ -135,7 +135,9 @@ class Element(object):
 
                 # Parse string as dictionary
                 attributes_dict = eval(attribute_dict_string)
-                for k, v in attributes_dict.items():
+                for k in sorted(attributes_dict.keys()):
+                    v = attributes_dict[k]
+
                     if k != 'id' and k != 'class':
                         if isinstance(v, NoneType):
                             self.attributes += "%s " % (k,)

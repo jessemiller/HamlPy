@@ -49,7 +49,7 @@ class TestElement(object):
             eq_(s1['b'],None)
             eq_(s1['c'],2)
 
-            eq_(sut.attributes, "a='something' c='2' b")
+            eq_(sut.attributes, "a='something' b c='2'")
 
         def test_pulls_tag_name_off_front(self):
             sut = Element('%div.class')
