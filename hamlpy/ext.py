@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 try:
     import jinja2.ext
     _jinja2_available = True
-except ImportError, e:
+except ImportError as e:
     _jinja2_available = False
 
 import hamlpy

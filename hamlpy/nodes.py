@@ -12,13 +12,13 @@ try:
     from pygments.lexers import guess_lexer, PythonLexer
     from pygments.util import ClassNotFound
     _pygments_available = True
-except ImportError, e:
+except ImportError as e:
     _pygments_available = False
 
 try:
     from markdown import markdown
     _markdown_available = True
-except ImportError, e:
+except ImportError as e:
     _markdown_available = False
 
 class NotAvailableError(Exception):

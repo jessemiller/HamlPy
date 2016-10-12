@@ -147,7 +147,7 @@ def compile_file(fullpath, outfile_name, compiler_args):
         output = compiler.process_lines(haml_lines)
         outfile = codecs.open(outfile_name, 'w', encoding = 'utf-8')
         outfile.write(output)
-    except Exception, e:
+    except Exception as e:
         # import traceback
         print "Failed to compile %s -> %s\nReason:\n%s" % (fullpath, outfile_name, e)
         # print traceback.print_exc()
