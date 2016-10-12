@@ -2,7 +2,7 @@ from __future__ import print_function, unicode_literals
 
 import re
 import sys
-from StringIO import StringIO
+from io import StringIO
 
 from elements import Element
 
