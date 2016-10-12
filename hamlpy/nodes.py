@@ -520,7 +520,7 @@ class PythonFilterNode(FilterNode):
             buffer = StringIO()
             sys.stdout = buffer
             try:
-                exec compiled_code
+                exec(compiled_code)
             except Exception as e:
                 # Change exception message to let developer know that exception comes from
                 # a PythonFilterNode
