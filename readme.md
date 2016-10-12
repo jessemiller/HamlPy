@@ -16,7 +16,7 @@ Major differences with the original hamlpy:
 * ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones. https://github.com/Psycojoker/django-hamlpy#class-based-generic-views
 * test using py.test and CI using travis-ci https://travis-ci.org/Psycojoker/django-hamlpy
 
-You might also be interested in [hamlpy3](hamlpy3) which is a python 3 **only**
+You might also be interested in [hamlpy3](https://github.com/appknox/HamlPy3) which is a python 3 **only**
 version of hamlpy. Supporting both python 2 and python 3 in django-hamlpy would be great.
 
 Thanks a lot to Jesse Miller for his work, it really helped me a lot.
