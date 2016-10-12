@@ -1,3 +1,3 @@
 from __future__ import unicode_literals
 
-import templatize
+from . import templatize
