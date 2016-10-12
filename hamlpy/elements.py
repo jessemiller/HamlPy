@@ -1,4 +1,7 @@
+from __future__ import unicode_literals
+
 import re
+import six
 import sys
 from types import NoneType
 
@@ -68,7 +71,7 @@ class Element(object):
 
     def _parse_class_from_attributes_dict(self):
         clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
+        if not isinstance(clazz, six.string_types):
             clazz = ''
             for one_class in self.attributes_dict.get('class'):
                 clazz += ' ' + one_class
@@ -84,7 +87,7 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+        if isinstance(id_dict, six.string_types):
             text = '_' + id_dict
         else:
             text = ''
@@ -150,7 +153,10 @@ class Element(object):
                                                  "\nPlease use inline variables ={...} instead.\n-------------------\n")
 
                             attributes_dict[k] = v
-                            v = v.decode('utf-8')
+
+                            if isinstance(v, six.binary_type):
+                                v = v.decode('utf-8')
+
                             self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
                 self.attributes = self.attributes.strip()
             except Exception, e:

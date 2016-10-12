@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import unittest
 import os
 from hamlpy.ext import has_any_extension

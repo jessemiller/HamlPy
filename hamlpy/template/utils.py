@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import imp
 from os import listdir
 from os.path import dirname, splitext

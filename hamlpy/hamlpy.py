@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import unicode_literals
 
 from nodes import RootNode, HamlNode, create_node
 from optparse import OptionParser

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 # haml-watcher.py
 # Author: Christian Stefanescu (st.chris@gmail.com)
 #

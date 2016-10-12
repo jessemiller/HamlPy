@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
 import unittest
 import string
 from nose.tools import eq_, raises
