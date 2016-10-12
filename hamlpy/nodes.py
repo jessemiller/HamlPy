@@ -2,7 +2,11 @@ from __future__ import print_function, unicode_literals
 
 import re
 import sys
-from io import StringIO
+
+try:
+    from StringIO import StringIO  # required on Python 2 to accept non-unicode output
+except ImportError:
+    from io import StringIO
 
 from .elements import Element
 
