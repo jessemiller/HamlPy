@@ -31,7 +31,7 @@ class Compiler:
 
                     while line.count('{') - line.count('}') != -1:
                         try:
-                            line = line_iter.next()
+                            line = next(line_iter)
                         except StopIteration:
                             raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
                         node_lines += line
