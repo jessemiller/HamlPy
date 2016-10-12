@@ -3,7 +3,6 @@ from __future__ import print_function, unicode_literals
 import re
 import six
 import sys
-from types import NoneType
 
 
 class Element(object):
@@ -140,7 +139,7 @@ class Element(object):
                 attributes_dict = eval(attribute_dict_string)
                 for k, v in attributes_dict.items():
                     if k != 'id' and k != 'class':
-                        if isinstance(v, NoneType):
+                        if v is None:
                             self.attributes += "%s " % (k,)
                         elif isinstance(v, int) or isinstance(v, float):
                             self.attributes += "%s=%s " % (k, self.attr_wrap(v))

@@ -7,7 +7,7 @@ try:
 except ImportError as e:
     _jinja2_available = False
 
-import hamlpy
+from . import hamlpy
 import os
 import six
 

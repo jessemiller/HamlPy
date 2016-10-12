@@ -4,7 +4,7 @@ import re
 import sys
 from io import StringIO
 
-from elements import Element
+from .elements import Element
 
 try:
     from pygments import highlight

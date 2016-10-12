@@ -13,7 +13,7 @@ import os
 import os.path
 import time
 import hamlpy
-import nodes as hamlpynodes
+from . import nodes as hamlpynodes
 
 try:
     str = unicode
