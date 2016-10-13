@@ -1,41 +1,25 @@
 # Introduction
 
-Fork of https://github.com/jessemiller/HamlPy because it seems unmaintained
-since Aug 2013 and that it's not compatible with django>=1.9. 3 years seemed a
-reasonable time to consider forking.
+This is a tool for Django developers who want to use a Haml like syntax in their templates. It is not a template engine 
+in itself, but simply a compiler which will convert HamlPy files into templates that Django can understand.
 
-Since I don't want to redo the previous of no maintainership (and that I don't
-have a special interest in being the sole maintainer) I'm looking for 1-3 other
-people to co-maintained this project. Open a ticket if you are interested :)
+Haml is an incredible template language written in Ruby used extensively in the Rails community. You can read more about 
+it [here](http://www.haml-lang.com "Haml Home").
 
-Major differences with the original hamlpy:
+This project is a fork of [HamlPy](https://github.com/jessemiller/HamlPy) which hasn't been maintained since Aug 2013.
+The major new changes and features are:
 
-* the pypi release have been renamed "django-hamlpy" instead of "hamlpy"
-* compatible with django>=1.9 thanks to https://github.com/jessemiller/HamlPy/pull/166
-* single variables syntax is allowed in haml dict for single variables see [Attributes without values (Boolean attributes)](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes)
-* ship with a version of django class based generic views that looks for `*.haml` and `*.hamlpy` templates in additions of the classcal ones. https://github.com/Psycojoker/django-hamlpy#class-based-generic-views
-* test using py.test and CI using travis-ci https://travis-ci.org/Psycojoker/django-hamlpy
-
-You might also be interested in [hamlpy3](https://github.com/appknox/HamlPy3) which is a python 3 **only**
-version of hamlpy. Supporting both python 2 and python 3 in django-hamlpy would be great.
-
-Thanks a lot to Jesse Miller for his work, it really helped me a lot.
-
-# django-hamlpy
-
-HamlPy (pronounced "haml pie") is a tool for Django developers who want to use a Haml like syntax for their templates.
-HamlPy is not a template engine in itself but simply a compiler which will convert HamlPy files into templates that Django can understand.
-
-
-But wait, what is Haml?  Haml is an incredible template engine written in Ruby used a lot in the Rails community.  You can read more about it [here](http://www.haml-lang.com "Haml Home").
+* The PyPI package has been renamed to *django-hamlpy*
+* Support for Django 1.9+
+* Support for Python 2.7 and 3.4+
+* [Boolean attribute](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes) syntax is supported
+* Includes Django [class based generic views](https://github.com/Psycojoker/django-hamlpy#class-based-generic-views) that look for `*.haml` and `*.hamlpy` templates.
 
 ## Installing
 
-### Stable release
+The latest stable version can be installed using [pip](http://pypi.python.org/pypi/pip/):
 
-The latest stable version of HamlPy can be installed using [pip](http://pypi.python.org/pypi/pip/) (`pip install django-hamlpy`)
-
-### Development
+    pip install django-hamlpy
 
 The latest development version can be installed directly from GitHub:
 
@@ -259,16 +243,24 @@ class MyNewView(HamlExtensionTemplateView, ParentViewWithAGetTemplateNames):
 
 HamlPy currently:
 
-- has no configuration file.  which it should for a few reasons, like turning off what is autoescaped for example
+- has no configuration file, which it should for a few reasons, like turning off what is autoescaped for example
 - does not support some of the filters yet
 
 ## Contributing
 
-Very happy to have contributions to this project. Please write tests for any
-new features and always ensure the current tests pass. You can run the tests
-from the base direcotry by running
+Very happy to have contributions to this project and new co-maintainers. To get started you'll need to clone the
+project and install the dependencies:
 
-    virtualenv ve
-    source ve/bin/activate
+    virtualenv env
+    source env/bin/activate
     pip install -r requirements-test.txt
+
+Please write tests for any new features and always ensure the current tests pass. If you have both Python 2 and 3 
+installed, you can run the tests in both versions using Tox:
+
+    pip install tox
+    tox
+    
+To simply run the tests with your current Python version, use:
+
     cd hamlpy && py.test
