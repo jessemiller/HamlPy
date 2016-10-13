@@ -110,9 +110,9 @@ class Element(object):
         return ' '.join(attributes)
 
     def _escape_attribute_quotes(self, v):
-        '''
+        """
         Escapes quotes with a backslash, except those inside a Django tag
-        '''
+        """
         escaped = []
         inside_tag = False
         for i, _ in enumerate(v):

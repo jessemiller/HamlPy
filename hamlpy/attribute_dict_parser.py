@@ -108,28 +108,44 @@ class AttributeDictParser(AttributeParser):
 
     def __init__(self, s):
         AttributeParser.__init__(self, s, '}')
-        self.dict=OrderedDict()
+        self.dict = OrderedDict()
 
     def parse(self):
         while self.ptr<self.length-1:
             key = self.__parse_key()
+            val = None
+            is_bool_attr = False
 
             self.consume_whitespace()
-            # Multi-line HAML
-            if self.s[self.ptr] == '\n':
-                self.ptr+=1
-                val=self.__parse_haml()
-                self.consume_whitespace()
-            # Tuple/List parsing
-            elif self.s[self.ptr] in ('(', '['):
-                tl_parser = AttributeTupleAndListParser(self.s[self.ptr:])
-                val = tl_parser.parse()
-                self.ptr += tl_parser.ptr
-                self.consume_end_of_value()
-            else:
-                val = self.parse_value()
 
-            self.dict[key]=val
+            if self.s[self.ptr] == ':':  # python style : dict
+                self.ptr += 1
+            elif self.s[self.ptr:self.ptr + 2] == '=>':  # ruby style => dict
+                self.ptr += 2
+            elif self.s[self.ptr] in (',', '}'):  # valueless attribute
+                self.ptr += 1
+                is_bool_attr = True
+            else:
+                raise Exception("Expected colon/comma/arrow for end of key (after ...%s), but got '%s' instead"
+                                % (self.s[max(self.ptr - 10, 0):self.ptr], self.s[self.ptr]))
+
+            if not is_bool_attr:
+                self.consume_whitespace()
+                # Multi-line HAML
+                if self.s[self.ptr] == '\n':
+                    self.ptr += 1
+                    val = self.__parse_haml()
+                    self.consume_whitespace()
+                # Tuple/List parsing
+                elif self.s[self.ptr] in ('(', '['):
+                    tl_parser = AttributeTupleAndListParser(self.s[self.ptr:])
+                    val = tl_parser.parse()
+                    self.ptr += tl_parser.ptr
+                    self.consume_end_of_value()
+                else:
+                    val = self.parse_value()
+
+            self.dict[key] = val
         return self.dict
 
     def __parse_haml(self):
@@ -149,7 +165,7 @@ class AttributeDictParser(AttributeParser):
         return re.sub(re_leading_spaces, ' ', html).replace('\n', '').strip()
 
     def __parse_key(self):
-        '''Parse key variable and consume up to the colon'''
+        '''Parse key variable'''
 
         self.consume_whitespace(include_newlines=True)
 
@@ -170,16 +186,6 @@ class AttributeDictParser(AttributeParser):
                 raise Exception("Invalid key beginning at: %s" % self.s[self.ptr:])
             key = key_match.group(0)
             self.ptr += len(key)
-
-        # Consume colon
-        self.consume_whitespace()
-        if self.s[self.ptr]==':':
-            self.ptr+=1
-        # Ruby arrow
-        elif self.s[self.ptr:self.ptr+2]=='=>':
-            self.ptr+=2
-        else:
-            raise Exception("Expected colon for end of key (after ...%s), but got '%s' instead" % (self.s[max(self.ptr-10,0):self.ptr], self.s[self.ptr]))
 
         return key
 
