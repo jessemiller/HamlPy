@@ -1,3 +1,9 @@
+0.85 (unreleased)
+=================
+
+* python3 support by @rowanseymour https://github.com/Psycojoker/django-hamlpy/pull/1
+* tags attributes are ouputed by alphabetic order (this was needed to have deterministic tests) by @rowanseymour https://github.com/Psycojoker/django-hamlpy/pull/2
+
 0.84 (2016-09-25)
 =================
 

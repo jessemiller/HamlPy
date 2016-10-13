@@ -23,7 +23,7 @@ setup(
     url='http://github.com/psycojoker/django-hamlpy',
     license='MIT',
     test_suite='hamlpy.test',
-    install_requires=[],
+    install_requires=['six'],
     setup_requires=['mock'],
     entry_points={
         'console_scripts':

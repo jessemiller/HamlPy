@@ -3,3 +3,4 @@ pygments
 markdown
 mock
 nose
+six
