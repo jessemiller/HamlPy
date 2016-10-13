@@ -15,16 +15,6 @@ class TestElement(object):
             s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
             eq_(s2,r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s")
 
-        def test_attributes_parse(self):
-            sut = Element('')
-
-            s1 = sut._parse_attribute_dictionary('''{a:'something',"b":None,'c':2}''')
-            eq_(s1['a'],'something')
-            eq_(s1['b'],None)
-            eq_(s1['c'],2)
-
-            eq_(sut.attributes, "a='something' b c='2'")
-
         def test_pulls_tag_name_off_front(self):
             sut = Element('%div.class')
             eq_(sut.tag, 'div')

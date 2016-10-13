@@ -1,5 +1,9 @@
+from __future__ import print_function, unicode_literals
+
 import re
 import hamlpy
+
+from collections import OrderedDict
 
 # Valid characters for dictionary key
 re_key = re.compile(r'[a-zA-Z0-9-_]+')
@@ -104,7 +108,7 @@ class AttributeDictParser(AttributeParser):
 
     def __init__(self, s):
         AttributeParser.__init__(self, s, '}')
-        self.dict={}
+        self.dict=OrderedDict()
 
     def parse(self):
         while self.ptr<self.length-1:
