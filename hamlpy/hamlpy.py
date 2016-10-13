@@ -2,6 +2,7 @@
 from __future__ import print_function, unicode_literals
 
 from .nodes import RootNode, HamlNode, create_node
+
 from optparse import OptionParser
 
 VALID_EXTENSIONS=['haml', 'hamlpy']
