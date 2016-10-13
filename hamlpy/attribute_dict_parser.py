@@ -1,7 +1,6 @@
 from __future__ import print_function, unicode_literals
 
 import re
-import hamlpy
 
 from collections import OrderedDict
 
@@ -23,7 +22,6 @@ class AttributeParser:
         self.length=len(self.s)
         # Index of current character being read
         self.ptr=1
-
 
     def consume_whitespace(self, include_newlines=False):
         """Moves the pointer to the next non-whitespace character"""
@@ -99,7 +97,6 @@ class AttributeParser:
         return val
 
 
-
 class AttributeDictParser(AttributeParser):
     """
     Parses a Haml element's attribute dictionary string and
@@ -160,7 +157,8 @@ class AttributeDictParser(AttributeParser):
             lines.append(line)
             self.ptr += len(line)+1
 
-        h=hamlpy.Compiler()
+        from .hamlpy import Compiler
+        h = Compiler()
         html = h.process_lines(lines)
         return re.sub(re_leading_spaces, ' ', html).replace('\n', '').strip()
 

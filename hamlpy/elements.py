@@ -1,10 +1,8 @@
 from __future__ import print_function, unicode_literals
 
 import re
-import six
-import sys
 
-from attribute_dict_parser import AttributeDictParser
+from .attribute_dict_parser import AttributeDictParser
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -101,11 +99,11 @@ class Element(object):
         for k, v in dict.items():
             if k != 'id' and k != 'class':
                 # Boolean attributes
-                if v==None:
-                    attributes.append( "%s" % (k,))
+                if v is None:
+                    attributes.append("%s" % (k,))
                 else:
                     value = self._escape_attribute_quotes(v)
-                    attributes.append( "%s=%s" % (k, self.attr_wrap(value)))
+                    attributes.append("%s=%s" % (k, self.attr_wrap(value)))
 
         return ' '.join(attributes)
 
