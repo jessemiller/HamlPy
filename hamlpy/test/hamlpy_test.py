@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function, unicode_literals
+
 import unittest
 import string
 from nose.tools import eq_, raises
@@ -296,7 +298,7 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
 
     def test_python_filter(self):
-        haml = ":python\n   for i in range(0, 5): print \"<p>item \%s</p>\" % i"
+        haml = ":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)"
         html = '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>\n'
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)

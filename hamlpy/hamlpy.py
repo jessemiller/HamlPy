@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+from __future__ import print_function, unicode_literals
 
-from nodes import RootNode, HamlNode, create_node
+from .nodes import RootNode, HamlNode, create_node
 from optparse import OptionParser
 
 VALID_EXTENSIONS=['haml', 'hamlpy']
@@ -30,7 +31,7 @@ class Compiler:
 
                     while line.count('{') - line.count('}') != -1:
                         try:
-                            line = line_iter.next()
+                            line = next(line_iter)
                         except StopIteration:
                             raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
                         node_lines += line
@@ -65,7 +66,7 @@ def convert_files():
     (options, args) = parser.parse_args()
 
     if len(args) < 1:
-        print "Specify the input file as the first argument."
+        print("Specify the input file as the first argument.")
     else:
         infile = args[0]
         haml_lines = codecs.open(infile, 'r', encoding='utf-8').read().splitlines()
@@ -77,7 +78,7 @@ def convert_files():
             outfile = codecs.open(args[1], 'w', encoding='utf-8')
             outfile.write(output)
         else:
-            print output
+            print(output)
 
 if __name__ == '__main__':
     convert_files()

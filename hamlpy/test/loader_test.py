@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals
+
 import unittest
 import mock
 from hamlpy.hamlpy import Compiler
@@ -5,7 +7,7 @@ from hamlpy.hamlpy import Compiler
 try:
     from django.conf import settings
     settings.configure(DEBUG=True, TEMPLATE_DEBUG=True)
-except ImportError, e:
+except ImportError as e:
     pass
 
 from hamlpy.template.loaders import get_haml_loader, TemplateDoesNotExist

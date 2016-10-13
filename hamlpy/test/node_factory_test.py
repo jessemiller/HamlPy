@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals
+
 from hamlpy import nodes
 
 class TestNodeFactory():

@@ -1,3 +1,5 @@
+from __future__ import print_function, unicode_literals
+
 """
 This module decorates the django templatize function to parse haml templates
 before the translation utility extracts tags from it.
@@ -8,7 +10,7 @@ before the translation utility extracts tags from it.
 try:
     from django.utils.translation import trans_real
     _django_available = True
-except ImportError, e:
+except ImportError as e:
     _django_available = False
 
 import hamlpy

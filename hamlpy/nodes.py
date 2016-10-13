@@ -1,8 +1,14 @@
+from __future__ import print_function, unicode_literals
+
 import re
 import sys
-from StringIO import StringIO
 
-from elements import Element
+try:
+    from StringIO import StringIO  # required on Python 2 to accept non-unicode output
+except ImportError:
+    from io import StringIO
+
+from .elements import Element
 
 try:
     from pygments import highlight
@@ -10,13 +16,13 @@ try:
     from pygments.lexers import guess_lexer, PythonLexer
     from pygments.util import ClassNotFound
     _pygments_available = True
-except ImportError, e:
+except ImportError as e:
     _pygments_available = False
 
 try:
     from markdown import markdown
     _markdown_available = True
-except ImportError, e:
+except ImportError as e:
     _markdown_available = False
 
 class NotAvailableError(Exception):
@@ -518,7 +524,7 @@ class PythonFilterNode(FilterNode):
             buffer = StringIO()
             sys.stdout = buffer
             try:
-                exec compiled_code
+                exec(compiled_code)
             except Exception as e:
                 # Change exception message to let developer know that exception comes from
                 # a PythonFilterNode

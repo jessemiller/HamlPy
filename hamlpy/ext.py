@@ -1,18 +1,21 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
+
 try:
     import jinja2.ext
     _jinja2_available = True
-except ImportError, e:
+except ImportError as e:
     _jinja2_available = False
 
-import hamlpy
+from . import hamlpy
 import os
+import six
 
 HAML_FILE_NAME_EXTENSIONS = ['haml', 'hamlpy']
 
 
 def clean_extension(file_ext):
-    if not isinstance(file_ext, basestring):
+    if not isinstance(file_ext, six.string_types):
         raise Exception('Wrong file extension format: %r' % file_ext)
     if len(file_ext) > 1 and file_ext.startswith('.'):
         file_ext = file_ext[1:]
