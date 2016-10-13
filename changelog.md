@@ -1,4 +1,4 @@
-0.85 (unreleased)
+0.85 (2016-10-13)
 =================
 
 * python3 support by @rowanseymour https://github.com/Psycojoker/django-hamlpy/pull/1
