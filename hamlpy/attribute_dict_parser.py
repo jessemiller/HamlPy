@@ -114,9 +114,9 @@ class AttributeDictParser(AttributeParser):
 
     def parse(self):
         while self.ptr < (self.length - 1):
-            key = self.__parse_key()
-            val = None
             is_bool_attr = False
+
+            key = self.__parse_key()
 
             self.consume_whitespace()
 
@@ -149,6 +149,8 @@ class AttributeDictParser(AttributeParser):
 
                 else:
                     val = self.parse_value()
+            else:
+                val = None
 
             self.dict[key] = val
 
