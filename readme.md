@@ -8,7 +8,9 @@ in itself, but simply a compiler which will convert HamlPy files into templates 
 Haml is an incredible template language written in Ruby used extensively in the Rails community. You can read more about 
 it [here](http://www.haml-lang.com "Haml Home").
 
-This project is a fork of [HamlPy](https://github.com/jessemiller/HamlPy) which hasn't been maintained since Aug 2013.
+This project is a fork of the no longer maintained [HamlPy](https://github.com/jessemiller/HamlPy), and wouldn't exist 
+without all of hard work by Jesse Miller and others, for which we're very grateful.
+
 The major new changes and features are:
 
 * The PyPI package has been renamed to *django-hamlpy*
