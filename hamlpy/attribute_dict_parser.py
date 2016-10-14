@@ -170,8 +170,7 @@ class AttributeDictParser(AttributeParser):
             self.ptr += len(line) + 1
 
         from .hamlpy import Compiler
-        h = Compiler()
-        html = h.process_lines(lines)
+        html = Compiler().process_lines(lines)
         return re.sub(re_leading_spaces, ' ', html).replace('\n', '').strip()
 
     def __parse_key(self):
