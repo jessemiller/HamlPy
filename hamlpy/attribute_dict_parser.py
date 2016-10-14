@@ -95,7 +95,7 @@ class AttributeParser:
                 self.ptr += len(val)
 
         if val is False:
-            raise Exception("Failed to parse dictionary value beginning at: %s" % self.s[self.ptr:])
+            raise Exception("Failed to parse dictionary value beginning at: '%s'. Was expecting a string, None or a number." % self.s[self.ptr:])
 
         self.consume_end_of_value()
 
@@ -128,7 +128,7 @@ class AttributeDictParser(AttributeParser):
                 self.ptr += 1
                 is_bool_attr = True
             else:
-                raise Exception("Expected colon/comma/arrow for end of key (after ...%s), but got '%s' instead"
+                raise Exception("Expected colon ':'/comma ','/arrow '=>' for end of key (after ...%s), but got '%s' instead"
                                 % (self.s[max(self.ptr - 10, 0):self.ptr], self.s[self.ptr]))
 
             if not is_bool_attr:
