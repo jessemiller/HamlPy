@@ -1,3 +1,8 @@
+0.86 (unreleased)
+=================
+
+* add call and macro tags to the self-closing dict by @andreif
+
 0.85 (2016-10-13)
 =================
 
