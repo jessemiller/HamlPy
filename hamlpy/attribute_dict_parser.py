@@ -108,8 +108,8 @@ class AttributeDictParser(AttributeParser):
     provides a Python dictionary of the element attributes
     """
 
-    def __init__(self, s):
-        AttributeParser.__init__(self, s, '}')
+    def __init__(self, data):
+        AttributeParser.__init__(self, data, terminator='}')
         self.dict = OrderedDict()
 
     def parse(self):
