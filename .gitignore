@@ -1,6 +1,8 @@
 .coverage
 cover/
 *.pyc
+*.lprof
+*.prof
 dist
 build
 hamlpy.egg-info
