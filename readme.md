@@ -257,7 +257,8 @@ project and install the dependencies:
 
     virtualenv env
     source env/bin/activate
-    pip install -r requirements-test.txt
+    pip install -r requirements/base.txt
+    pip install -r requirements/tests.txt
 
 Please write tests for any new features and always ensure the current tests pass. If you have both Python 2 and 3 
 installed, you can run the tests in both versions using Tox:
