@@ -1,4 +1,9 @@
-0.85 (unreleased)
+0.86 (unreleased)
+=================
+
+* add call and macro tags to the self-closing dict by @andreif
+
+0.85 (2016-10-13)
 =================
 
 * python3 support by @rowanseymour https://github.com/Psycojoker/django-hamlpy/pull/1
