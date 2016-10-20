@@ -3,7 +3,6 @@ from __future__ import print_function, unicode_literals
 import unittest
 
 from hamlpy.elements import Element
-from nose.tools import eq_
 
 
 class ElementTest(unittest.TestCase):
@@ -12,41 +11,41 @@ class ElementTest(unittest.TestCase):
         sut = Element('')
 
         s1 = sut._escape_attribute_quotes('''{% url 'blah' %}''')
-        eq_(s1, '''{% url 'blah' %}''')
+        assert s1 == '''{% url 'blah' %}'''
 
         s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
-        eq_(s2, r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s")
+        assert s2 == r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s"
 
     def test_pulls_tag_name_off_front(self):
         sut = Element('%div.class')
-        eq_(sut.tag, 'div')
+        assert sut.tag == 'div'
 
     def test_default_tag_is_div(self):
         sut = Element('.class#id')
-        eq_(sut.tag, 'div')
+        assert sut.tag == 'div'
 
     def test_parses_id(self):
         sut = Element('%div#someId.someClass')
-        eq_(sut.id, 'someId')
+        assert sut.id == 'someId'
 
         sut = Element('#someId.someClass')
-        eq_(sut.id, 'someId')
+        assert sut.id == 'someId'
 
     def test_no_id_gives_empty_string(self):
         sut = Element('%div.someClass')
-        eq_(sut.id, '')
+        assert sut.id == ''
 
     def test_parses_class(self):
         sut = Element('%div#someId.someClass')
-        eq_(sut.classes, 'someClass')
+        assert sut.classes == 'someClass'
 
     def test_properly_parses_multiple_classes(self):
         sut = Element('%div#someId.someClass.anotherClass')
-        eq_(sut.classes, 'someClass anotherClass')
+        assert sut.classes == 'someClass anotherClass'
 
     def test_no_class_gives_empty_string(self):
         sut = Element('%div#someId')
-        eq_(sut.classes, '')
+        assert sut.classes == ''
 
     def test_attribute_dictionary_properly_parses(self):
         sut = Element("%html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}")
@@ -62,11 +61,11 @@ class ElementTest(unittest.TestCase):
 
     def test_attribute_merges_ids_properly(self):
         sut = Element("%div#someId{'id':'hello'}")
-        eq_(sut.id, 'someId_hello')
+        assert sut.id == 'someId_hello'
 
     def test_can_use_arrays_for_id_in_attributes(self):
         sut = Element("%div#someId{'id':['more', 'andMore']}")
-        eq_(sut.id, 'someId_more_andMore')
+        assert sut.id == 'someId_more_andMore'
 
     def test_self_closes_a_self_closing_tag(self):
         sut = Element(r"%br")
@@ -86,11 +85,11 @@ class ElementTest(unittest.TestCase):
 
     def test_knows_when_its_not_django_tag(self):
         sut = Element("%div Some Text")
-        assert sut.django_variable == False
+        assert sut.django_variable is False
 
     def test_grabs_inline_tag_content(self):
         sut = Element("%div Some Text")
-        eq_(sut.inline_content, 'Some Text')
+        assert sut.inline_content == 'Some Text'
 
     def test_multiline_attributes(self):
         sut = Element("""%link{'rel': 'stylesheet', 'type': 'text/css',
