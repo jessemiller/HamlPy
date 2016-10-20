@@ -277,10 +277,6 @@ class ElementNode(HamlNode):
     def _render_before(self, element):
         '''Render opening tag and inline content'''
         start = ["%s<%s" % (self.spaces, element.tag)]
-        if element.id:
-            start.append(" id=%s" % self.element.attr_wrap(self.replace_inline_variables(element.id)))
-        if element.classes:
-            start.append(" class=%s" % self.element.attr_wrap(self.replace_inline_variables(element.classes)))
         if element.attributes:
             start.append(' ' + self.replace_inline_variables(element.attributes))
 
@@ -511,9 +507,7 @@ class PlainFilterNode(FilterNode):
         self.empty_node = True
 
     def _render(self):
-        if self.children:
-            first_indentation = self.children[0].indentation
-        self._render_children_as_plain_text()
+        self._render_children_as_plain_text(remove_indentation=True)
 
 class PythonFilterNode(FilterNode):
     def _render(self):
