@@ -13,22 +13,24 @@ re_line = re.compile(r'.*')
 re_sq = re.compile(r'\'([^\'\\]|\\.)*\'')
 re_dq = re.compile(r'\"([^\"\\]|\\.)*\"')
 
+
 class AttributeParser:
     """Parses comma-separated HamlPy attribute values"""
 
     def __init__(self, data, terminator):
-        self.terminator=terminator
+        self.terminator = terminator
         self.s = data.lstrip()
-        self.length=len(self.s)
+        self.length = len(self.s)
         # Index of current character being read
-        self.ptr=1
+        self.ptr = 1
 
     def consume_whitespace(self, include_newlines=False):
         """Moves the pointer to the next non-whitespace character"""
         whitespace = (' ', '\t', '\r', '\n') if include_newlines else (' ', '\t')
 
-        while self.ptr<self.length and self.s[self.ptr] in whitespace:
-            self.ptr+=1
+        while self.ptr < self.length and self.s[self.ptr] in whitespace:
+            self.ptr += 1
+
         return self.ptr
 
     def consume_end_of_value(self):
@@ -39,7 +41,7 @@ class AttributeParser:
                 self.ptr += 1
                 self.consume_whitespace()
             else:
-                raise Exception("Expected comma for end of value (after ...%s), but got '%s' instead" % (self.s[max(self.ptr-10,0):self.ptr], self.s[self.ptr]))
+                raise Exception("Expected comma for end of value (after ...%s), but got '%s' instead" % (self.s[max(self.ptr - 10, 0):self.ptr], self.s[self.ptr]))
 
     def read_until_unescaped_character(self, closing):
         """
@@ -49,16 +51,16 @@ class AttributeParser:
 
         # Hardcoding some closing characters for efficiency
         # (tried a caching approach but it was too slow)
-        if closing=="'":
-            r=re_sq
-        elif closing=='"':
-            r=re_dq
+        if closing == "'":
+            r = re_sq
+        elif closing == '"':
+            r = re_dq
         else:
             r = re.compile(r'%(c)s([^%(c)s\\]|\\.)*%(c)s' % dict(c=closing))
 
-        m=r.match(self.s, pos=self.ptr)
+        m = r.match(self.s, pos=self.ptr)
         if m is None:
-            raise Exception ("Closing character not found")
+            raise Exception("Closing character not found")
 
         value = m.group(0)
         self.ptr += len(value)
@@ -70,27 +72,30 @@ class AttributeParser:
         self.consume_whitespace()
 
         # Invalid initial value
-        val=False
-        if self.s[self.ptr]==self.terminator:
+        val = False
+
+        if self.s[self.ptr] == self.terminator:
             return val
 
         # String
-        if self.s[self.ptr] in ("'",'"'):
-            quote=self.s[self.ptr]
+        if self.s[self.ptr] in ("'", '"'):
+            quote = self.s[self.ptr]
             val = self.read_until_unescaped_character(quote)
+
         # Boolean Attributes
-        elif self.s[self.ptr:self.ptr+4] in ['none','None']:
+        elif self.s[self.ptr:self.ptr + 4].lower() == 'none':
             val = None
-            self.ptr+=4
+            self.ptr += 4
+
         # Integers and floats
         else:
-            match=re_nums.match(self.s, pos=self.ptr)
+            match = re_nums.match(self.s, pos=self.ptr)
             if match:
                 val = match.group(0)
                 self.ptr += len(val)
 
         if val is False:
-            raise Exception("Failed to parse dictionary value beginning at: %s" % self.s[self.ptr:])
+            raise Exception("Failed to parse dictionary value beginning at: '%s'. Was expecting a string, None or a number." % self.s[self.ptr:])
 
         self.consume_end_of_value()
 
@@ -103,15 +108,15 @@ class AttributeDictParser(AttributeParser):
     provides a Python dictionary of the element attributes
     """
 
-    def __init__(self, s):
-        AttributeParser.__init__(self, s, '}')
+    def __init__(self, data):
+        AttributeParser.__init__(self, data, terminator='}')
         self.dict = OrderedDict()
 
     def parse(self):
-        while self.ptr<self.length-1:
-            key = self.__parse_key()
-            val = None
+        while self.ptr < (self.length - 1):
             is_bool_attr = False
+
+            key = self.__parse_key()
 
             self.consume_whitespace()
 
@@ -123,26 +128,32 @@ class AttributeDictParser(AttributeParser):
                 self.ptr += 1
                 is_bool_attr = True
             else:
-                raise Exception("Expected colon/comma/arrow for end of key (after ...%s), but got '%s' instead"
+                raise Exception("Expected colon ':'/comma ','/arrow '=>' for end of key (after ...%s), but got '%s' instead"
                                 % (self.s[max(self.ptr - 10, 0):self.ptr], self.s[self.ptr]))
 
             if not is_bool_attr:
                 self.consume_whitespace()
+
                 # Multi-line HAML
                 if self.s[self.ptr] == '\n':
                     self.ptr += 1
                     val = self.__parse_haml()
                     self.consume_whitespace()
+
                 # Tuple/List parsing
                 elif self.s[self.ptr] in ('(', '['):
                     tl_parser = AttributeTupleAndListParser(self.s[self.ptr:])
                     val = tl_parser.parse()
                     self.ptr += tl_parser.ptr
                     self.consume_end_of_value()
+
                 else:
                     val = self.parse_value()
+            else:
+                val = None
 
             self.dict[key] = val
+
         return self.dict
 
     def __parse_haml(self):
@@ -150,16 +161,16 @@ class AttributeDictParser(AttributeParser):
             r = re_whitespace.match(self.s, pos=self.ptr)
             return len(r.group(0))
 
-        initial_indentation=whitespace_length()
+        initial_indentation = whitespace_length()
         lines = []
+
         while whitespace_length() >= initial_indentation:
-            line=re_line.match(self.s, pos=self.ptr).group(0)
+            line = re_line.match(self.s, pos=self.ptr).group(0)
             lines.append(line)
-            self.ptr += len(line)+1
+            self.ptr += len(line) + 1
 
         from .hamlpy import Compiler
-        h = Compiler()
-        html = h.process_lines(lines)
+        html = Compiler().process_lines(lines)
         return re.sub(re_leading_spaces, ' ', html).replace('\n', '').strip()
 
     def __parse_key(self):
@@ -168,11 +179,11 @@ class AttributeDictParser(AttributeParser):
         self.consume_whitespace(include_newlines=True)
 
         if self.s[self.ptr] == ':':
-            self.ptr+=1
+            self.ptr += 1
 
         # Consume opening quote
-        quote=None
-        if self.s[self.ptr] in ("'",'"'):
+        quote = None
+        if self.s[self.ptr] in ("'", '"'):
             quote = self.s[self.ptr]
 
         # Extract key
@@ -187,27 +198,28 @@ class AttributeDictParser(AttributeParser):
 
         return key
 
+
 class AttributeTupleAndListParser(AttributeParser):
+
     def __init__(self, s):
-        if s[0]=='(':
+        if s[0] == '(':
             terminator = ')'
-        elif s[0]=='[':
+        elif s[0] == '[':
             terminator = ']'
         AttributeParser.__init__(self, s, terminator)
 
     def parse(self):
-        lst=[]
+        lst = []
 
-        val=True
+        val = True
         while val != False:
             val = self.parse_value()
             if val != False:
                 lst.append(val)
 
-        self.ptr +=1
+        self.ptr += 1
 
-        if self.terminator==')':
+        if self.terminator == ')':
             return tuple(lst)
         else:
             return lst
-

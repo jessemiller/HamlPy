@@ -4,6 +4,7 @@ import re
 
 from .attribute_dict_parser import AttributeDictParser
 
+
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
 
@@ -45,7 +46,7 @@ class Element(object):
     def _parse_haml(self):
         split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
 
-        attribute_parser=AttributeDictParser(split_tags.get('attributes'))
+        attribute_parser = AttributeDictParser(split_tags.get('attributes'))
         self.attributes_dict = attribute_parser.parse()
 
         self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
@@ -89,7 +90,7 @@ class Element(object):
             return id_dict
 
     def _render_attributes(self, dict, id, classes):
-        attributes=[]
+        attributes = []
 
         if len(id) > 0:
             attributes.append("id=%s" % self.attr_wrap(self.id))
