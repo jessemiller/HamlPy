@@ -1,10 +1,12 @@
 from __future__ import print_function, unicode_literals
 
-from nose.tools import eq_
+import unittest
 
 from hamlpy.elements import Element
+from nose.tools import eq_
 
-class TestElement(object):
+
+class ElementTest(unittest.TestCase):
 
         def test_escape_attribute_quotes(self):
             sut = Element('')

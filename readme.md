@@ -268,4 +268,9 @@ installed, you can run the tests in both versions using Tox:
     
 To simply run the tests with your current Python version, use:
 
-    cd hamlpy && py.test
+    py.test hamlpy
+    
+    
+To run the performance test, use:
+
+    python -m hamlpy.test.test_templates
