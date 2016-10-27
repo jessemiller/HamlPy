@@ -260,16 +260,9 @@ project and install the dependencies:
     pip install -r requirements/base.txt
     pip install -r requirements/tests.txt
 
-Please write tests for any new features and always ensure the current tests pass. If you have both Python 2 and 3 
-installed, you can run the tests in both versions using Tox:
+Please write tests for any new features and always ensure the current tests pass. To run the tests, use:
 
-    pip install tox
-    tox
-    
-To simply run the tests with your current Python version, use:
-
-    py.test hamlpy
-    
+    py.test hamlpy  
     
 To run the performance test, use:
 
