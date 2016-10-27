@@ -1,6 +1,7 @@
 # Introduction
 
-![Build Status](https://travis-ci.org/Psycojoker/django-hamlpy.svg?branch=master)
+[![Build Status](https://travis-ci.org/Psycojoker/django-hamlpy.svg?branch=master)](https://travis-ci.org/Psycojoker/django-hamlpy)
+[![Coverage Status](https://coveralls.io/repos/github/Psycojoker/django-hamlpy/badge.svg?branch=master)](https://coveralls.io/github/Psycojoker/django-hamlpy?branch=master)
 
 This is a tool for Django developers who want to use a Haml like syntax in their templates. It is not a template engine 
 in itself, but simply a compiler which will convert HamlPy files into templates that Django can understand.
