@@ -1,6 +1,7 @@
 from __future__ import print_function, unicode_literals
 
-import re
+import regex
+import six
 
 from .attribute_dict_parser import AttributeDictParser
 
@@ -13,23 +14,24 @@ class Element(object):
     ELEMENT = '%'
     ID = '#'
     CLASS = '.'
+    DEFAULT_TAG = 'div'
 
-    HAML_REGEX = re.compile(r"""
-    (?P<tag>%\w+(\:\w+)?)?
-    (?P<id>\#[\w-]*)?
-    (?P<class>\.[\w\.-]*)*
-    (?P<attributes>\{.*\})?
-    (?P<nuke_outer_whitespace>\>)?
-    (?P<nuke_inner_whitespace>\<)?
-    (?P<selfclose>/)?
-    (?P<django>=)?
-    (?P<inline>[^\w\.#\{].*)?
-    """, re.X | re.MULTILINE | re.DOTALL | re.UNICODE)
+    ELEMENT_REGEX = regex.compile(r"""
+        (?P<tag>%\w+(\:\w+)?)?
+        (?P<id_and_classes>(\#|\.)\w[\w-]*)*
+        (?P<attributes>\{.*\})?
+        (?P<nuke_outer_whitespace>\>)?
+        (?P<nuke_inner_whitespace>\<)?
+        (?P<selfclose>/)?
+        (?P<django>=)?
+        (?P<inline>[^\w\.#\{].*)?
+        """, regex.V1 | regex.X | regex.MULTILINE | regex.DOTALL | regex.UNICODE)
 
     def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
         self.attr_wrapper = attr_wrapper
-        self.tag = None
+
+        self.tag = self.DEFAULT_TAG
         self.id = None
         self.classes = None
         self.attributes = ''
@@ -38,56 +40,59 @@ class Element(object):
         self.nuke_inner_whitespace = False
         self.nuke_outer_whitespace = False
         self.inline_content = ''
+
         self._parse_haml()
 
     def attr_wrap(self, value):
         return '%s%s%s' % (self.attr_wrapper, value, self.attr_wrapper)
 
     def _parse_haml(self):
-        split_tags = self.HAML_REGEX.search(self.haml).groupdict('')
+        components = self.ELEMENT_REGEX.search(self.haml).capturesdict()
 
-        attribute_parser = AttributeDictParser(split_tags.get('attributes'))
-        self.attributes_dict = attribute_parser.parse()
+        if components['tag']:
+            self.tag = components.get('tag')[0].lstrip(self.ELEMENT)
 
-        self.tag = split_tags.get('tag').strip(self.ELEMENT) or 'div'
-        self.id = self._parse_id(split_tags.get('id'))
-        self.classes = self._parse_classes(split_tags.get('class'))
-        self.self_close = split_tags.get('selfclose') or self.tag in self.self_closing_tags
+        if components['attributes']:
+            self.attributes_dict = AttributeDictParser(components.get('attributes')[0]).parse()
+        else:
+            self.attributes_dict = {}
+
+        # parse ids and classes from the components
+        ids = []
+        classes = []
+
+        for id_or_class in components.get('id_and_classes'):
+            prefix = id_or_class[0]
+            name = id_or_class[1:]
+            if prefix == self.ID:
+                ids.append(name)
+            elif prefix == self.CLASS:
+                classes.append(name)
+
+        # include ids and classes in the attribute dictionary
+        id_from_attrs = self.attributes_dict.get('id')
+        if isinstance(id_from_attrs, tuple) or isinstance(id_from_attrs, list):
+            ids += id_from_attrs
+        elif isinstance(id_from_attrs, six.string_types):
+            ids += [id_from_attrs]
+
+        class_from_attrs = self.attributes_dict.get('class')
+        if isinstance(class_from_attrs, tuple) or isinstance(class_from_attrs, list):
+            classes += class_from_attrs
+        elif isinstance(class_from_attrs, six.string_types):
+            classes += [class_from_attrs]
+
+        self.id = '_'.join(ids)
+        self.classes = ' '.join(classes)
+
+        self.self_close = components.get('selfclose') or (self.tag in self.self_closing_tags)
+
+        self.nuke_inner_whitespace = bool(components.get('nuke_inner_whitespace'))
+        self.nuke_outer_whitespace = bool(components.get('nuke_outer_whitespace'))
+        self.django_variable = bool(components.get('django'))
+        self.inline_content = components.get('inline')[0].strip() if components.get('inline') else ''
 
         self.attributes = self._render_attributes(self.attributes_dict, self.id, self.classes)
-
-        self.nuke_inner_whitespace = split_tags.get('nuke_inner_whitespace') != ''
-        self.nuke_outer_whitespace = split_tags.get('nuke_outer_whitespace') != ''
-        self.django_variable = split_tags.get('django') != ''
-        self.inline_content = split_tags.get('inline').strip()
-
-    def _parse_classes(self, classes):
-        tag_classes = classes.lstrip(self.CLASS).replace('.', ' ')
-        dict_classes = self._parse_class_from_attributes_dict()
-        return ('%s %s' % (tag_classes, dict_classes)).strip()
-
-    def _parse_class_from_attributes_dict(self):
-        cla = self.attributes_dict.get('class', '')
-        if isinstance(cla, list) or isinstance(cla, tuple):
-            return ' '.join(cla)
-        else:
-            return cla.strip()
-
-    def _parse_id(self, id_haml):
-        id_text = id_haml.strip(self.ID)
-        if 'id' in self.attributes_dict:
-            if id_text:
-                id_text += '_'
-            id_text += self._parse_id_dict(self.attributes_dict['id'])
-        return id_text
-
-    def _parse_id_dict(self, id_dict):
-        id_dict = self.attributes_dict.get('id')
-
-        if isinstance(id_dict, tuple) or isinstance(id_dict, list):
-            return '_'.join(id_dict)
-        else:
-            return id_dict
 
     def _render_attributes(self, dict, id, classes):
         attributes = []
