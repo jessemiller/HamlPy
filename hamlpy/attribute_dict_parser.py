@@ -1,6 +1,7 @@
 from __future__ import print_function, unicode_literals
 
 import re
+import ast
 
 from collections import OrderedDict
 
@@ -66,7 +67,7 @@ class AttributeParser:
         self.ptr += len(value)
 
         # Return all values in unicode
-        return eval('u' + value)
+        return ast.literal_eval('u' + value)
 
     def parse_value(self):
         self.consume_whitespace()
