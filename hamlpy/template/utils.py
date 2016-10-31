@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import imp
 from os import listdir
 from os.path import dirname, splitext
@@ -5,7 +7,7 @@ from os.path import dirname, splitext
 try:
   from django.template import loaders
   _django_available = True
-except ImportError, e:
+except ImportError as e:
   _django_available = False
 
 MODULE_EXTENSIONS = tuple([suffix[0] for suffix in imp.get_suffixes()])

@@ -1,6 +1,11 @@
+from __future__ import print_function, unicode_literals
+
+import unittest
+
 from hamlpy import nodes
 
-class TestNodeFactory():
+
+class NodeFactoryTest(unittest.TestCase):
     
     def test_creates_element_node_with_percent(self):
         node = nodes.create_node('%div')
@@ -63,4 +68,3 @@ class TestNodeFactory():
     def test_slash_with_if_creates_a_conditional_comment_node(self):
         node = nodes.create_node('/[if IE 5]')
         assert isinstance(node, nodes.ConditionalCommentNode)
-        

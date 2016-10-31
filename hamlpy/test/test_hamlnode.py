@@ -1,7 +1,11 @@
+from __future__ import print_function, unicode_literals
+
 import unittest
+
 from hamlpy import nodes
 
-class TestElementNode(unittest.TestCase):
+
+class ElementNodeTest(unittest.TestCase):
     def test_calculates_indentation_properly(self):
         no_indentation = nodes.ElementNode('%div')
         self.assertEqual(0, no_indentation.indentation)
@@ -30,7 +34,7 @@ class TestElementNode(unittest.TestCase):
 
         space_tab = nodes.HamlNode(' 	%div')
         self.assertEqual('  ', space_tab.spaces)
-			
+
     def test_lines_are_always_stripped_of_whitespace(self):
         some_space = nodes.ElementNode('   %div')
         self.assertEqual('%div', some_space.haml)
@@ -64,11 +68,8 @@ class TestElementNode(unittest.TestCase):
         
         self.assertEqual(3, len(start.children))
 
-    def test_html_indentation_vs_haml_indentation(self):
-        pass
-
     def test_node_parent_function(self):
-        root=nodes.ElementNode('%div.a')
+        root = nodes.ElementNode('%div.a')
         elements = [
             {'node': nodes.ElementNode('  %div.b'), 'expected_parent': 'root'},
             {'node': nodes.ElementNode('  %div.c'), 'expected_parent': 'root'},
@@ -80,6 +81,3 @@ class TestElementNode(unittest.TestCase):
         for el in elements:
             self.assertEqual(root.parent_of(el['node']), eval(el['expected_parent']))
             root.add_node(el['node'])
-
-if __name__ == "__main__":
-    unittest.main()

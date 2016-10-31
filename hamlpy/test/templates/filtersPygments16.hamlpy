@@ -1,7 +1,0 @@
-:highlight
-    print "hi"
-
-    if x:
-        print "y":
-    else:
-        print "z":

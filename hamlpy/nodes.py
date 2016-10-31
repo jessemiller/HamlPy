@@ -1,21 +1,28 @@
+from __future__ import print_function, unicode_literals
+
 import re
 import sys
-from StringIO import StringIO
 
-from elements import Element
+try:
+    from StringIO import StringIO  # required on Python 2 to accept non-unicode output
+except ImportError:
+    from io import StringIO
+
+from .elements import Element
 
 try:
     from pygments import highlight
     from pygments.formatters import HtmlFormatter
-    from pygments.lexers import guess_lexer
+    from pygments.lexers import guess_lexer, PythonLexer
+    from pygments.util import ClassNotFound
     _pygments_available = True
-except ImportError, e:
+except ImportError as e:
     _pygments_available = False
 
 try:
     from markdown import markdown
     _markdown_available = True
-except ImportError, e:
+except ImportError as e:
     _markdown_available = False
 
 class NotAvailableError(Exception):
@@ -270,10 +277,6 @@ class ElementNode(HamlNode):
     def _render_before(self, element):
         '''Render opening tag and inline content'''
         start = ["%s<%s" % (self.spaces, element.tag)]
-        if element.id:
-            start.append(" id=%s" % self.element.attr_wrap(self.replace_inline_variables(element.id)))
-        if element.classes:
-            start.append(" class=%s" % self.element.attr_wrap(self.replace_inline_variables(element.classes)))
         if element.attributes:
             start.append(' ' + self.replace_inline_variables(element.attributes))
 
@@ -440,6 +443,8 @@ class TagNode(HamlNode):
                     'comment': 'endcomment',
                     'cache': 'endcache',
                     'localize': 'endlocalize',
+                    'call': 'endcall',
+                    'macro': 'endmacro',
                     'compress': 'endcompress'}
     may_contain = {'if':['else', 'elif'],
                    'ifchanged':'else',
@@ -502,9 +507,7 @@ class PlainFilterNode(FilterNode):
         self.empty_node = True
 
     def _render(self):
-        if self.children:
-            first_indentation = self.children[0].indentation
-        self._render_children_as_plain_text()
+        self._render_children_as_plain_text(remove_indentation=True)
 
 class PythonFilterNode(FilterNode):
     def _render(self):
@@ -517,7 +520,7 @@ class PythonFilterNode(FilterNode):
             buffer = StringIO()
             sys.stdout = buffer
             try:
-                exec compiled_code
+                exec(compiled_code)
             except Exception as e:
                 # Change exception message to let developer know that exception comes from
                 # a PythonFilterNode
@@ -584,7 +587,10 @@ class PygmentsFilterNode(FilterNode):
             self.before = self.render_newlines()
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
-            self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+            try:
+                self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+            except ClassNotFound:
+                self.before += highlight(text, PythonLexer(), HtmlFormatter())
         else:
             self.after = self.render_newlines()
 

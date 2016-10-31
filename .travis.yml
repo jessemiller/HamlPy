@@ -1,0 +1,17 @@
+language: python
+python:
+ - "2.7"
+ - "3.4"
+ - "3.5"
+sudo: false
+cache:
+  directories:
+   - $HOME/.cache/pip
+install:
+ - pip install -q -rrequirements/base.txt
+ - pip install -q -rrequirements/tests.txt
+ - pip install coveralls
+script:
+ - py.test --cov-report= --cov=hamlpy hamlpy
+after_success:
+ - coveralls
