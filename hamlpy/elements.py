@@ -33,8 +33,8 @@ class Element(object):
 
         self.tag = self.DEFAULT_TAG
         self.id = None
-        self.classes = None
-        self.attributes = ''
+        self.classes = []
+        self.attributes = {}
         self.self_close = False
         self.django_variable = False
         self.nuke_inner_whitespace = False
@@ -53,13 +53,10 @@ class Element(object):
             self.tag = components.get('tag')[0].lstrip(self.ELEMENT)
 
         if components['attributes']:
-            self.attributes_dict = AttributeDictParser(components.get('attributes')[0]).parse()
-        else:
-            self.attributes_dict = {}
+            self.attributes = AttributeDictParser(components.get('attributes')[0]).parse()
 
         # parse ids and classes from the components
         ids = []
-        classes = []
 
         for id_or_class in components.get('id_and_classes'):
             prefix = id_or_class[0]
@@ -67,23 +64,24 @@ class Element(object):
             if prefix == self.ID:
                 ids.append(name)
             elif prefix == self.CLASS:
-                classes.append(name)
+                self.classes.append(name)
 
         # include ids and classes in the attribute dictionary
-        id_from_attrs = self.attributes_dict.get('id')
+        id_from_attrs = self.attributes.get('id')
         if isinstance(id_from_attrs, tuple) or isinstance(id_from_attrs, list):
             ids += id_from_attrs
         elif isinstance(id_from_attrs, six.string_types):
             ids += [id_from_attrs]
 
-        class_from_attrs = self.attributes_dict.get('class')
-        if isinstance(class_from_attrs, tuple) or isinstance(class_from_attrs, list):
-            classes += class_from_attrs
-        elif isinstance(class_from_attrs, six.string_types):
-            classes += [class_from_attrs]
+        # merge ids to a single value with _ separators
+        if ids:
+            self.id = '_'.join(ids)
 
-        self.id = '_'.join(ids)
-        self.classes = ' '.join(classes)
+        class_from_attrs = self.attributes.get('class')
+        if isinstance(class_from_attrs, tuple) or isinstance(class_from_attrs, list):
+            self.classes += class_from_attrs
+        elif isinstance(class_from_attrs, six.string_types):
+            self.classes += [class_from_attrs]
 
         self.self_close = components.get('selfclose') or (self.tag in self.self_closing_tags)
 
@@ -92,26 +90,26 @@ class Element(object):
         self.django_variable = bool(components.get('django'))
         self.inline_content = components.get('inline')[0].strip() if components.get('inline') else ''
 
-        self.attributes = self._render_attributes(self.attributes_dict, self.id, self.classes)
+    def render_attributes(self):
+        rendered = []
 
-    def _render_attributes(self, dict, id, classes):
-        attributes = []
+        if self.id:
+            rendered.append("id=%s" % self.attr_wrap(self.id))
 
-        if len(id) > 0:
-            attributes.append("id=%s" % self.attr_wrap(self.id))
-        if len(classes) > 0:
-            attributes.append("class=%s" % self.attr_wrap(self.classes))
+        if len(self.classes) > 0:
+            rendered.append("class=%s" % self.attr_wrap(" ".join(self.classes)))
 
-        for k, v in dict.items():
-            if k != 'id' and k != 'class':
-                # Boolean attributes
-                if v is None:
-                    attributes.append("%s" % (k,))
-                else:
-                    value = self._escape_attribute_quotes(v)
-                    attributes.append("%s=%s" % (k, self.attr_wrap(value)))
+        for name, value in self.attributes.items():
+            if name in ('id', 'class'):
+                continue
 
-        return ' '.join(attributes)
+            if value is None:
+                rendered.append("%s" % name)  # boolean attribute
+            else:
+                value = self._escape_attribute_quotes(value)
+                rendered.append("%s=%s" % (name, self.attr_wrap(value)))
+
+        return ' '.join(rendered)
 
     def _escape_attribute_quotes(self, v):
         """
