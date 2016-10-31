@@ -18,11 +18,15 @@ class ElementTest(unittest.TestCase):
         s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
         assert s2 == r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s"
 
-    def test_pulls_tag_name_off_front(self):
+    def test_parses_tag(self):
         sut = Element('%span.class')
         assert sut.tag == 'span'
 
-    def test_default_tag_is_div(self):
+        # can have namespace and hypens
+        sut = Element('%ng-tags:ng-repeat.class')
+        assert sut.tag == 'ng-tags:ng-repeat'
+
+        # defaults to div
         sut = Element('.class#id')
         assert sut.tag == 'div'
 

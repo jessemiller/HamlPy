@@ -17,7 +17,7 @@ class Element(object):
     DEFAULT_TAG = 'div'
 
     ELEMENT_REGEX = regex.compile(r"""
-        (?P<tag>%\w+(\:\w+)?)?
+        (?P<tag>%[\w\-]+(\:[\w\-]+)?)?
         (?P<id_and_classes>(\#|\.)[\w-]+)*
         (?P<attributes>\{.*\})?
         (?P<nuke_outer_whitespace>\>)?
