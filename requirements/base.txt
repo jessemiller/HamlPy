@@ -1,3 +1,4 @@
 pygments
 markdown
+regex
 six
