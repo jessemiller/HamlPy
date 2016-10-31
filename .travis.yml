@@ -1,14 +1,17 @@
 language: python
 python:
-  - "2.7"
+ - "2.7"
+ - "3.4"
+ - "3.5"
 sudo: false
 cache:
   directories:
    - $HOME/.cache/pip
-env:
- - TOXENV=py27
- - TOXENV=py34
 install:
- - pip install -q --use-mirrors tox
+ - pip install -q -rrequirements/base.txt
+ - pip install -q -rrequirements/tests.txt
+ - pip install coveralls
 script:
- - tox
+ - py.test --cov-report= --cov=hamlpy hamlpy
+after_success:
+ - coveralls

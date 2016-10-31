@@ -7,7 +7,7 @@
 .idea/
 .tox/
 build/
-cover/
+htmlcov/
 env/
 dist/
 django_hamlpy.egg-info/

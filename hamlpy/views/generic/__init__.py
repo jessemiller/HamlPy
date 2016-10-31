@@ -24,4 +24,4 @@ class HamlExtensionTemplateView(object):
 
 
 for view in pouet:
-    locals()[view] = type(view, (HamlExtensionTemplateView, getattr(django.views.generic, view)), {})
+    locals()[view] = type(str(view), (HamlExtensionTemplateView, getattr(django.views.generic, view)), {})

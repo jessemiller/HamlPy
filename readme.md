@@ -1,6 +1,7 @@
 # Introduction
 
-![Build Status](https://travis-ci.org/Psycojoker/django-hamlpy.svg?branch=master)
+[![Build Status](https://travis-ci.org/Psycojoker/django-hamlpy.svg?branch=master)](https://travis-ci.org/Psycojoker/django-hamlpy)
+[![Coverage Status](https://coveralls.io/repos/github/Psycojoker/django-hamlpy/badge.svg?branch=master)](https://coveralls.io/github/Psycojoker/django-hamlpy?branch=master)
 
 This is a tool for Django developers who want to use a Haml like syntax in their templates. It is not a template engine 
 in itself, but simply a compiler which will convert HamlPy files into templates that Django can understand.
@@ -260,12 +261,10 @@ project and install the dependencies:
     pip install -r requirements/base.txt
     pip install -r requirements/tests.txt
 
-Please write tests for any new features and always ensure the current tests pass. If you have both Python 2 and 3 
-installed, you can run the tests in both versions using Tox:
+Please write tests for any new features and always ensure the current tests pass. To run the tests, use:
 
-    pip install tox
-    tox
+    py.test hamlpy  
     
-To simply run the tests with your current Python version, use:
+To run the performance test, use:
 
-    cd hamlpy && py.test
+    python -m hamlpy.test.test_templates
