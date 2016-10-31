@@ -43,6 +43,15 @@ class ElementTest(unittest.TestCase):
         sut = Element('%div#someId.someClass.anotherClass')
         assert sut.classes == ['someClass', 'anotherClass']
 
+        # classes before id
+        sut = Element('%div.someClass.anotherClass#someId')
+        assert sut.classes == ['someClass', 'anotherClass']
+
+        # classes can contain hypens and underscores
+        sut = Element('%div.-some-class-._another_class_')
+        assert sut.classes == ['-some-class-', '_another_class_']
+
+        # no class
         sut = Element('%div#someId')
         assert sut.classes == []
 
