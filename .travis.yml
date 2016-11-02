@@ -11,7 +11,7 @@ env:
 matrix:
   exclude:
   - python: "3.5"
-    env: DJANGO_VERSION=1.10.3
+    env: DJANGO_VERSION=1.7.10
 sudo: false
 cache:
   directories:
