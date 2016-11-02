@@ -1,13 +1,16 @@
 from __future__ import print_function, unicode_literals
 
 import django
-import unittest
+import hamlpy
 import mock
+import unittest
 
 from distutils.version import StrictVersion
 from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
+from django.test.utils import override_settings
+from six.moves import reload_module
 
 from hamlpy.hamlpy import Compiler
 
@@ -33,15 +36,24 @@ else:
 django.setup()
 
 
-class IntegrationTest(unittest.TestCase):
-    def setUp(self):
-        patch_compiler_class = mock.patch('hamlpy.hamlpy.Compiler', wraps=Compiler)
+class LoaderTest(unittest.TestCase):
+    def tearDown(self):
+        reload_module(hamlpy.template.loaders)
 
-        self.mock_compiler_class = patch_compiler_class.start()
-        self.addCleanup(patch_compiler_class.stop)
+    @mock.patch('hamlpy.hamlpy.Compiler', wraps=Compiler)
+    def test_compiler_settings(self, mock_compiler_class):
+        render_to_string('simple.hamlpy')
 
-    def _load_test_template(self, name):
-        return open('hamlpy/test/templates/' + name, 'r').read()
+        mock_compiler_class.assert_called_once_with(options_dict={})
+        mock_compiler_class.reset_mock()
+
+        with override_settings(HAMLPY_ATTR_WRAPPER='"'):
+            reload_module(hamlpy.template.loaders)
+
+            rendered = render_to_string('simple.hamlpy')
+
+            mock_compiler_class.assert_called_once_with(options_dict={'attr_wrapper': '"'})
+            assert '"someClass"' in rendered
 
     def test_template_rendering(self):
         assert render_to_string('simple.hamlpy') == self._load_test_template('simple.html') + "\n"
@@ -55,11 +67,11 @@ class IntegrationTest(unittest.TestCase):
             }]
         }
 
-        actual_html = render_to_string('djangoCombo.hamlpy', context)
+        rendered = render_to_string('djangoCombo.hamlpy', context)
 
-        assert "<h2>Technology</h2>" in actual_html
-        assert "HAML HELPS" in actual_html
-        assert "<a href='http://example.com/stories/1/'>" in actual_html
+        assert "<h2>Technology</h2>" in rendered
+        assert "HAML HELPS" in rendered
+        assert "<a href='http://example.com/stories/1/'>" in rendered
         assert "<p>Many HAML users...</p>"
 
     def test_should_ignore_non_haml_templates(self):
@@ -67,3 +79,6 @@ class IntegrationTest(unittest.TestCase):
 
     def test_should_raise_exception_when_template_doesnt_exist(self):
         self.assertRaises(TemplateDoesNotExist, render_to_string, 'simple.xyz')
+
+    def _load_test_template(self, name):
+        return open('hamlpy/test/templates/' + name, 'r').read()
