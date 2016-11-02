@@ -17,17 +17,7 @@ if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
 
 
 def get_haml_loader(loader):
-    if hasattr(loader, 'Loader'):
-        BaseClass = loader.Loader
-    else:
-        class BaseClass(object):
-            def load_template_source(self, *args, **kwargs):
-                return loader.load_template_source(*args, **kwargs)
-
-            def get_contents(self, origin):
-                return loader.get_contents(origin)
-
-    class Loader(BaseClass):
+    class Loader(loader.Loader):
         def get_contents(self, origin):
             # Django>=1.9
             contents = super(Loader, self).get_contents(origin)
