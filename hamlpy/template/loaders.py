@@ -10,10 +10,13 @@ from hamlpy import hamlpy
 from hamlpy.template.utils import get_django_template_loaders
 
 # Get options from Django settings
-options_dict = {}
+options = {}
 
 if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
-    options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
+    options.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
+
+if hasattr(settings, 'HAMLPY_INLINE_VARIABLE_PREFIXES'):
+    options.update(inline_variable_prefixes=settings.HAMLPY_INLINE_VARIABLE_PREFIXES)
 
 
 def get_haml_loader(loader):
@@ -26,7 +29,7 @@ def get_haml_loader(loader):
             extension = _extension.lstrip('.')
 
             if extension in hamlpy.VALID_EXTENSIONS:
-                compiler = hamlpy.Compiler(options_dict=options_dict)
+                compiler = hamlpy.Compiler(options_dict=options)
                 return compiler.process(contents)
 
             return contents
@@ -45,7 +48,7 @@ def get_haml_loader(loader):
                 except TemplateDoesNotExist:
                     pass
                 else:
-                    hamlParser = hamlpy.Compiler(options_dict=options_dict)
+                    hamlParser = hamlpy.Compiler(options_dict=options)
                     html = hamlParser.process(haml_source)
 
                     return html, template_path

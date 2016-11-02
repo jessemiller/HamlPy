@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import unittest
 
-from hamlpy import hamlpy
+from hamlpy import hamlpy, nodes
 
 
 class CompilerTest(unittest.TestCase):
@@ -101,6 +101,10 @@ test''', "test")
         self._test("\\={name}, how are you?", "={name}, how are you?")
         self._test("\\#{name}, how are you?", "#{name}, how are you?")
 
+        # can disable use of ={...} syntax
+        options = {'inline_variable_prefixes': ['#']}
+        self._test("Dear ={title} #{name} href={{ var }}", "Dear ={title} {{ name }} href={{ var }}", options)
+
     def test_django_tags(self):
         # if/else
         self._test('- if something\n   %p hello\n- else\n   %p goodbye',
@@ -162,6 +166,8 @@ test''', "test")
 </script>''', options={'attr_wrapper': '"'})
 
     def _test(self, haml, expected_html, options=None):
+        nodes._inline_variable_regexes = None  # clear cached regexes
+
         parser = hamlpy.Compiler(options)
         result = parser.process(haml)
 
