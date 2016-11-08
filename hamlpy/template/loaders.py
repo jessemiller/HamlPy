@@ -2,16 +2,9 @@ from __future__ import unicode_literals
 
 import os
 
-try:
-    from django.template import TemplateDoesNotExist
-    from django.template.loaders import filesystem, app_directories
-
-    _django_available = True
-except ImportError as e:
-    class TemplateDoesNotExist(Exception):
-        pass
-
-    _django_available = False
+from django.conf import settings
+from django.template import TemplateDoesNotExist
+from django.template.loaders import filesystem, app_directories
 
 from hamlpy import hamlpy
 from hamlpy.template.utils import get_django_template_loaders
@@ -19,25 +12,12 @@ from hamlpy.template.utils import get_django_template_loaders
 # Get options from Django settings
 options_dict = {}
 
-if _django_available:
-    from django.conf import settings
-
-    if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
-        options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
+if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
+    options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
 
 
 def get_haml_loader(loader):
-    if hasattr(loader, 'Loader'):
-        BaseClass = loader.Loader
-    else:
-        class BaseClass(object):
-            def load_template_source(self, *args, **kwargs):
-                return loader.load_template_source(*args, **kwargs)
-
-            def get_contents(self, origin):
-                return loader.get_contents(origin)
-
-    class Loader(BaseClass):
+    class Loader(loader.Loader):
         def get_contents(self, origin):
             # Django>=1.9
             contents = super(Loader, self).get_contents(origin)
@@ -80,9 +60,7 @@ def get_haml_loader(loader):
     return Loader
 
 
-haml_loaders = dict((name, get_haml_loader(loader))
-                    for (name, loader) in get_django_template_loaders())
+haml_loaders = dict((name, get_haml_loader(loader)) for (name, loader) in get_django_template_loaders())
 
-if _django_available:
-    HamlPyFilesystemLoader = get_haml_loader(filesystem)
-    HamlPyAppDirectoriesLoader = get_haml_loader(app_directories)
+HamlPyFilesystemLoader = get_haml_loader(filesystem)
+HamlPyAppDirectoriesLoader = get_haml_loader(app_directories)

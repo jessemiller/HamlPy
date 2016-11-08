@@ -1,120 +1,84 @@
 from __future__ import print_function, unicode_literals
 
-import unittest
+import django
+import hamlpy
 import mock
+import unittest
+
+from distutils.version import StrictVersion
+from django.conf import settings
+from django.template import TemplateDoesNotExist
+from django.template.loader import render_to_string
+from django.test.utils import override_settings
+from six.moves import reload_module
+
 from hamlpy.hamlpy import Compiler
 
-try:
-    from django.conf import settings
-    settings.configure(DEBUG=True, TEMPLATE_DEBUG=True)
-except ImportError as e:
-    pass
+TEMPLATE_DIR = 'hamlpy/test/templates'
+TEMPLATE_LOADERS = [
+    'hamlpy.template.loaders.HamlPyFilesystemLoader',
+    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader'
+]
 
-from hamlpy.template.loaders import get_haml_loader, TemplateDoesNotExist
+if StrictVersion(django.get_version()) >= StrictVersion('1.8'):
+    settings.configure(TEMPLATES=[
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'DIRS': [TEMPLATE_DIR],
+            'OPTIONS': {'loaders': TEMPLATE_LOADERS, 'debug': True}
+        }
+    ])
+else:
+    settings.configure(TEMPLATE_DIRS=[TEMPLATE_DIR], TEMPLATE_LOADERS=TEMPLATE_LOADERS, TEMPLATE_DEBUG=True)
 
-
-class DummyLoader(object):
-    """
-    A dummy template loader that only loads templates from self.templates
-    """
-    templates = {
-        "in_dict.txt": "Original txt contents",
-        "loader_test.hamlpy": "Original hamlpy content",
-    }
-
-    def __init__(self, *args, **kwargs):
-        self.Loader = self.__class__
-
-    def get_contents(self, origin):
-        if origin.template_name not in self.templates:
-            raise TemplateDoesNotExist(origin.template_name)
-        return self.templates[origin.template_name]
-
-    def load_template_source(self, template_name, *args, **kwargs):
-        if template_name not in self.templates:
-            raise TemplateDoesNotExist(template_name)
-
-        return self.templates[template_name], 'Original content'
+django.setup()
 
 
 class LoaderTest(unittest.TestCase):
-    def setUp(self):
-        dummy_loader = DummyLoader()
-        hamlpy_loader_class = get_haml_loader(dummy_loader)
-        self.hamlpy_loader = hamlpy_loader_class()
+    def tearDown(self):
+        reload_module(hamlpy.template.loaders)
 
-        patch_compiler_class = mock.patch('hamlpy.hamlpy.Compiler')
-        self.compiler_class = patch_compiler_class.start()
-        self.mock_compiler = mock.Mock(spec=Compiler)
-        self.compiler_class.return_value = self.mock_compiler
-        self.addCleanup(patch_compiler_class.stop)
+    @mock.patch('hamlpy.hamlpy.Compiler', wraps=Compiler)
+    def test_compiler_settings(self, mock_compiler_class):
+        render_to_string('simple.hamlpy')
 
+        mock_compiler_class.assert_called_once_with(options_dict={})
+        mock_compiler_class.reset_mock()
 
-class DummyOrigin(object):
-    def __init__(self, name, template_name=None, loader=None):
-        self.name = name
-        self.template_name = template_name
-        self.loader = loader
+        with override_settings(HAMLPY_ATTR_WRAPPER='"'):
+            reload_module(hamlpy.template.loaders)
 
+            rendered = render_to_string('simple.hamlpy')
 
-class LoadTemplateSourceTest(LoaderTest):
-    """
-    Tests for the django template loader. A dummy template loader is
-    used that loads only from a dictionary of templates.
-    """
+            mock_compiler_class.assert_called_once_with(options_dict={'attr_wrapper': '"'})
+            assert '"someClass"' in rendered
 
-    def _test_assert_exception(self, template_name):
-        with self.assertRaises(TemplateDoesNotExist):
-            self.hamlpy_loader.load_template_source(template_name)
+    def test_template_rendering(self):
+        assert render_to_string('simple.hamlpy') == self._load_test_template('simple.html') + "\n"
 
-    def test_file_not_in_dict(self):
-        # not_in_dict.txt doesn't exit, so we're expecting an exception
-        self._test_assert_exception('not_in_dict.hamlpy')
+        context = {
+            'section': {'title': "News", 'subtitle': "Technology"},
+            'story_list': [{
+                'headline': "Haml Helps",
+                'tease': "Many HAML users...",
+                'get_absolute_url': lambda: "http://example.com/stories/1/"
+            }]
+        }
 
-    def test_file_in_dict(self):
-        # in_dict.txt in in dict, but with an extension not supported by
-        # the loader, so we expect an exception
-        self._test_assert_exception('in_dict.txt')
+        rendered = render_to_string('djangoCombo.hamlpy', context)
 
-    def test_file_should_load(self):
-        # loader_test.hamlpy is in the dict, so it should load fine
-        self.hamlpy_loader.load_template_source('loader_test.hamlpy')
-        self.mock_compiler.process.assert_called_with('Original hamlpy content')
+        assert "<h2>Technology</h2>" in rendered
+        assert "HAML HELPS" in rendered
+        assert "<a href='http://example.com/stories/1/'>" in rendered
+        assert "<p>Many HAML users...</p>"
 
-    def test_file_different_extension(self):
-        # loader_test.hamlpy is in dict, but we're going to try
-        # to load loader_test.txt
-        # we expect an exception since the extension is not supported by
-        # the loader
-        self._test_assert_exception('loader_test.txt')
+    def test_should_ignore_non_haml_templates(self):
+        assert render_to_string('simple.html') == self._load_test_template('simple.html')
 
+    def test_should_raise_exception_when_template_doesnt_exist(self):
+        self.assertRaises(TemplateDoesNotExist, render_to_string, 'simple.xyz')
 
-class GetContentsTest(LoaderTest):
-    def setUp(self):
-        super(GetContentsTest, self).setUp()
-
-    def _get_origin(self, template_name):
-        return DummyOrigin(name='path/to/{}'.format(template_name), template_name=template_name)
-
-    def test_it_raises_template_does_not_exist_with_invalid_template(self):
-        origin = self._get_origin('not_in_dict.hamlpy')
-        with self.assertRaises(TemplateDoesNotExist):
-            self.hamlpy_loader.get_contents(origin)
-
-    def test_it_does_parse_file_with_valid_extension(self):
-        origin = self._get_origin(template_name='loader_test.hamlpy')
-        self.hamlpy_loader.get_contents(origin)
-        self.mock_compiler.process.assert_called_with('Original hamlpy content')
-
-    def test_it_does_not_parse_file_with_invalid_extension(self):
-        origin = self._get_origin(template_name='in_dict.txt')
-        self.hamlpy_loader.get_contents(origin)
-        self.assertIs(False, self.mock_compiler.process.called)
-
-    def test_it_returns_the_parsed_content(self):
-        origin = self._get_origin(template_name='loader_test.hamlpy')
-        self.mock_compiler.process.return_value = 'Parsed content'
-
-        parsed_content = self.hamlpy_loader.get_contents(origin)
-
-        self.assertEqual('Parsed content', parsed_content)
+    def _load_test_template(self, name):
+        return open('hamlpy/test/templates/' + name, 'r').read()
