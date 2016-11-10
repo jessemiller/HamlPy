@@ -78,7 +78,7 @@ class Element(object):
             self.id = '_'.join(ids)
 
         class_from_attrs = self.attributes.get('class')
-        if isinstance(class_from_attrs, tuple) or isinstance(class_from_attrs, list):
+        if isinstance(class_from_attrs, (tuple, list)):
             self.classes += class_from_attrs
         elif isinstance(class_from_attrs, six.string_types):
             self.classes += [class_from_attrs]
