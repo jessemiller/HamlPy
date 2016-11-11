@@ -297,8 +297,10 @@ class ElementNode(HamlNode):
     def _render_before(self, element):
         '''Render opening tag and inline content'''
         start = ["%s<%s" % (self.spaces, element.tag)]
-        if element.attributes:
-            start.append(' ' + self.replace_inline_variables(element.attributes))
+
+        attributes = element.render_attributes()
+        if attributes:
+            start.append(' ' + self.replace_inline_variables(attributes))
 
         content = self._render_inline_content(self.element.inline_content)
 

@@ -5,7 +5,8 @@ from .nodes import RootNode, HamlNode, create_node
 
 from optparse import OptionParser
 
-VALID_EXTENSIONS=['haml', 'hamlpy']
+VALID_EXTENSIONS = ['haml', 'hamlpy']
+
 
 DEFAULT_OPTIONS = {
     'attr_wrapper': '\'',                    # how to render attribute values, e.g. foo='bar'
@@ -34,7 +35,7 @@ class Compiler:
 
             if not root.parent_of(HamlNode(line, self.options)).inside_filter_node():
                 if line.count('{') - line.count('}') == 1:
-                    start_multiline=line_number # For exception handling
+                    start_multiline = line_number  # For exception handling
 
                     while line.count('{') - line.count('}') != -1:
                         try:
@@ -57,7 +58,7 @@ class Compiler:
             return root.render()
 
 
-def convert_files():
+def convert_files():  # pragma: no cover
     import codecs
 
     parser = OptionParser()
@@ -88,5 +89,5 @@ def convert_files():
         else:
             print(output)
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     convert_files()

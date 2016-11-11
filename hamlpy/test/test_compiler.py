@@ -28,6 +28,9 @@ class CompilerTest(unittest.TestCase):
         # multiple classes
         self._test('%div.someClass.anotherClass Some text', "<div class='someClass anotherClass'>Some text</div>")
 
+        # class can come before id
+        self._test('%div.someClass#someId', "<div id='someId' class='someClass'></div>")
+
     def test_attribute_dictionaries(self):
         # attribute dictionaries
         self._test("%html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}",

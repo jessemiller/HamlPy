@@ -2,6 +2,8 @@ from __future__ import print_function, unicode_literals
 
 import unittest
 
+from collections import OrderedDict
+
 from hamlpy.elements import Element
 
 
@@ -16,11 +18,15 @@ class ElementTest(unittest.TestCase):
         s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
         assert s2 == r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s"
 
-    def test_pulls_tag_name_off_front(self):
-        sut = Element('%div.class')
-        assert sut.tag == 'div'
+    def test_parses_tag(self):
+        sut = Element('%span.class')
+        assert sut.tag == 'span'
 
-    def test_default_tag_is_div(self):
+        # can have namespace and hypens
+        sut = Element('%ng-tags:ng-repeat.class')
+        assert sut.tag == 'ng-tags:ng-repeat'
+
+        # defaults to div
         sut = Element('.class#id')
         assert sut.tag == 'div'
 
@@ -31,33 +37,41 @@ class ElementTest(unittest.TestCase):
         sut = Element('#someId.someClass')
         assert sut.id == 'someId'
 
-    def test_no_id_gives_empty_string(self):
         sut = Element('%div.someClass')
-        assert sut.id == ''
+        assert sut.id is None
 
-    def test_parses_class(self):
+    def test_parses_classes(self):
         sut = Element('%div#someId.someClass')
-        assert sut.classes == 'someClass'
+        assert sut.classes == ['someClass']
 
-    def test_properly_parses_multiple_classes(self):
         sut = Element('%div#someId.someClass.anotherClass')
-        assert sut.classes == 'someClass anotherClass'
+        assert sut.classes == ['someClass', 'anotherClass']
 
-    def test_no_class_gives_empty_string(self):
+        # classes before id
+        sut = Element('%div.someClass.anotherClass#someId')
+        assert sut.classes == ['someClass', 'anotherClass']
+
+        # classes can contain hypens and underscores
+        sut = Element('%div.-some-class-._another_class_')
+        assert sut.classes == ['-some-class-', '_another_class_']
+
+        # no class
         sut = Element('%div#someId')
-        assert sut.classes == ''
+        assert sut.classes == []
 
     def test_attribute_dictionary_properly_parses(self):
         sut = Element("%html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}")
-        assert "xmlns='http://www.w3.org/1999/xhtml'" in sut.attributes
-        assert "xml:lang='en'" in sut.attributes
-        assert "lang='en'" in sut.attributes
+
+        assert sut.attributes == OrderedDict([
+            ('xmlns', "http://www.w3.org/1999/xhtml"),
+            ('xml:lang', "en"),
+            ('lang', "en")
+        ])
 
     def test_attribute_merges_classes_properly(self):
         sut = Element("%div.someClass.anotherClass{'class':'hello'}")
-        assert 'someClass' in sut.classes
-        assert 'anotherClass' in sut.classes
-        assert 'hello' in sut.classes
+
+        assert sut.classes == ['someClass', 'anotherClass', 'hello']
 
     def test_attribute_merges_ids_properly(self):
         sut = Element("%div#someId{'id':'hello'}")
@@ -73,7 +87,7 @@ class ElementTest(unittest.TestCase):
 
     def test_does_not_close_a_non_self_closing_tag(self):
         sut = Element("%div")
-        assert sut.self_close == False
+        assert sut.self_close is False
 
     def test_can_close_a_non_self_closing_tag(self):
         sut = Element("%div/")
@@ -94,6 +108,9 @@ class ElementTest(unittest.TestCase):
     def test_multiline_attributes(self):
         sut = Element("""%link{'rel': 'stylesheet', 'type': 'text/css',
             'href': '/long/url/to/stylesheet/resource.css'}""")
-        assert "href='/long/url/to/stylesheet/resource.css'" in sut.attributes
-        assert "type='text/css'" in sut.attributes
-        assert "rel='stylesheet'" in sut.attributes
+
+        assert sut.attributes == OrderedDict([
+            ('rel', "stylesheet"),
+            ('type', "text/css"),
+            ('href', "/long/url/to/stylesheet/resource.css")
+        ])
