@@ -116,7 +116,7 @@ Following values in Django settings affect haml processing:
 
   * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. This defaults to ' (an apostrophe).
   * `HAMLPY_INLINE_VARIABLE_PREFIXES` -- Prefixes for inline variables. This defaults to \['#', '='\] which means both
-    `#{...}` and `={...}` syntax can bed used.
+    `#{...}` and `={...}` syntax can be used.
 
 ### Option 2: Watcher
 
