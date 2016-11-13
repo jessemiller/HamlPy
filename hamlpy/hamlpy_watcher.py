@@ -12,7 +12,7 @@ import codecs
 import os
 import os.path
 import time
-import hamlpy
+from . import hamlpy
 from . import nodes as hamlpynodes
 
 try:

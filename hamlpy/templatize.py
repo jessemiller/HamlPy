@@ -13,7 +13,7 @@ try:
 except ImportError as e:
     _django_available = False
 
-import hamlpy
+from . import hamlpy
 import os
 
 
