@@ -1,3 +1,8 @@
+0.86.1 (2016-11-15)
+===================
+
+* Fixed some incorrect relative imports #21 by @Kangaroux
+
 0.86 (2016-11-11)
 =================
 
