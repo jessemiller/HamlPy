@@ -49,6 +49,8 @@ arg_parser.add_argument('input_dir', help = 'Folder to watch', type = str)
 arg_parser.add_argument('output_dir', help = 'Destination folder', type = str, nargs = '?')
 arg_parser.add_argument('--tag', help = 'Add self closing tag. eg. --tag macro:endmacro', type = str, nargs = 1, action = StoreNameValueTagPair)
 arg_parser.add_argument('--attr-wrapper', dest = 'attr_wrapper', type = str, choices = ('"', "'"), default = "'", action = 'store', help = "The character that should wrap element attributes. This defaults to ' (an apostrophe).")
+arg_parser.add_argument('--django-inline', dest='django_inline', type=bool, default=True, action='store',
+                        help="Whether to support ={...} syntax for inline variables in addition to #{...}")
 arg_parser.add_argument('--jinja', help = 'Makes the necessary changes to be used with Jinja2', default = False, action = 'store_true')
 
 def watched_extension(extension):
@@ -85,6 +87,9 @@ def watch_folder():
     
     if args.attr_wrapper:
         compiler_args['attr_wrapper'] = args.attr_wrapper
+
+    if args.django_inline:
+        compiler_args['django_inline_style'] = args.django_inline
     
     if args.jinja:
         for k in ('ifchanged', 'ifequal', 'ifnotequal', 'autoescape', 'blocktrans',
@@ -134,6 +139,7 @@ def _watch_folder(folder, destination, compiler_args):
 
 def _compiled_path(destination, filename):
     return os.path.join(destination, filename[:filename.rfind('.')] + Options.OUTPUT_EXT)
+
 
 def compile_file(fullpath, outfile_name, compiler_args):
     """Calls HamlPy compiler."""
