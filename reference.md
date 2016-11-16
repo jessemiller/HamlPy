@@ -388,7 +388,7 @@ is compiled to:
 
 ### Inline Django Variables: #{...}
 
-You can also use inline variables by surrounding the variable name with curly braces. For example:
+You can also use inline variables using the `#{...}` syntax. For example:
 
 ```haml
 Hello #{name}, how are you today?
@@ -418,13 +418,13 @@ Inline variables can be escaped by placing a `\` before them. For example:
 Hello \#{name}
 ```
 
-is compiled to
+is compiled to:
 
 ```htmldjango
 Hello #{name}
 ```
 
-Django style (`={...}` rather than `#{...}`) syntax is optionally supported. If you are using the template loader
+Django style `={...}` syntax is also optionally supported. If you are using the template loader
 then ensure `HAMLPY_DJANGO_INLINE_STYLE` is `True`, and the two syntaxes can then be used interchangeably.
 
 
