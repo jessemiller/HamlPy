@@ -105,7 +105,7 @@ test''', "test")
         self._test("\\#{name}, how are you?", "#{name}, how are you?")
 
         # can disable use of ={...} syntax
-        options = {'inline_variable_prefixes': ['#']}
+        options = {'django_inline_style': False}
         self._test("Dear ={title} #{name} href={{ var }}", "Dear ={title} {{ name }} href={{ var }}", options)
 
     def test_django_tags(self):

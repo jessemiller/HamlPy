@@ -47,14 +47,14 @@ class LoaderTest(unittest.TestCase):
         mock_compiler_class.assert_called_once_with(options_dict={})
         mock_compiler_class.reset_mock()
 
-        with override_settings(HAMLPY_ATTR_WRAPPER='"', HAMLPY_INLINE_VARIABLE_PREFIXES=['#']):
+        with override_settings(HAMLPY_ATTR_WRAPPER='"', HAMLPY_DJANGO_INLINE_STYLE=False):
             reload_module(hamlpy.template.loaders)
 
             rendered = render_to_string('simple.hamlpy')
 
             mock_compiler_class.assert_called_once_with(options_dict={
                 'attr_wrapper': '"',
-                'inline_variable_prefixes': ['#']
+                'django_inline_style': False
             })
 
             assert '"someClass"' in rendered

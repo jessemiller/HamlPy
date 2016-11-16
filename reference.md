@@ -386,12 +386,12 @@ is compiled to:
 </h2>
 ```
 
-### Inline Django Variables: ={...}
+### Inline Django Variables: #{...}
 
 You can also use inline variables by surrounding the variable name with curly braces. For example:
 
 ```haml
-Hello ={name}, how are you today?
+Hello #{name}, how are you today?
 ```
 
 is compiled to
@@ -403,7 +403,7 @@ Hello {{ name }}, how are you today?
 Inline variables can also be used in an element's attribute values. For example:
 
 ```haml
-%a{'title':'Hello ={name}, how are you?'} Hello
+%a{'title':'Hello #{name}, how are you?'} Hello
 ```
 
 is compiled to:
@@ -415,16 +415,17 @@ is compiled to:
 Inline variables can be escaped by placing a `\` before them. For example:
 
 ```haml
-Hello \={name}
+Hello \#{name}
 ```
 
 is compiled to
 
 ```htmldjango
-Hello ={name}
+Hello #{name}
 ```
 
-The Ruby style (`#{...}` rather than `={...}`) is also supported and the two can be used interchangeably.
+Django style (`={...}` rather than `#{...}`) syntax is optionally supported. If you are using the template loader
+then ensure `HAMLPY_DJANGO_INLINE_STYLE` is `True`, and the two syntaxes can then be used interchangeably.
 
 
 

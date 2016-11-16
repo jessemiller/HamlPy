@@ -9,8 +9,8 @@ VALID_EXTENSIONS = ['haml', 'hamlpy']
 
 
 DEFAULT_OPTIONS = {
-    'attr_wrapper': '\'',                    # how to render attribute values, e.g. foo='bar'
-    'inline_variable_prefixes': ['#', '='],  # support both #{...} and ={...}
+    'attr_wrapper': '\'',         # how to render attribute values, e.g. foo='bar'
+    'django_inline_style': True,  # support both #{...} and ={...}
     'debug_tree': False
 }
 

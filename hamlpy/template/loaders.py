@@ -15,8 +15,8 @@ options = {}
 if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
     options.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
 
-if hasattr(settings, 'HAMLPY_INLINE_VARIABLE_PREFIXES'):
-    options.update(inline_variable_prefixes=settings.HAMLPY_INLINE_VARIABLE_PREFIXES)
+if hasattr(settings, 'HAMLPY_DJANGO_INLINE_STYLE'):
+    options.update(django_inline_style=settings.HAMLPY_DJANGO_INLINE_STYLE)
 
 
 def get_haml_loader(loader):

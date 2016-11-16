@@ -65,7 +65,8 @@ def get_inline_variable_regex(options):
     global _inline_variable_regexes
 
     if not _inline_variable_regexes:
-        prefixes = ''.join(options['inline_variable_prefixes'])
+        prefixes = ['=', '#'] if options['django_inline_style'] else ['#']
+        prefixes = ''.join(prefixes)
         _inline_variable_regexes = (
             re.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
             re.compile(r'\\([' + prefixes + r']\{\s*(.+?)\s*\})')
