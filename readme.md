@@ -30,22 +30,7 @@ The latest development version can be installed directly from GitHub:
 
     pip install git+https://github.com/psycojoker/django-hamlpy
 
-## Install error on Linux
-If you are using a Linux distribution (or Ubuntu on Windows) and encounter the following error when installing, `fatal error: Python.h: No such file or directory` you may need to install the python dev package for your distro before attempting to install. Do the following:
-
-Ubuntu, Debian...
-
-    pip uninstall django-hamlpy
-    sudo apt-get install python-dev  # for python2.x installs
-    sudo apt-get install python3-dev  # for python3.x installs
-    pip install django-hamlpy
-
-
-Centos, Fedora, Redhat...
-
-    pip uninstall django-hamlpy
-    sudo yum install python-devel
-    pip install django-hamlpy
+**NOTE:** If you are using Linux, you may need to install [python's development package](http://stackoverflow.com/a/21530768/2896976) if you are encountering build errors.
 
 ## Syntax
 
