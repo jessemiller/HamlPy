@@ -101,20 +101,20 @@ def watch_folder():
         })
         
         hamlpynodes.TagNode.may_contain['for'] = 'else'
+
+    # Compile once, then exist
+    if args.once:
+        (total_files, num_failed) = _watch_folder(input_folder, output_folder, compiler_args)
+        print('Compiled %d of %d files.' % (total_files - num_failed, total_files))
+        if num_failed == 0:
+            print('All files compiled successfully.')
+        else:
+            print('Some files have errors.')
+        sys.exit(num_failed)
     
     while True:
         try:
-            (total_files, num_failed) = _watch_folder(input_folder, output_folder, compiler_args)
-            
-            # Stop after the first round of compiling 
-            if args.once:
-                print('Compiled %d of %d files.' % (total_files - num_failed, total_files))
-                if num_failed == 0:
-                    print('All files compiled successfully.')
-                else:
-                    print('Some files have errors.')
-                sys.exit(num_failed)
-
+            _watch_folder(input_folder, output_folder, compiler_args)
             time.sleep(args.refresh)
         except KeyboardInterrupt:
             # allow graceful exit (no stacktrace output)
@@ -140,13 +140,11 @@ def _watch_folder(folder, destination, compiler_args):
                     os.makedirs(compiled_folder)
                 
                 compiled_path = _compiled_path(compiled_folder, filename)
-                if (not fullpath in compiled or
-                    compiled[fullpath] < mtime or
-                    not os.path.isfile(compiled_path)):
-                    if not compile_file(fullpath, compiled_path, compiler_args):
-                        num_failed += 1
+                if not fullpath in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
                     compiled[fullpath] = mtime
                     total_files += 1
+                    if not compile_file(fullpath, compiled_path, compiler_args):
+                        num_failed += 1
 
     return (total_files, num_failed)
 
