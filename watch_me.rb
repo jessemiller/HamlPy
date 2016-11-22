@@ -1,1 +1,0 @@
-watch('.*\.(py|hamlpy|html)') { |md|  system("cd hamlpy/test;nosetests --with-sneazr") }
