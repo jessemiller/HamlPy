@@ -1,3 +1,6 @@
+pygments
+markdown
+jinja2
 pytest
 pytest-cov
 mock
