@@ -1,3 +1,5 @@
+pygments
+markdown
 pytest
 pytest-cov
 mock
