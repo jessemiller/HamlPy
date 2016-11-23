@@ -12,7 +12,7 @@ import codecs
 import os
 import os.path
 import time
-import hamlpy
+from . import hamlpy
 from . import nodes as hamlpynodes
 
 try:
@@ -42,16 +42,18 @@ class StoreNameValueTagPair(argparse.Action):
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--verbose', help = 'Display verbose output', action = 'store_true')
-arg_parser.add_argument('-i', '--input-extension', metavar = 'EXT', default = '.hamlpy', help = 'The file extensions to look for', type = str, nargs = '+')
+arg_parser.add_argument('-i', '--input-extension', metavar = 'EXT', default = '.hamlpy', help = 'The file extensions to look for.', type = str, nargs = '+')
 arg_parser.add_argument('-ext', '--extension', metavar = 'EXT', default = Options.OUTPUT_EXT, help = 'The output file extension. Default is .html', type = str)
-arg_parser.add_argument('-r', '--refresh', metavar = 'S', default = Options.CHECK_INTERVAL, help = 'Refresh interval for files. Default is {} seconds'.format(Options.CHECK_INTERVAL), type = int)
+arg_parser.add_argument('-r', '--refresh', metavar = 'S', default = Options.CHECK_INTERVAL, help = 'Refresh interval for files. Default is {} seconds. Ignored if the --once flag is set.'.format(Options.CHECK_INTERVAL), type = int)
 arg_parser.add_argument('input_dir', help = 'Folder to watch', type = str)
 arg_parser.add_argument('output_dir', help = 'Destination folder', type = str, nargs = '?')
 arg_parser.add_argument('--tag', help = 'Add self closing tag. eg. --tag macro:endmacro', type = str, nargs = 1, action = StoreNameValueTagPair)
 arg_parser.add_argument('--attr-wrapper', dest = 'attr_wrapper', type = str, choices = ('"', "'"), default = "'", action = 'store', help = "The character that should wrap element attributes. This defaults to ' (an apostrophe).")
 arg_parser.add_argument('--django-inline', dest='django_inline', type=bool, default=True, action='store',
                         help="Whether to support ={...} syntax for inline variables in addition to #{...}")
-arg_parser.add_argument('--jinja', help = 'Makes the necessary changes to be used with Jinja2', default = False, action = 'store_true')
+arg_parser.add_argument('--jinja', help = 'Makes the necessary changes to be used with Jinja2.', default = False, action = 'store_true')
+arg_parser.add_argument('--once', help = 'Runs the compiler once and exits on completion. Returns a non-zero exit code if there were any compile errors.', default = False, action = 'store_true')
+
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
@@ -59,6 +61,7 @@ def watched_extension(extension):
         if extension.endswith('.' + ext):
             return True
     return False
+
 
 def watch_folder():
     """Main entry point. Expects one or two arguments (the watch folder + optional destination folder)."""
@@ -105,6 +108,16 @@ def watch_folder():
         })
         
         hamlpynodes.TagNode.may_contain['for'] = 'else'
+
+    # Compile once, then exist
+    if args.once:
+        (total_files, num_failed) = _watch_folder(input_folder, output_folder, compiler_args)
+        print('Compiled %d of %d files.' % (total_files - num_failed, total_files))
+        if num_failed == 0:
+            print('All files compiled successfully.')
+        else:
+            print('Some files have errors.')
+        sys.exit(num_failed)
     
     while True:
         try:
@@ -116,7 +129,10 @@ def watch_folder():
 
 def _watch_folder(folder, destination, compiler_args):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
-    if necessary."""
+    if necessary. Returns a tuple of the number of files hit and the number
+    of failed compiles"""
+    total_files = 0
+    num_failed = 0
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             # Ignore filenames starting with ".#" for Emacs compatibility
@@ -131,18 +147,21 @@ def _watch_folder(folder, destination, compiler_args):
                     os.makedirs(compiled_folder)
                 
                 compiled_path = _compiled_path(compiled_folder, filename)
-                if (not fullpath in compiled or
-                    compiled[fullpath] < mtime or
-                    not os.path.isfile(compiled_path)):
-                    compile_file(fullpath, compiled_path, compiler_args)
+                if not fullpath in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
                     compiled[fullpath] = mtime
+                    total_files += 1
+                    if not compile_file(fullpath, compiled_path, compiler_args):
+                        num_failed += 1
+
+    return (total_files, num_failed)
 
 def _compiled_path(destination, filename):
     return os.path.join(destination, filename[:filename.rfind('.')] + Options.OUTPUT_EXT)
 
 
 def compile_file(fullpath, outfile_name, compiler_args):
-    """Calls HamlPy compiler."""
+    """Calls HamlPy compiler. Returns True if the file was compiled and 
+    written successfully."""
     if Options.VERBOSE:
         print('%s %s -> %s' % (strftime("%H:%M:%S"), fullpath, outfile_name))
     try:
@@ -153,10 +172,14 @@ def compile_file(fullpath, outfile_name, compiler_args):
         output = compiler.process_lines(haml_lines)
         outfile = codecs.open(outfile_name, 'w', encoding = 'utf-8')
         outfile.write(output)
+
+        return True
     except Exception as e:
         # import traceback
         print("Failed to compile %s -> %s\nReason:\n%s" % (fullpath, outfile_name, e))
         # print traceback.print_exc()
+
+    return False
 
 if __name__ == '__main__':
     watch_folder()

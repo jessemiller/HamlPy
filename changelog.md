@@ -1,7 +1,20 @@
-0.86 (unreleased)
+0.86.1 (2016-11-15)
+===================
+
+* Fixed some incorrect relative imports #21 by @Kangaroux
+
+0.86 (2016-11-11)
 =================
 
 * add call and macro tags to the self-closing dict by @andreif
+* remove django 1.1 support by @rowanseymour
+* switch to a real parser instead of eval by @rowanseymour
+* improve tests and code quality by @rowanseymour
+* add performance tests by @rowanseymour
+* tags name can include a "-" (for angular for example) by @rowanseymour
+* don't uses tox anymore for testing by @rowanseymour
+* classes shorthand can come before a id one by @rowanseymour
+* co-maintainership guidelines by @psycojoker
 
 0.85 (2016-10-13)
 =================

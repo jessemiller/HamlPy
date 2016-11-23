@@ -24,7 +24,7 @@ def _read_requirements(filename):
 # Note to Jesse - only push sdist to PyPi, bdist seems to always break pip installer
 setup(
     name='django-hamlpy',
-    version='0.85',
+    version='0.86.1',
     description='HAML like syntax for Django templates. Fork of unmaintained hamlpy.',
     long_description=read_md('readme.md'),
 

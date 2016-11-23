@@ -30,6 +30,8 @@ The latest development version can be installed directly from GitHub:
 
     pip install git+https://github.com/psycojoker/django-hamlpy
 
+**NOTE:** If you are using Linux, you may need to install [python's development package](http://stackoverflow.com/a/21530768/2896976) if you are encountering build errors.
+
 ## Syntax
 
 Almost all of the XHTML syntax of Haml is preserved.
