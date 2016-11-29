@@ -1,0 +1,92 @@
+from __future__ import unicode_literals
+
+
+STRING_LITERALS = ('"', "'")
+WHITESPACE_CHARS = (' ', '\t')
+WHITESPACE_AND_NEWLINE_CHARS = (' ', '\t', '\r', '\n')
+
+
+class ParseException(Exception):
+    def __init__(self, message, stream=None):
+        self.message = message
+        self.context = stream.text[stream.ptr:10] if stream else None
+
+    def __str__(self):
+        return "%s at %s" % (self.message, self.context) if self.context else self.message
+
+
+class Stream(object):
+    def __init__(self, text):
+        self.text = text.strip()
+        self.length = len(self.text)
+        self.ptr = 0
+
+
+def consume_whitespace(stream, include_newlines=False):
+    """
+    Moves the stream pointer to the next non-whitespace character
+    """
+    whitespace = WHITESPACE_AND_NEWLINE_CHARS if include_newlines else WHITESPACE_CHARS
+
+    while stream.ptr < stream.length and stream.text[stream.ptr] in whitespace:
+        stream.ptr += 1
+
+    return stream.ptr
+
+
+def read_until(stream, terminators, or_whitespace=False):
+    start = stream.ptr
+
+    while True:
+        if stream.ptr >= stream.length:
+            raise ParseException("Expected %s but reached end of input" % ", ".join(terminators), stream)
+
+        if stream.text[stream.ptr] in terminators or (or_whitespace and stream.text[stream.ptr] in WHITESPACE_CHARS):
+            break
+
+        stream.ptr += 1
+
+    return stream.text[start:stream.ptr]
+
+
+def read_quoted_string(stream):
+    terminator = stream.text[stream.ptr]
+
+    assert terminator in STRING_LITERALS
+
+    stream.ptr += 1  # consume opening quote
+    start = stream.ptr
+
+    while True:
+        if stream.ptr >= stream.length:
+            raise ParseException("Unterminated string. Expected %s but reached end of input" % terminator, stream)
+
+        if stream.text[stream.ptr] == terminator and stream.text[stream.ptr - 1] != '\\':
+            break
+
+        stream.ptr += 1
+
+    stream.ptr += 1  # consume closing quote
+
+    return stream.text[start:stream.ptr - 1]
+
+
+def read_number(stream):
+    start = stream.ptr
+
+    while True:
+        if not stream.text[stream.ptr].isdigit() and stream.text[stream.ptr] != '.':
+            break
+
+        stream.ptr += 1
+
+    return stream.text[start:stream.ptr]
+
+
+def read_symbol(stream, symbols):
+    for symbol in symbols:
+        if stream.text[stream.ptr:stream.ptr+len(symbol)] == symbol:
+            stream.ptr += len(symbol)
+            return symbol
+
+    raise ParseException("Expected one of %s" % ', '.join(symbols), stream)

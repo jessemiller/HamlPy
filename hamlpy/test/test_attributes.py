@@ -4,14 +4,15 @@ import unittest
 
 from collections import OrderedDict
 
-from hamlpy.attributes import AttributesParser
+from hamlpy.parser.attributes import read_attributes
+from hamlpy.parser.generic import Stream
 
 
 class AttributesParserTest(unittest.TestCase):
 
     @staticmethod
     def _parse(text):
-        return AttributesParser().parse(text)
+        return read_attributes(Stream(text))
 
     def test_parse(self):
         self.assertEqual(dict(self._parse("{}")), {})
