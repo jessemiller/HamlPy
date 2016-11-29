@@ -289,7 +289,7 @@ class ElementNode(HamlNode):
         self.django_variable = False
 
     def _render(self):
-        self.element = Element(self.haml, self.options['attr_wrapper'])
+        self.element = Element(self.haml)
         self.django_variable = self.element.django_variable
         self.before = self._render_before(self.element)
         self.after = self._render_after(self.element)
@@ -299,7 +299,7 @@ class ElementNode(HamlNode):
         '''Render opening tag and inline content'''
         start = ["%s<%s" % (self.spaces, element.tag)]
 
-        attributes = element.render_attributes()
+        attributes = element.render_attributes(self.options['attr_wrapper'])
         if attributes:
             start.append(' ' + self.replace_inline_variables(attributes))
 
