@@ -19,7 +19,7 @@ class Element(object):
     ELEMENT_REGEX = regex.compile(r"""
         (?P<tag>%[\w\-]+(\:[\w\-]+)?)?
         (?P<id_and_classes>(\#|\.)[\w-]+)*
-        (?P<attributes>\{.*\})?
+        (?P<attributes>(\{.*\}|\(.*\)))?
         (?P<nuke_outer_whitespace>\>)?
         (?P<nuke_inner_whitespace>\<)?
         (?P<selfclose>/)?
