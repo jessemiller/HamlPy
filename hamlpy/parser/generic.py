@@ -1,18 +1,20 @@
 from __future__ import unicode_literals
 
+from future.utils import python_2_unicode_compatible
 
 STRING_LITERALS = ('"', "'")
 WHITESPACE_CHARS = (' ', '\t')
 WHITESPACE_AND_NEWLINE_CHARS = (' ', '\t', '\r', '\n')
 
 
+@python_2_unicode_compatible
 class ParseException(Exception):
     def __init__(self, message, stream=None):
         self.message = message
-        self.context = stream.text[stream.ptr:10] if stream else None
+        self.context = stream.text[stream.ptr:stream.ptr+10] if stream else None
 
     def __str__(self):
-        return "%s at %s" % (self.message, self.context) if self.context else self.message
+        return "%s at \"%s\"" % (self.message, self.context) if self.context else self.message
 
 
 class Stream(object):
@@ -24,32 +26,18 @@ class Stream(object):
 
 def consume_whitespace(stream, include_newlines=False):
     """
-    Moves the stream pointer to the next non-whitespace character
+    Reads and discards whitespace characters
     """
     whitespace = WHITESPACE_AND_NEWLINE_CHARS if include_newlines else WHITESPACE_CHARS
 
     while stream.ptr < stream.length and stream.text[stream.ptr] in whitespace:
         stream.ptr += 1
 
-    return stream.ptr
-
-
-def read_until(stream, terminators, or_whitespace=False):
-    start = stream.ptr
-
-    while True:
-        if stream.ptr >= stream.length:
-            raise ParseException("Expected %s but reached end of input" % ", ".join(terminators), stream)
-
-        if stream.text[stream.ptr] in terminators or (or_whitespace and stream.text[stream.ptr] in WHITESPACE_CHARS):
-            break
-
-        stream.ptr += 1
-
-    return stream.text[start:stream.ptr]
-
 
 def read_quoted_string(stream):
+    """
+    Reads a single or double quoted string, returning the value without the quotes
+    """
     terminator = stream.text[stream.ptr]
 
     assert terminator in STRING_LITERALS
@@ -72,6 +60,9 @@ def read_quoted_string(stream):
 
 
 def read_number(stream):
+    """
+    Reads a decimal number, returning value as string
+    """
     start = stream.ptr
 
     while True:
@@ -84,9 +75,12 @@ def read_number(stream):
 
 
 def read_symbol(stream, symbols):
+    """
+    Reads one of the given symbols, returning its value
+    """
     for symbol in symbols:
         if stream.text[stream.ptr:stream.ptr+len(symbol)] == symbol:
             stream.ptr += len(symbol)
             return symbol
 
-    raise ParseException("Expected one of %s" % ', '.join(symbols), stream)
+    raise ParseException("Expected %s" % ' or '.join(symbols), stream)

@@ -3,14 +3,16 @@ from __future__ import unicode_literals
 import unittest
 
 from collections import OrderedDict
-from hamlpy.attribute_dict_parser import AttributeDictParser
+
+from hamlpy.parser.attributes import read_attribute_dict
+from hamlpy.parser.generic import Stream
 
 
 class AttributeDictParserTest(unittest.TestCase):
 
     @staticmethod
     def _parse(text):
-        return AttributeDictParser(text).parse()
+        return read_attribute_dict(Stream(text))
 
     def test_parse(self):
         # TODO

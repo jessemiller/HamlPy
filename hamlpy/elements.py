@@ -3,7 +3,8 @@ from __future__ import print_function, unicode_literals
 import regex
 import six
 
-from .attribute_dict_parser import AttributeDictParser
+from .parser.attributes import read_attribute_dict
+from .parser.generic import Stream
 
 
 class Element(object):
@@ -49,7 +50,7 @@ class Element(object):
             self.tag = components.get('tag')[0].lstrip(self.ELEMENT)
 
         if components['attributes']:
-            self.attributes = AttributeDictParser(components.get('attributes')[0]).parse()
+            self.attributes = read_attribute_dict(Stream(components.get('attributes')[0]))
 
         # parse ids and classes from the components
         ids = []
