@@ -8,12 +8,9 @@ WHITESPACE_AND_NEWLINE_CHARS = (' ', '\t', '\r', '\n')
 
 
 class ParseException(Exception):
-    def __init__(self, message, stream=None):
-        if stream:
-            context = stream.text[max(stream.ptr-31, 0):stream.ptr+1]
-            message = "%s @ \"%s\" <-" % (message, context)
-        else:
-            message = message
+    def __init__(self, message, stream):
+        context = stream.text[max(stream.ptr-31, 0):stream.ptr+1]
+        message = "%s @ \"%s\" <-" % (message, context)
 
         super(ParseException, self).__init__(message)
 
@@ -48,7 +45,7 @@ def read_quoted_string(stream):
 
     while True:
         if stream.ptr >= stream.length:
-            raise ParseException("Unterminated string. Expected %s but reached end of input." % terminator, stream)
+            raise ParseException("Unterminated string (expected %s)." % terminator, stream)
 
         if stream.text[stream.ptr] == terminator and stream.text[stream.ptr - 1] != '\\':
             break

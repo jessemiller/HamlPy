@@ -113,6 +113,24 @@ class AttributeDictParserTest(unittest.TestCase):
         self.assertEqual(dict(self._parse("(:class='test' :data-number = 123\n foo=\"bar\")")),
                          {'class': 'test', 'data-number': '123', 'foo': 'bar'})
 
+    def test_empty_attribute_raises_error(self):
+        # empty quoted string
+        with self.assertRaisesRegexp(ParseException, "Empty attribute key @ \"{'':\" <-"):
+            self._parse("{'': 'test'}")
+
+        # empty unquoted
+        with self.assertRaisesRegexp(ParseException, "Empty attribute key @ \"{: \" <-"):
+            self._parse("{: 'test'}")
+
+    def test_unterminated_string_raises_error(self):
+        # on attribute key
+        with self.assertRaisesRegexp(ParseException, "Unterminated string \(expected '\). @ \"{'test: 123}\" <-"):
+            self._parse("{'test: 123}")
+
+        # on attribute value
+        with self.assertRaisesRegexp(ParseException, "Unterminated string \(expected \"\). @ \"{'test': \"123}\" <-"):
+            self._parse("{'test': \"123}")
+
     def test_duplicate_attributes_raise_error(self):
         with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"{class: 'test', class: 'bar'}\" <-"):
             self._parse("{class: 'test', class: 'bar'}")
