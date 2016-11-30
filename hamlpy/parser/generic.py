@@ -17,7 +17,7 @@ class ParseException(Exception):
 
 class Stream(object):
     def __init__(self, text):
-        self.text = text.strip()
+        self.text = text
         self.length = len(self.text)
         self.ptr = 0
 
