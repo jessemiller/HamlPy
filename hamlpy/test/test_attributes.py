@@ -113,10 +113,17 @@ class AttributeDictParserTest(unittest.TestCase):
         self.assertEqual(dict(self._parse("(:class='test' :data-number = 123\n foo=\"bar\")")),
                          {'class': 'test', 'data-number': '123', 'foo': 'bar'})
 
+    def test_duplicate_attributes_raise_error(self):
+        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"{class: 'test', class: 'bar'}\" <-"):
+            self._parse("{class: 'test', class: 'bar'}")
+
+        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"\(class='test' class='bar'\)\" <-"):
+            self._parse("(class='test' class='bar')")
+
     def test_mixing_ruby_and_html_syntax_raises_errors(self):
         # omit comma in Ruby style dict
         with self.assertRaisesRegexp(ParseException, "Expected \",\". @ \"{class: 'test' f\" <-"):
-            self._parse("{class: 'test' foo: bar}")
+            self._parse("{class: 'test' foo: 'bar'}")
 
         # use = in Ruby style dict
         with self.assertRaisesRegexp(ParseException, "Expected \"=>\" or \":\". @ \"{class=\" <-"):
@@ -124,7 +131,7 @@ class AttributeDictParserTest(unittest.TestCase):
 
         # use comma in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \",\". @ \"\(class='test',\" <-"):
-            self._parse("(class='test', foo = bar)")
+            self._parse("(class='test', foo = 'bar')")
 
         # use : in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Expected \"=\". @ \"\(class:\" <-"):

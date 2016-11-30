@@ -152,6 +152,11 @@ def read_attribute_dict(stream):
     html_style = start == '('
     stream.ptr += 1
 
+    def record_value(key, value):
+        if key in data:
+            raise ParseException("Duplicate attribute: \"%s\"." % key, stream)
+        data[key] = value
+
     while True:
         consume_whitespace(stream, include_newlines=True)
 
@@ -160,9 +165,7 @@ def read_attribute_dict(stream):
 
         # (foo = "bar" a=3)
         if html_style:
-            key, value = read_attribute(stream, ('=',), None, terminator)
-
-            data[key] = value
+            record_value(*read_attribute(stream, ('=',), None, terminator))
 
             consume_whitespace(stream)
 
@@ -171,9 +174,7 @@ def read_attribute_dict(stream):
 
         # {:foo => "bar", a=>3}
         else:
-            key, value = read_attribute(stream, ('=>', ':'), ',', terminator)
-
-            data[key] = value
+            record_value(*read_attribute(stream, ('=>', ':'), ',', terminator))
 
             consume_whitespace(stream)
 
