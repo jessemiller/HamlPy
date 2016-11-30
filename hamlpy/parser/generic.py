@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import ast
+
 from future.utils import python_2_unicode_compatible
 
 STRING_LITERALS = ('"', "'")
@@ -42,8 +44,8 @@ def read_quoted_string(stream):
 
     assert terminator in STRING_LITERALS
 
-    stream.ptr += 1  # consume opening quote
     start = stream.ptr
+    stream.ptr += 1  # consume opening quote
 
     while True:
         if stream.ptr >= stream.length:
@@ -56,7 +58,8 @@ def read_quoted_string(stream):
 
     stream.ptr += 1  # consume closing quote
 
-    return stream.text[start:stream.ptr - 1]
+    # evaluate as a Python unicode string (evaluates escape sequences)
+    return ast.literal_eval('u' + stream.text[start:stream.ptr])
 
 
 def read_number(stream):
