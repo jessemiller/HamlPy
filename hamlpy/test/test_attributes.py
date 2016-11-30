@@ -115,11 +115,11 @@ class AttributeDictParserTest(unittest.TestCase):
 
     def test_empty_attribute_raises_error(self):
         # empty quoted string
-        with self.assertRaisesRegexp(ParseException, "Empty attribute key @ \"{'':\" <-"):
+        with self.assertRaisesRegexp(ParseException, "Empty attribute key. @ \"{'':\" <-"):
             self._parse("{'': 'test'}")
 
         # empty unquoted
-        with self.assertRaisesRegexp(ParseException, "Empty attribute key @ \"{: \" <-"):
+        with self.assertRaisesRegexp(ParseException, "Empty attribute key. @ \"{: \" <-"):
             self._parse("{: 'test'}")
 
     def test_unterminated_string_raises_error(self):

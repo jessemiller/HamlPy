@@ -115,7 +115,7 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
         key = read_attribute_key(stream)
 
     if not key:
-        raise ParseException("Empty attribute key", stream)
+        raise ParseException("Empty attribute key.", stream)
 
     consume_whitespace(stream)
 
