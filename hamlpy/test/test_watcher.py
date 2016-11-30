@@ -3,6 +3,7 @@ from __future__ import print_function, unicode_literals
 import os
 import shutil
 import sys
+import time
 import unittest
 
 from mock import patch
@@ -19,10 +20,6 @@ class ScriptExit(Exception):
     def __init__(self, exit_code):
         self.exit_code = exit_code
 
-    @classmethod
-    def mock(cls, code):
-        raise cls(code)
-
 
 class WatcherTest(unittest.TestCase):
 
@@ -35,31 +32,57 @@ class WatcherTest(unittest.TestCase):
         os.makedirs(OUTPUT_DIR)
 
         # create some haml files for testing
-        self._write_file(INPUT_DIR + os.sep + 'test.haml', "%span{'class': 'test'}\n")
+        self._write_file(INPUT_DIR + os.sep + 'test.haml', "%span{'class': 'test'}\n- macro\n")
         self._write_file(INPUT_DIR + os.sep + 'error.haml', "%div{")
 
         # run as once off pass - should return 1 for number of failed conversions
-        self._run_script(['hamlpy_watcher.py', INPUT_DIR, OUTPUT_DIR, '--once', '--input-extension=.haml'], 1)
+        self._run_script([
+            'hamlpy_watcher.py',
+            INPUT_DIR, OUTPUT_DIR,
+            '--once', '--input-extension=.haml', '--verbose', '--tag=macro:endmacro'
+        ], 1)
 
         # check file without errors was converted
-        output = self._read_file(OUTPUT_DIR + os.sep + 'test.html')
-        self.assertEqual(output, "<span class='test'></span>\n")
+        self.assertFileContents(OUTPUT_DIR + os.sep + 'test.html',
+                                "<span class='test'></span>\n{% macro %}\n{% endmacro %}\n")
 
-    def _read_file(self, path):
+        # run without output directory which should make it default to re-using the input directory
+        self._run_script([
+            'hamlpy_watcher.py',
+            INPUT_DIR,
+            '--once', '--input-extension=.haml', '--tag=macro:endmacro'
+        ], 1)
+
+        self.assertFileContents(INPUT_DIR + os.sep + 'test.html',
+                                "<span class='test'></span>\n{% macro %}\n{% endmacro %}\n")
+
+        # run in watch mode with 1 second refresh
+        self._run_script([
+            'hamlpy_watcher.py',
+            INPUT_DIR,
+            '--refresh=1', '--input-extension=.haml', '--tag=macro:endmacro'
+        ], 1)
+
+    def assertFileContents(self, path, contents):
         with open(path, 'r') as f:
-            return f.read()
+            self.assertEqual(f.read(), contents)
 
     def _write_file(self, path, text):
         with open(path, 'w') as f:
             f.write(text)
 
     def _run_script(self, script_args, expected_exit_code):
+        def raise_exception_with_code(code):
+            raise ScriptExit(code)
+
         # patch sys.exit so it throws an exception so we can return execution to this test
-        with patch.object(sys, 'exit', side_effect=ScriptExit.mock):
+        # patch sys.argv to pass our arguments to the script
+        # patch time.sleep to be interrupted
+        with patch.object(sys, 'exit', side_effect=raise_exception_with_code), \
+             patch.object(sys, 'argv', script_args), \
+             patch.object(time, 'sleep', side_effect=KeyboardInterrupt), \
+             self.assertRaises(ScriptExit) as raises:
 
-            # patch sys.argv to pass our arguments to the script
-            with patch.object(sys, 'argv', script_args):
-                with self.assertRaises(ScriptExit) as raises:
-                    watch_folder()
+            watch_folder()
 
-                assert raises.exception.exit_code == expected_exit_code
+            assert raises.exception.exit_code == expected_exit_code
