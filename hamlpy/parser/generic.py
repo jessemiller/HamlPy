@@ -2,21 +2,20 @@ from __future__ import unicode_literals
 
 import ast
 
-from future.utils import python_2_unicode_compatible
-
 STRING_LITERALS = ('"', "'")
 WHITESPACE_CHARS = (' ', '\t')
 WHITESPACE_AND_NEWLINE_CHARS = (' ', '\t', '\r', '\n')
 
 
-@python_2_unicode_compatible
 class ParseException(Exception):
     def __init__(self, message, stream=None):
-        self.message = message
-        self.context = stream.text[stream.ptr:stream.ptr+10] if stream else None
+        if stream:
+            context = stream.text[max(stream.ptr-31, 0):stream.ptr+1]
+            message = "%s @ \"%s\" <-" % (message, context)
+        else:
+            message = message
 
-    def __str__(self):
-        return "%s at \"%s\"" % (self.message, self.context) if self.context else self.message
+        super(ParseException, self).__init__(message)
 
 
 class Stream(object):
@@ -49,7 +48,7 @@ def read_quoted_string(stream):
 
     while True:
         if stream.ptr >= stream.length:
-            raise ParseException("Unterminated string. Expected %s but reached end of input" % terminator, stream)
+            raise ParseException("Unterminated string. Expected %s but reached end of input." % terminator, stream)
 
         if stream.text[stream.ptr] == terminator and stream.text[stream.ptr - 1] != '\\':
             break
@@ -86,4 +85,4 @@ def read_symbol(stream, symbols):
             stream.ptr += len(symbol)
             return symbol
 
-    raise ParseException("Expected %s" % ' or '.join(symbols), stream)
+    raise ParseException("Expected %s." % ' or '.join(['"%s"' % s for s in symbols]), stream)

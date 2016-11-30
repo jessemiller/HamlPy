@@ -39,9 +39,11 @@ def read_attribute_value(stream):
         return read_quoted_string(stream)
     elif ch.isdigit():
         return read_number(stream)
-    else:
-        read_symbol(stream, ('None', 'none'))
+    elif stream.text[stream.ptr:stream.ptr+4].lower() == 'none':
+        stream.ptr += 4
         return None
+    else:
+        raise ParseException("Unexpected \"%s\"." % ch, stream)
 
 
 def read_attribute_value_list(stream):
@@ -147,13 +149,7 @@ def read_attribute_dict(stream):
 
     assert start in ('{', '(') and terminator in ('}', ')')
 
-    if start == '{':
-        assignment_symbols = ('=>', ':')
-        entry_separator = ','
-    else:
-        assignment_symbols = ('=',)
-        entry_separator = None
-
+    html_style = start == '('
     stream.ptr += 1
 
     while True:
@@ -162,13 +158,26 @@ def read_attribute_dict(stream):
         if stream.text[stream.ptr] == terminator:
             break
 
-        key, value = read_attribute(stream, assignment_symbols, entry_separator, terminator)
+        # (foo = "bar" a=3)
+        if html_style:
+            key, value = read_attribute(stream, ('=',), None, terminator)
 
-        data[key] = value
+            data[key] = value
 
-        consume_whitespace(stream)
+            consume_whitespace(stream)
 
-        if entry_separator and stream.text[stream.ptr] not in (terminator, '\n'):
-            read_symbol(stream, (entry_separator,))
+            if stream.text[stream.ptr] == ',':
+                raise ParseException("Unexpected \",\".", stream)
+
+        # {:foo => "bar", a=>3}
+        else:
+            key, value = read_attribute(stream, ('=>', ':'), ',', terminator)
+
+            data[key] = value
+
+            consume_whitespace(stream)
+
+            if stream.text[stream.ptr] not in (terminator, '\n'):
+                read_symbol(stream, (',',))
 
     return data

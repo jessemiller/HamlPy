@@ -5,7 +5,7 @@ import unittest
 from collections import OrderedDict
 
 from hamlpy.parser.attributes import read_attribute_dict
-from hamlpy.parser.generic import Stream
+from hamlpy.parser.generic import Stream, ParseException
 
 
 class AttributeDictParserTest(unittest.TestCase):
@@ -108,3 +108,28 @@ class AttributeDictParserTest(unittest.TestCase):
 
         # non-ascii attribute values
         self.assertEqual(dict(self._parse("{class: 'test\u1234'}")), {'class': 'test\u1234'})
+
+        # html style dicts
+        self.assertEqual(dict(self._parse("(:class='test' :data-number = 123\n foo=\"bar\")")),
+                         {'class': 'test', 'data-number': '123', 'foo': 'bar'})
+
+    def test_mixing_ruby_and_html_syntax_raises_errors(self):
+        # omit comma in Ruby style dict
+        with self.assertRaisesRegexp(ParseException, "Expected \",\". @ \"{class: 'test' f\" <-"):
+            self._parse("{class: 'test' foo: bar}")
+
+        # use = in Ruby style dict
+        with self.assertRaisesRegexp(ParseException, "Expected \"=>\" or \":\". @ \"{class=\" <-"):
+            self._parse("{class='test'}")
+
+        # use comma in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \",\". @ \"\(class='test',\" <-"):
+            self._parse("(class='test', foo = bar)")
+
+        # use : in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Expected \"=\". @ \"\(class:\" <-"):
+            self._parse("(class:'test')")
+
+        # use => in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \">\". @ \"\(class=>\" <-"):
+            self._parse("(class=>'test')")
