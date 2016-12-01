@@ -6,6 +6,7 @@
 .DS_Store
 .idea/
 .tox/
+.watcher_test/
 build/
 htmlcov/
 env/
