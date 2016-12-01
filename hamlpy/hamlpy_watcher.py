@@ -15,10 +15,6 @@ import time
 from . import hamlpy
 from . import nodes as hamlpynodes
 
-try:
-    str = unicode
-except NameError:
-    pass
 
 class Options(object):
     CHECK_INTERVAL = 3  # in seconds
@@ -29,8 +25,9 @@ class Options(object):
 # dict of compiled files [fullpath : timestamp]
 compiled = dict()
 
+
 class StoreNameValueTagPair(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string = None):
+    def __call__(self, parser, namespace, values, option_string=None):
         tags = getattr(namespace, 'tags', {})
         if tags is None:
             tags = {}
@@ -41,16 +38,24 @@ class StoreNameValueTagPair(argparse.Action):
         setattr(namespace, 'tags', tags)
 
 arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument('-v', '--verbose', help = 'Display verbose output', action = 'store_true')
-arg_parser.add_argument('-i', '--input-extension', metavar = 'EXT', default = '.hamlpy', help = 'The file extensions to look for.', type = str, nargs = '+')
-arg_parser.add_argument('-ext', '--extension', metavar = 'EXT', default = Options.OUTPUT_EXT, help = 'The output file extension. Default is .html', type = str)
-arg_parser.add_argument('-r', '--refresh', metavar = 'S', default = Options.CHECK_INTERVAL, help = 'Refresh interval for files. Default is {} seconds. Ignored if the --once flag is set.'.format(Options.CHECK_INTERVAL), type = int)
-arg_parser.add_argument('input_dir', help = 'Folder to watch', type = str)
-arg_parser.add_argument('output_dir', help = 'Destination folder', type = str, nargs = '?')
-arg_parser.add_argument('--tag', help = 'Add self closing tag. eg. --tag macro:endmacro', type = str, nargs = 1, action = StoreNameValueTagPair)
-arg_parser.add_argument('--attr-wrapper', dest = 'attr_wrapper', type = str, choices = ('"', "'"), default = "'", action = 'store', help = "The character that should wrap element attributes. This defaults to ' (an apostrophe).")
-arg_parser.add_argument('--jinja', help = 'Makes the necessary changes to be used with Jinja2.', default = False, action = 'store_true')
-arg_parser.add_argument('--once', help = 'Runs the compiler once and exits on completion. Returns a non-zero exit code if there were any compile errors.', default = False, action = 'store_true')
+arg_parser.add_argument('-v', '--verbose', help='Display verbose output', action='store_true')
+arg_parser.add_argument('-i', '--input-extension', metavar='EXT', default='.hamlpy',
+                        help='The file extensions to look for.', type=str, nargs='+')
+arg_parser.add_argument('-ext', '--extension', metavar='EXT', default=Options.OUTPUT_EXT,
+                        help='The output file extension. Default is .html', type=str)
+arg_parser.add_argument('-r', '--refresh', metavar='S', default=Options.CHECK_INTERVAL, type=int,
+                        help='Refresh interval for files. Default is {} seconds. Ignored if the --once flag is set.'.format(Options.CHECK_INTERVAL))
+arg_parser.add_argument('input_dir', help='Folder to watch', type=str)
+arg_parser.add_argument('output_dir', help='Destination folder', type=str, nargs='?')
+arg_parser.add_argument('--tag', type=str, nargs=1, action=StoreNameValueTagPair,
+                        help='Add self closing tag. eg. --tag macro:endmacro')
+arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices=('"', "'"), default="'", action='store',
+                        help="The character that should wrap element attributes. This defaults to ' (an apostrophe).")
+arg_parser.add_argument('--jinja', default=False, action='store_true',
+                        help='Makes the necessary changes to be used with Jinja2.')
+arg_parser.add_argument('--once', default=False, action='store_true',
+                        help='Runs the compiler once and exits on completion. Returns a non-zero exit code if there were any compile errors.')
+
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
@@ -59,9 +64,9 @@ def watched_extension(extension):
             return True
     return False
 
+
 def watch_folder():
     """Main entry point. Expects one or two arguments (the watch folder + optional destination folder)."""
-    argv = sys.argv[1:] if len(sys.argv) > 1 else []
     args = arg_parser.parse_args(sys.argv[1:])
     compiler_args = {}
     
@@ -95,9 +100,9 @@ def watch_folder():
             hamlpynodes.TagNode.may_contain.pop(k, None)
         
         hamlpynodes.TagNode.self_closing.update({
-            'macro'  : 'endmacro',
-            'call'   : 'endcall',
-            'raw'    : 'endraw'
+            'macro': 'endmacro',
+            'call': 'endcall',
+            'raw': 'endraw'
         })
         
         hamlpynodes.TagNode.may_contain['for'] = 'else'
@@ -120,6 +125,7 @@ def watch_folder():
             # allow graceful exit (no stacktrace output)
             sys.exit(0)
 
+
 def _watch_folder(folder, destination, compiler_args):
     """Compares "modified" timestamps against the "compiled" dict, calls compiler
     if necessary. Returns a tuple of the number of files hit and the number
@@ -140,16 +146,18 @@ def _watch_folder(folder, destination, compiler_args):
                     os.makedirs(compiled_folder)
                 
                 compiled_path = _compiled_path(compiled_folder, filename)
-                if not fullpath in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
+                if fullpath not in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
                     compiled[fullpath] = mtime
                     total_files += 1
                     if not compile_file(fullpath, compiled_path, compiler_args):
                         num_failed += 1
 
-    return (total_files, num_failed)
+    return total_files, num_failed
+
 
 def _compiled_path(destination, filename):
     return os.path.join(destination, filename[:filename.rfind('.')] + Options.OUTPUT_EXT)
+
 
 def compile_file(fullpath, outfile_name, compiler_args):
     """Calls HamlPy compiler. Returns True if the file was compiled and 
@@ -159,10 +167,10 @@ def compile_file(fullpath, outfile_name, compiler_args):
     try:
         if Options.DEBUG:
             print("Compiling %s -> %s" % (fullpath, outfile_name))
-        haml_lines = codecs.open(fullpath, 'r', encoding = 'utf-8').read().splitlines()
+        haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
         compiler = hamlpy.Compiler(compiler_args)
         output = compiler.process_lines(haml_lines)
-        outfile = codecs.open(outfile_name, 'w', encoding = 'utf-8')
+        outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
         outfile.write(output)
 
         return True
@@ -173,5 +181,6 @@ def compile_file(fullpath, outfile_name, compiler_args):
 
     return False
 
-if __name__ == '__main__':
+
+if __name__ == '__main__':  # pragma: no cover
     watch_folder()
