@@ -51,6 +51,8 @@ arg_parser.add_argument('--tag', type=str, nargs=1, action=StoreNameValueTagPair
                         help='Add self closing tag. eg. --tag macro:endmacro')
 arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices=('"', "'"), default="'", action='store',
                         help="The character that should wrap element attributes. This defaults to ' (an apostrophe).")
+arg_parser.add_argument('--django-inline', dest='django_inline', action='store_true',
+                        help="Whether to support ={...} syntax for inline variables in addition to #{...}")
 arg_parser.add_argument('--jinja', default=False, action='store_true',
                         help='Makes the necessary changes to be used with Jinja2.')
 arg_parser.add_argument('--once', default=False, action='store_true',
@@ -91,6 +93,9 @@ def watch_folder():
     
     if args.attr_wrapper:
         compiler_args['attr_wrapper'] = args.attr_wrapper
+
+    if args.django_inline:
+        compiler_args['django_inline_style'] = args.django_inline
     
     if args.jinja:
         for k in ('ifchanged', 'ifequal', 'ifnotequal', 'autoescape', 'blocktrans',
