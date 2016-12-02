@@ -9,6 +9,9 @@ pouet = [
 ]
 
 
+NON_HAMLPY_EXTENSIONS = ('.html', '.htm', '.xml')
+
+
 class HamlExtensionTemplateView(object):
     def get_template_names(self):
         names = super(HamlExtensionTemplateView, self).get_template_names()
@@ -16,9 +19,12 @@ class HamlExtensionTemplateView(object):
         haml_names = []
 
         for name in names:
-            if name.endswith((".html", ".htm", ".xml")):
-                haml_names.append(name[:-len(".html")] + ".haml")
-                haml_names.append(name[:-len(".html")] + ".hamlpy")
+
+            for ext in NON_HAMLPY_EXTENSIONS:
+                if name.endswith(ext):
+                    base_name = name[:-len(ext)]
+                    haml_names.append(base_name + ".haml")
+                    haml_names.append(base_name + ".hamlpy")
 
         return haml_names + names
 
