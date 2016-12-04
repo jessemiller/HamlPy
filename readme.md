@@ -1,7 +1,7 @@
 # Introduction
 
-[![Build Status](https://travis-ci.org/Psycojoker/django-hamlpy.svg?branch=master)](https://travis-ci.org/Psycojoker/django-hamlpy)
-[![Coverage Status](https://coveralls.io/repos/github/Psycojoker/django-hamlpy/badge.svg?branch=master)](https://coveralls.io/github/Psycojoker/django-hamlpy?branch=master)
+[![Build Status](https://travis-ci.org/nyaruka/django-hamlpy.svg?branch=master)](https://travis-ci.org/nyaruka/django-hamlpy)
+[![Coverage Status](https://coveralls.io/repos/github/nyaruka/django-hamlpy/badge.svg?branch=master)](https://coveralls.io/github/nyaruka/django-hamlpy?branch=master)
 
 This is a tool for Django developers who want to use a Haml like syntax in their templates. It is not a template engine 
 in itself, but simply a compiler which will convert HamlPy files into templates that Django can understand.
@@ -17,8 +17,8 @@ The major new changes and features are:
 * The PyPI package has been renamed to *django-hamlpy*
 * Support for Django 1.9+
 * Support for Python 2.7 and 3.4+
-* [Boolean attribute](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes) syntax is supported
-* Includes Django [class based generic views](https://github.com/Psycojoker/django-hamlpy#class-based-generic-views) that look for `*.haml` and `*.hamlpy` templates.
+* [Boolean attribute](http://github.com/nyaruka/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes) syntax is supported
+* Includes Django [class based generic views](https://github.com/nyaruka/django-hamlpy#class-based-generic-views) that look for `*.haml` and `*.hamlpy` templates.
 
 ## Installing
 
@@ -28,7 +28,7 @@ The latest stable version can be installed using [pip](http://pypi.python.org/py
 
 The latest development version can be installed directly from GitHub:
 
-    pip install git+https://github.com/psycojoker/django-hamlpy
+    pip install git+https://github.com/nyaruka/django-hamlpy
 
 **NOTE:** If you are using Linux, you may need to install [python's development package](http://stackoverflow.com/a/21530768/2896976) if you are encountering build errors.
 
@@ -182,7 +182,7 @@ Where:
 
 ## Reference
 
-Check out the [reference.md](http://github.com/psycojoker/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
+Check out the [reference.md](http://github.com/nyaruka/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
 
 ## Class Based Generic Views
 
