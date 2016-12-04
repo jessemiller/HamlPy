@@ -12,10 +12,10 @@ class ElementTest(unittest.TestCase):
     def test_escape_attribute_quotes(self):
         sut = Element('')
 
-        s1 = sut._escape_attribute_quotes('''{% url 'blah' %}''')
+        s1 = sut._escape_attribute_quotes('''{% url 'blah' %}''', attr_wrapper="'")
         assert s1 == '''{% url 'blah' %}'''
 
-        s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''')
+        s2 = sut._escape_attribute_quotes('''blah's blah''s {% url 'blah' %} blah's blah''s''', attr_wrapper="'")
         assert s2 == r"blah\'s blah\'\'s {% url 'blah' %} blah\'s blah\'\'s"
 
     def test_parses_tag(self):

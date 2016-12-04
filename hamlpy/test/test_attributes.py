@@ -3,14 +3,16 @@ from __future__ import unicode_literals
 import unittest
 
 from collections import OrderedDict
-from hamlpy.attribute_dict_parser import AttributeDictParser
+
+from hamlpy.parser.attributes import read_attribute_dict
+from hamlpy.parser.generic import Stream, ParseException
 
 
 class AttributeDictParserTest(unittest.TestCase):
 
     @staticmethod
     def _parse(text):
-        return AttributeDictParser(text).parse()
+        return read_attribute_dict(Stream(text))
 
     def test_parse(self):
         # TODO
@@ -106,3 +108,53 @@ class AttributeDictParserTest(unittest.TestCase):
 
         # non-ascii attribute values
         self.assertEqual(dict(self._parse("{class: 'test\u1234'}")), {'class': 'test\u1234'})
+
+        # html style dicts
+        self.assertEqual(dict(self._parse("(:class='test' :data-number = 123\n foo=\"bar\")")),
+                         {'class': 'test', 'data-number': '123', 'foo': 'bar'})
+
+    def test_empty_attribute_raises_error(self):
+        # empty quoted string
+        with self.assertRaisesRegexp(ParseException, "Empty attribute key. @ \"{'':\" <-"):
+            self._parse("{'': 'test'}")
+
+        # empty unquoted
+        with self.assertRaisesRegexp(ParseException, "Empty attribute key. @ \"{: \" <-"):
+            self._parse("{: 'test'}")
+
+    def test_unterminated_string_raises_error(self):
+        # on attribute key
+        with self.assertRaisesRegexp(ParseException, "Unterminated string \(expected '\). @ \"{'test: 123}\" <-"):
+            self._parse("{'test: 123}")
+
+        # on attribute value
+        with self.assertRaisesRegexp(ParseException, "Unterminated string \(expected \"\). @ \"{'test': \"123}\" <-"):
+            self._parse("{'test': \"123}")
+
+    def test_duplicate_attributes_raise_error(self):
+        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"{class: 'test', class: 'bar'}\" <-"):
+            self._parse("{class: 'test', class: 'bar'}")
+
+        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"\(class='test' class='bar'\)\" <-"):
+            self._parse("(class='test' class='bar')")
+
+    def test_mixing_ruby_and_html_syntax_raises_errors(self):
+        # omit comma in Ruby style dict
+        with self.assertRaisesRegexp(ParseException, "Expected \",\". @ \"{class: 'test' f\" <-"):
+            self._parse("{class: 'test' foo: 'bar'}")
+
+        # use = in Ruby style dict
+        with self.assertRaisesRegexp(ParseException, "Expected \"=>\" or \":\". @ \"{class=\" <-"):
+            self._parse("{class='test'}")
+
+        # use comma in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \",\". @ \"\(class='test',\" <-"):
+            self._parse("(class='test', foo = 'bar')")
+
+        # use : in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Expected \"=\". @ \"\(class:\" <-"):
+            self._parse("(class:'test')")
+
+        # use => in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \">\". @ \"\(class=>\" <-"):
+            self._parse("(class=>'test')")

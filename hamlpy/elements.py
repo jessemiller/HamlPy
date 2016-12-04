@@ -3,7 +3,8 @@ from __future__ import print_function, unicode_literals
 import regex
 import six
 
-from .attribute_dict_parser import AttributeDictParser
+from .parser.attributes import read_attribute_dict
+from .parser.generic import Stream
 
 
 class Element(object):
@@ -19,7 +20,7 @@ class Element(object):
     ELEMENT_REGEX = regex.compile(r"""
         (?P<tag>%[\w\-]+(\:[\w\-]+)?)?
         (?P<id_and_classes>(\#|\.)[\w-]+)*
-        (?P<attributes>\{.*\})?
+        (?P<attributes>(\{.*\}|\(.*\)))?
         (?P<nuke_outer_whitespace>\>)?
         (?P<nuke_inner_whitespace>\<)?
         (?P<selfclose>/)?
@@ -27,9 +28,8 @@ class Element(object):
         (?P<inline>[^\w\.#\{].*)?
         """, regex.V1 | regex.X | regex.MULTILINE | regex.DOTALL | regex.UNICODE)
 
-    def __init__(self, haml, attr_wrapper="'"):
+    def __init__(self, haml):
         self.haml = haml
-        self.attr_wrapper = attr_wrapper
 
         self.tag = self.DEFAULT_TAG
         self.id = None
@@ -43,9 +43,6 @@ class Element(object):
 
         self._parse_haml()
 
-    def attr_wrap(self, value):
-        return '%s%s%s' % (self.attr_wrapper, value, self.attr_wrapper)
-
     def _parse_haml(self):
         components = self.ELEMENT_REGEX.search(self.haml).capturesdict()
 
@@ -53,7 +50,7 @@ class Element(object):
             self.tag = components.get('tag')[0].lstrip(self.ELEMENT)
 
         if components['attributes']:
-            self.attributes = AttributeDictParser(components.get('attributes')[0]).parse()
+            self.attributes = read_attribute_dict(Stream(components.get('attributes')[0]))
 
         # parse ids and classes from the components
         ids = []
@@ -90,14 +87,17 @@ class Element(object):
         self.django_variable = bool(components.get('django'))
         self.inline_content = components.get('inline')[0].strip() if components.get('inline') else ''
 
-    def render_attributes(self):
+    def render_attributes(self, attr_wrapper):
+        def attr_wrap(val):
+            return '%s%s%s' % (attr_wrapper, val, attr_wrapper)
+
         rendered = []
 
         if self.id:
-            rendered.append("id=%s" % self.attr_wrap(self.id))
+            rendered.append("id=%s" % attr_wrap(self.id))
 
         if len(self.classes) > 0:
-            rendered.append("class=%s" % self.attr_wrap(" ".join(self.classes)))
+            rendered.append("class=%s" % attr_wrap(" ".join(self.classes)))
 
         for name, value in self.attributes.items():
             if name in ('id', 'class'):
@@ -106,12 +106,13 @@ class Element(object):
             if value is None:
                 rendered.append("%s" % name)  # boolean attribute
             else:
-                value = self._escape_attribute_quotes(value)
-                rendered.append("%s=%s" % (name, self.attr_wrap(value)))
+                value = self._escape_attribute_quotes(value, attr_wrapper)
+                rendered.append("%s=%s" % (name, attr_wrap(value)))
 
         return ' '.join(rendered)
 
-    def _escape_attribute_quotes(self, v):
+    @staticmethod
+    def _escape_attribute_quotes(v, attr_wrapper):
         """
         Escapes quotes with a backslash, except those inside a Django tag
         """
@@ -123,7 +124,7 @@ class Element(object):
             elif v[i:i + 2] == '%}':
                 inside_tag = False
 
-            if v[i] == self.attr_wrapper and not inside_tag:
+            if v[i] == attr_wrapper and not inside_tag:
                 escaped.append('\\')
 
             escaped.append(v[i])
