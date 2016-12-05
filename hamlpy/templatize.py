@@ -22,8 +22,7 @@ def decorate_templatize(func):
 
             if extension in hamlpy.VALID_EXTENSIONS:
                 compiler = hamlpy.Compiler()
-                html = compiler.process(src.decode('utf-8'))
-                src = html.encode('utf-8')
+                src = compiler.process(src)
 
         return func(src, origin)
     return templatize
