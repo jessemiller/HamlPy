@@ -38,7 +38,7 @@ class WatcherTest(unittest.TestCase):
         self._run_script([
             'hamlpy_watcher.py',
             INPUT_DIR, OUTPUT_DIR,
-            '--once', '--input-extension=.haml', '--verbose', '--tag=shoutout:endshoutout', '--django-inline'
+            '--once', '--input-extension=.haml', '--verbose', '--tag=shoutout:endshoutout', '--django-inline', '--jinja'
         ], 1)
 
         # check file without errors was converted
@@ -49,7 +49,7 @@ class WatcherTest(unittest.TestCase):
         self._run_script([
             'hamlpy_watcher.py',
             INPUT_DIR,
-            '--once', '--input-extension=.haml', '--tag=shoutout:endshoutout'
+            '--once', '--tag=shoutout:endshoutout'
         ], 1)
 
         self.assertFileContents(INPUT_DIR + os.sep + 'test.html',

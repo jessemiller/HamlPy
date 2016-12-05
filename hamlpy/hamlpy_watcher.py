@@ -92,7 +92,7 @@ def watch_folder():
         Options.OUTPUT_EXT = args.extension
 
     if getattr(args, 'tags', False):
-        compiler_args['custom_self_closing'] = args.tags
+        compiler_args['custom_self_closing_tags'] = args.tags
 
     if args.input_extension:
         hamlpy.VALID_EXTENSIONS += args.input_extension
@@ -104,7 +104,7 @@ def watch_folder():
         compiler_args['django_inline_style'] = args.django_inline
 
     if args.jinja:
-        compiler_args['jinja'] = True
+        compiler_args['tag_config'] = 'jinja2'
 
     # compile once, then exist
     if args.once:

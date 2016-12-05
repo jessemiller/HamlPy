@@ -61,14 +61,14 @@ HAML_ESCAPE = '\\'
 _inline_variable_regexes = None
 
 
-def get_inline_variable_regex(options):
+def get_inline_variable_regex(compiler):
     """
     Generates regular expressions for inline variables and escaped inline variables, based on compiler options
     """
     global _inline_variable_regexes
 
     if not _inline_variable_regexes:
-        prefixes = ['=', '#'] if options['django_inline_style'] else ['#']
+        prefixes = ['=', '#'] if compiler.options['django_inline_style'] else ['#']
         prefixes = ''.join(prefixes)
         _inline_variable_regexes = (
             re.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
@@ -77,70 +77,70 @@ def get_inline_variable_regex(options):
     return _inline_variable_regexes
 
 
-def create_node(haml_line, options):
+def create_node(haml_line, compiler):
     stripped_line = haml_line.strip()
 
     if len(stripped_line) == 0:
         return None
 
-    inline_var_regex, escaped_var_regex = get_inline_variable_regex(options)
+    inline_var_regex, escaped_var_regex = get_inline_variable_regex(compiler)
 
     if re.match(inline_var_regex, stripped_line) or re.match(escaped_var_regex, stripped_line):
-        return PlaintextNode(haml_line, options)
+        return PlaintextNode(haml_line, compiler)
 
     if stripped_line[0] == HAML_ESCAPE:
-        return PlaintextNode(haml_line, options)
+        return PlaintextNode(haml_line, compiler)
 
     if stripped_line.startswith(DOCTYPE):
-        return DoctypeNode(haml_line, options)
+        return DoctypeNode(haml_line, compiler)
 
     if stripped_line[0] in ELEMENT_CHARACTERS:
-        return ElementNode(haml_line, options)
+        return ElementNode(haml_line, compiler)
 
     if stripped_line[0:len(CONDITIONAL_COMMENT)] == CONDITIONAL_COMMENT:
-        return ConditionalCommentNode(haml_line, options)
+        return ConditionalCommentNode(haml_line, compiler)
 
     if stripped_line[0] == HTML_COMMENT:
-        return CommentNode(haml_line, options)
+        return CommentNode(haml_line, compiler)
 
     for comment_prefix in HAML_COMMENTS:
         if stripped_line.startswith(comment_prefix):
-            return HamlCommentNode(haml_line, options)
+            return HamlCommentNode(haml_line, compiler)
 
     if stripped_line[0] == VARIABLE:
-        return VariableNode(haml_line, options)
+        return VariableNode(haml_line, compiler)
 
     if stripped_line[0] == TAG:
-        return TagNode(haml_line, options)
+        return TagNode(haml_line, compiler)
 
     if stripped_line == JAVASCRIPT_FILTER:
-        return JavascriptFilterNode(haml_line, options)
+        return JavascriptFilterNode(haml_line, compiler)
 
     if stripped_line in COFFEESCRIPT_FILTERS:
-        return CoffeeScriptFilterNode(haml_line, options)
+        return CoffeeScriptFilterNode(haml_line, compiler)
 
     if stripped_line == CSS_FILTER:
-        return CssFilterNode(haml_line, options)
+        return CssFilterNode(haml_line, compiler)
 
     if stripped_line == STYLUS_FILTER:
-        return StylusFilterNode(haml_line, options)
+        return StylusFilterNode(haml_line, compiler)
 
     if stripped_line == PLAIN_FILTER:
-        return PlainFilterNode(haml_line, options)
+        return PlainFilterNode(haml_line, compiler)
 
     if stripped_line == PYTHON_FILTER:
-        return PythonFilterNode(haml_line, options)
+        return PythonFilterNode(haml_line, compiler)
 
     if stripped_line == CDATA_FILTER:
-        return CDataFilterNode(haml_line, options)
+        return CDataFilterNode(haml_line, compiler)
 
     if stripped_line == PYGMENTS_FILTER:
-        return PygmentsFilterNode(haml_line, options)
+        return PygmentsFilterNode(haml_line, compiler)
 
     if stripped_line == MARKDOWN_FILTER:
-        return MarkdownFilterNode(haml_line, options)
+        return MarkdownFilterNode(haml_line, compiler)
 
-    return PlaintextNode(haml_line, options)
+    return PlaintextNode(haml_line, compiler)
 
 
 class TreeNode(object):
@@ -168,10 +168,10 @@ class TreeNode(object):
 
 
 class RootNode(TreeNode):
-    def __init__(self, options):
+    def __init__(self, compiler):
         super(RootNode, self).__init__()
 
-        self.options = options
+        self.compiler = compiler
 
         self.indentation = -2
         # Number of empty lines to render after node
@@ -255,17 +255,17 @@ class RootNode(TreeNode):
 
 
 class HamlNode(RootNode):
-    def __init__(self, haml, options):
-        super(HamlNode, self).__init__(options)
+    def __init__(self, haml, compiler):
+        super(HamlNode, self).__init__(compiler)
 
-        RootNode.__init__(self, options)
+        RootNode.__init__(self, compiler)
         self.haml = haml.strip()
         self.raw_haml = haml
         self.indentation = (len(haml) - len(haml.lstrip()))
         self.spaces = ''.join(haml[0] for i in range(self.indentation))
 
     def replace_inline_variables(self, content):
-        inline_var_regex, escaped_var_regex = get_inline_variable_regex(self.options)
+        inline_var_regex, escaped_var_regex = get_inline_variable_regex(self.compiler)
 
         content = re.sub(inline_var_regex, r'{{ \2 }}', content)
         content = re.sub(escaped_var_regex, r'\1', content)
@@ -295,8 +295,8 @@ class PlaintextNode(HamlNode):
 class ElementNode(HamlNode):
     '''Node which represents a HTML tag'''
 
-    def __init__(self, haml, options):
-        super(ElementNode, self).__init__(haml, options)
+    def __init__(self, haml, compiler):
+        super(ElementNode, self).__init__(haml, compiler)
 
         self.django_variable = False
 
@@ -311,7 +311,7 @@ class ElementNode(HamlNode):
         '''Render opening tag and inline content'''
         start = ["%s<%s" % (self.spaces, element.tag)]
 
-        attributes = element.render_attributes(self.options['attr_wrapper'])
+        attributes = element.render_attributes(self.compiler.options['attr_wrapper'])
         if attributes:
             start.append(' ' + self.replace_inline_variables(attributes))
 
@@ -427,7 +427,7 @@ class DoctypeNode(HamlNode):
 
         parts = doctype.split()
         if parts and parts[0] == "XML":
-            attr_wrapper = self.options['attr_wrapper']
+            attr_wrapper = self.compiler.options['attr_wrapper']
             encoding = parts[1] if len(parts) > 1 else 'utf-8'
             self.before = "<?xml version=%s1.0%s encoding=%s%s%s ?>" % (
                 attr_wrapper, attr_wrapper,
@@ -457,8 +457,8 @@ class HamlCommentNode(HamlNode):
 
 
 class VariableNode(ElementNode):
-    def __init__(self, haml, options):
-        super(VariableNode, self).__init__(haml, options)
+    def __init__(self, haml, compiler):
+        super(VariableNode, self).__init__(haml, compiler)
 
         self.django_variable = True
 
@@ -472,73 +472,24 @@ class VariableNode(ElementNode):
 
 
 class TagNode(HamlNode):
-    DJANGO_SELF_CLOSING = {
-        'for': 'endfor',
-        'if': 'endif',
-        'ifchanged': 'endifchanged',
-        'ifequal': 'endifequal',
-        'ifnotequal': 'endifnotequal',
-        'block': 'endblock',
-        'filter': 'endfilter',
-        'autoescape': 'endautoescape',
-        'with': 'endwith',
-        'blocktrans': 'endblocktrans',
-        'spaceless': 'endspaceless',
-        'comment': 'endcomment',
-        'cache': 'endcache',
-        'localize': 'endlocalize',
-        'call': 'endcall',
-        'macro': 'endmacro',
-        'compress': 'endcompress'
-    }
-
-    DJANGO_MAY_CONTAIN = {
-        'if': ['else', 'elif'],
-        'ifchanged': ['else'],
-        'ifequal': ['else'],
-        'ifnotequal': ['else'],
-        'for': ['empty'],
-        'with': ['with']
-    }
-
-    JINJA_SELF_CLOSING = {
-        'for': 'endfor',
-        'if': 'endif',
-        'block': 'endblock',
-        'filter': 'endfilter',
-        'with': 'endwith',
-        'call': 'endcall',
-        'macro': 'endmacro',
-        'raw': 'endraw'
-    }
-
-    JINJA_MAY_CONTAIN = {
-        'if': ['else', 'elif'],
-        'for': ['empty', 'else'],
-        'with': ['with']
-    }
-
-    def __init__(self, haml, options):
-        super(TagNode, self).__init__(haml, options)
-
-        if options['jinja']:
-            self.self_closing = self.JINJA_SELF_CLOSING
-            self.may_contain = self.JINJA_MAY_CONTAIN
-        else:
-            self.self_closing = self.DJANGO_SELF_CLOSING
-            self.may_contain = self.DJANGO_MAY_CONTAIN
+    """
+    A Django/Jinja server-side tag, e.g. -block
+    """
+    def __init__(self, haml, compiler):
+        super(TagNode, self).__init__(haml, compiler)
 
         self.tag_statement = self.haml.lstrip(TAG).strip()
         self.tag_name = self.tag_statement.split(' ')[0]
 
-        if self.tag_name in self.self_closing.values():
-            raise TypeError("Do not close your Django tags manually.  It will be done for you.")
+        if self.tag_name in self.compiler.self_closing_tags.values():
+            raise ParseException("Unexpected closing tag for self-closing tag %s" % self.tag_name)
 
     def _render(self):
         self.before = "%s{%% %s %%}" % (self.spaces, self.tag_statement)
-        if self.tag_name in self.self_closing.keys():
+        if self.tag_name in self.compiler.self_closing_tags.keys():
             self.before += self.render_newlines()
-            self.after = '%s{%% %s %%}%s' % (self.spaces, self.self_closing[self.tag_name], self.render_newlines())
+            self.after = '%s{%% %s %%}%s' \
+                         % (self.spaces, self.compiler.self_closing_tags[self.tag_name], self.render_newlines())
         else:
             if self.children:
                 self.before += self.render_newlines()
@@ -547,10 +498,13 @@ class TagNode(HamlNode):
         self._render_children()
 
     def should_contain(self, node):
-        return isinstance(node, TagNode) and node.tag_name in self.may_contain.get(self.tag_name, '')
+        return isinstance(node, TagNode) and node.tag_name in self.compiler.tags_may_contain.get(self.tag_name, '')
 
 
 class FilterNode(HamlNode):
+    """
+    A type filter, e.g. :javascript
+    """
     def add_node(self, node):
         self.add_child(node)
 
@@ -575,8 +529,8 @@ class FilterNode(HamlNode):
 
 
 class PlainFilterNode(FilterNode):
-    def __init__(self, haml, options):
-        super(PlainFilterNode, self).__init__(haml, options)
+    def __init__(self, haml, compiler):
+        super(PlainFilterNode, self).__init__(haml, compiler)
 
         self.empty_node = True
 
@@ -609,7 +563,7 @@ class PythonFilterNode(FilterNode):
 class JavascriptFilterNode(FilterNode):
     def _render(self):
         self.before = '<script type=%(attr_wrapper)stext/javascript%(attr_wrapper)s>\n// <![CDATA[%(new_lines)s' % {
-            'attr_wrapper': self.options['attr_wrapper'],
+            'attr_wrapper': self.compiler.options['attr_wrapper'],
             'new_lines': self.render_newlines(),
         }
         self.after = '// ]]>\n</script>\n'
@@ -619,7 +573,7 @@ class JavascriptFilterNode(FilterNode):
 class CoffeeScriptFilterNode(FilterNode):
     def _render(self):
         self.before = '<script type=%(attr_wrapper)stext/coffeescript%(attr_wrapper)s>\n#<![CDATA[%(new_lines)s' % {
-            'attr_wrapper': self.options['attr_wrapper'],
+            'attr_wrapper': self.compiler.options['attr_wrapper'],
             'new_lines': self.render_newlines(),
         }
         self.after = '#]]>\n</script>\n'
@@ -629,7 +583,7 @@ class CoffeeScriptFilterNode(FilterNode):
 class CssFilterNode(FilterNode):
     def _render(self):
         self.before = '<style type=%(attr_wrapper)stext/css%(attr_wrapper)s>\n/*<![CDATA[*/%(new_lines)s' % {
-            'attr_wrapper': self.options['attr_wrapper'],
+            'attr_wrapper': self.compiler.options['attr_wrapper'],
             'new_lines': self.render_newlines(),
         }
         self.after = '/*]]>*/\n</style>\n'
@@ -639,7 +593,7 @@ class CssFilterNode(FilterNode):
 class StylusFilterNode(FilterNode):
     def _render(self):
         self.before = '<style type=%(attr_wrapper)stext/stylus%(attr_wrapper)s>\n/*<![CDATA[*/%(new_lines)s' % {
-            'attr_wrapper': self.options['attr_wrapper'],
+            'attr_wrapper': self.compiler.options['attr_wrapper'],
             'new_lines': self.render_newlines(),
         }
         self.after = '/*]]>*/\n</style>\n'

@@ -1,30 +1,81 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, unicode_literals
 
-from hamlpy.parser.nodes import RootNode, HamlNode, TagNode, create_node
+from hamlpy.parser.nodes import RootNode, HamlNode, create_node
 
 from optparse import OptionParser
 
 VALID_EXTENSIONS = ['haml', 'hamlpy']
 
 
-DEFAULT_OPTIONS = {
-    'attr_wrapper': '\'',         # how to render attribute values, e.g. foo='bar'
-    'django_inline_style': True,  # support both #{...} and ={...}
-    'jinja': False,               # enable Jinja2 support
-    'custom_self_closing': {},    # additional self-closing tags
-    'debug_tree': False,
-}
-
-
 class Compiler:
+    DEFAULT_OPTIONS = {
+        'attr_wrapper': '\'',            # how to render attribute values, e.g. foo='bar'
+        'django_inline_style': True,     # support both #{...} and ={...}
+        'tag_config': 'django',          # Django vs Jinja2 tags
+        'custom_self_closing_tags': {},  # additional self-closing tags
+        'debug_tree': False,
+    }
+
+    TAG_CONFIGS = {
+        'django': {
+            'self_closing': {
+                'for': 'endfor',
+                'if': 'endif',
+                'ifchanged': 'endifchanged',
+                'ifequal': 'endifequal',
+                'ifnotequal': 'endifnotequal',
+                'block': 'endblock',
+                'filter': 'endfilter',
+                'autoescape': 'endautoescape',
+                'with': 'endwith',
+                'blocktrans': 'endblocktrans',
+                'spaceless': 'endspaceless',
+                'comment': 'endcomment',
+                'cache': 'endcache',
+                'localize': 'endlocalize',
+                'call': 'endcall',
+                'macro': 'endmacro',
+                'compress': 'endcompress'
+            },
+            'may_contain': {
+                'if': ['else', 'elif'],
+                'ifchanged': ['else'],
+                'ifequal': ['else'],
+                'ifnotequal': ['else'],
+                'for': ['empty'],
+                'with': ['with']
+            }
+        },
+        'jinja2': {
+            'self_closing': {
+                'for': 'endfor',
+                'if': 'endif',
+                'block': 'endblock',
+                'filter': 'endfilter',
+                'with': 'endwith',
+                'call': 'endcall',
+                'macro': 'endmacro',
+                'raw': 'endraw'
+            },
+            'may_contain': {
+                'if': ['else', 'elif'],
+                'for': ['empty', 'else'],
+                'with': ['with']
+            }
+        }
+    }
+
     def __init__(self, options=None):
-        self.options = DEFAULT_OPTIONS.copy()
+        self.options = self.DEFAULT_OPTIONS.copy()
         if options:
             self.options.update(options)
 
-        # TODO keep list of tags on compiler and pass compiler rather than options to all nodes?
-        TagNode.DJANGO_SELF_CLOSING.update(self.options['custom_self_closing'])
+        tag_config = self.TAG_CONFIGS[self.options['tag_config']]
+        self.self_closing_tags = tag_config['self_closing']
+        self.tags_may_contain = tag_config['may_contain']
+
+        self.self_closing_tags.update(self.options['custom_self_closing_tags'])
 
     def process(self, haml):
         """
@@ -43,7 +94,7 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
-            if not root.parent_of(HamlNode(line, self.options)).inside_filter_node():
+            if not root.parent_of(HamlNode(line, self)).inside_filter_node():
                 if line.count('{') - line.count('}') == 1:
                     start_multiline = line_number  # for exception handling
 
@@ -59,7 +110,7 @@ class Compiler:
             if haml_node is not None and len(node_lines.strip()) == 0:
                 haml_node.newlines += 1
             else:
-                haml_node = create_node(node_lines, self.options)
+                haml_node = create_node(node_lines, self)
                 if haml_node:
                     root.add_node(haml_node)
 

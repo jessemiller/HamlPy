@@ -1,8 +1,8 @@
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 import unittest
 
-from hamlpy import hamlpy
+from hamlpy.hamlpy import Compiler
 from hamlpy.parser import nodes
 
 
@@ -29,4 +29,4 @@ class NodesTest(unittest.TestCase):
 
     @staticmethod
     def _create_node(line):
-        return nodes.create_node(line, hamlpy.DEFAULT_OPTIONS)
+        return nodes.create_node(line, Compiler())

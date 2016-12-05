@@ -115,9 +115,9 @@ test''', "test")
         self._test('- if something\n   %p hello\n- else\n   %p goodbye',
                    '{% if something %}\n   <p>hello</p>\n{% else %}\n   <p>goodbye</p>\n{% endif %}')
 
-        # exception trying to close if/else that wasn't opened
+        # exception using a closing tag of a self-closing tag
         parser = hamlpy.Compiler()
-        self.assertRaises(TypeError, parser.process, '- endfor')
+        self.assertRaises(ParseException, parser.process, '- endfor')
 
     def test_plain_text(self):
         self._test("This should be plain text", "This should be plain text")
