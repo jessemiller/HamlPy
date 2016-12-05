@@ -29,7 +29,6 @@ class WatcherTest(unittest.TestCase):
             shutil.rmtree(WORKING_DIR)
 
         os.makedirs(INPUT_DIR)
-        os.makedirs(OUTPUT_DIR)
 
         # create some haml files for testing
         self._write_file(INPUT_DIR + os.sep + 'test.haml', "%span{'class': 'test'}\n- macro\n")
@@ -39,7 +38,7 @@ class WatcherTest(unittest.TestCase):
         self._run_script([
             'hamlpy_watcher.py',
             INPUT_DIR, OUTPUT_DIR,
-            '--once', '--input-extension=.haml', '--verbose', '--tag=macro:endmacro'
+            '--once', '--input-extension=.haml', '--verbose', '--tag=macro:endmacro', '--django-inline'
         ], 1)
 
         # check file without errors was converted
@@ -55,6 +54,12 @@ class WatcherTest(unittest.TestCase):
 
         self.assertFileContents(INPUT_DIR + os.sep + 'test.html',
                                 "<span class='test'></span>\n{% macro %}\n{% endmacro %}\n")
+
+        # fix file with error
+        self._write_file(INPUT_DIR + os.sep + 'error.haml', "%div{}")
+
+        # check exit code is zero
+        self._run_script(['hamlpy_watcher.py', INPUT_DIR, OUTPUT_DIR, '--once'], 0)
 
         # run in watch mode with 1 second refresh
         self._run_script([

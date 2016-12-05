@@ -27,15 +27,13 @@ class Options(object):
     OUTPUT_EXT = '.html'
 
 
-# dict of compiled files [fullpath : timestamp]
+# dict of compiled files, fullpath => timestamp
 compiled = dict()
 
 
 class StoreNameValueTagPair(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         tags = getattr(namespace, 'tags', {})
-        if tags is None:
-            tags = {}
         for item in values:
             n, v = item.split(':')
             tags[n] = v
@@ -180,7 +178,7 @@ def compile_file(fullpath, outfile_name, compiler_args):
     if Options.VERBOSE:
         print('%s %s -> %s' % (strftime("%H:%M:%S"), fullpath, outfile_name))
     try:
-        if Options.DEBUG:
+        if Options.DEBUG:  # pragma: no cover
             print("Compiling %s -> %s" % (fullpath, outfile_name))
         haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
         compiler = hamlpy.Compiler(compiler_args)
