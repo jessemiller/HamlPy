@@ -3,8 +3,12 @@ from __future__ import print_function, unicode_literals
 import re
 import sys
 
+try:
+    from StringIO import StringIO  # required on Python 2 to accept non-unicode output
+except ImportError:
+    from io import StringIO
+
 from future.utils import raise_from
-from io import StringIO
 
 from .generic import ParseException
 from .elements import Element

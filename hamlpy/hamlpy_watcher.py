@@ -1,4 +1,4 @@
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 """
 Based on original haml-watcher.py by Christian Stefanescu (st.chris@gmail.com)
@@ -16,7 +16,7 @@ import time
 
 from time import strftime
 
-from . import hamlpy
+from hamlpy import hamlpy
 from hamlpy.parser import nodes as hamlpynodes
 
 

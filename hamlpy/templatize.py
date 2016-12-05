@@ -1,4 +1,4 @@
-from __future__ import print_function, unicode_literals
+from __future__ import absolute_import, print_function, unicode_literals
 
 """
 This module decorates the django templatize function to parse haml templates
@@ -7,10 +7,11 @@ before the translation utility extracts tags from it.
 --Modified to ignore non-haml files.
 """
 
+import os
+
 from django.utils.translation import trans_real
 
-from . import hamlpy
-import os
+from hamlpy import hamlpy
 
 
 def decorate_templatize(func):
