@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, unicode_literals
 
-from hamlpy.parser.nodes import RootNode, HamlNode, create_node
+import re
 
 from optparse import OptionParser
+
+from hamlpy.parser.nodes import RootNode, HamlNode, create_node
 
 VALID_EXTENSIONS = ['haml', 'hamlpy']
 
@@ -77,6 +79,8 @@ class Compiler:
 
         self.self_closing_tags.update(self.options['custom_self_closing_tags'])
 
+        self.inline_variable_regexes = self._create_inline_variable_regexes()
+
     def process(self, haml):
         """
         Converts the given string of Haml to a regular Django HTML
@@ -118,6 +122,17 @@ class Compiler:
             return root.debug_tree()
         else:
             return root.render()
+
+    def _create_inline_variable_regexes(self):
+        """
+        Generates regular expressions for inline variables and escaped inline variables, based on compiler options
+        """
+        prefixes = ['=', '#'] if self.options['django_inline_style'] else ['#']
+        prefixes = ''.join(prefixes)
+        return (
+            re.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
+            re.compile(r'\\([' + prefixes + r']\{\s*(.+?)\s*\})')
+        )
 
 
 def convert_files():  # pragma: no cover

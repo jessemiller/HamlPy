@@ -58,24 +58,6 @@ ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
 HAML_ESCAPE = '\\'
 
-_inline_variable_regexes = None
-
-
-def get_inline_variable_regex(compiler):
-    """
-    Generates regular expressions for inline variables and escaped inline variables, based on compiler options
-    """
-    global _inline_variable_regexes
-
-    if not _inline_variable_regexes:
-        prefixes = ['=', '#'] if compiler.options['django_inline_style'] else ['#']
-        prefixes = ''.join(prefixes)
-        _inline_variable_regexes = (
-            re.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
-            re.compile(r'\\([' + prefixes + r']\{\s*(.+?)\s*\})')
-        )
-    return _inline_variable_regexes
-
 
 def create_node(haml_line, compiler):
     stripped_line = haml_line.strip()
@@ -83,7 +65,7 @@ def create_node(haml_line, compiler):
     if len(stripped_line) == 0:
         return None
 
-    inline_var_regex, escaped_var_regex = get_inline_variable_regex(compiler)
+    inline_var_regex, escaped_var_regex = compiler.inline_variable_regexes
 
     if re.match(inline_var_regex, stripped_line) or re.match(escaped_var_regex, stripped_line):
         return PlaintextNode(haml_line, compiler)
@@ -265,7 +247,7 @@ class HamlNode(RootNode):
         self.spaces = ''.join(haml[0] for i in range(self.indentation))
 
     def replace_inline_variables(self, content):
-        inline_var_regex, escaped_var_regex = get_inline_variable_regex(self.compiler)
+        inline_var_regex, escaped_var_regex = self.compiler.inline_variable_regexes
 
         content = re.sub(inline_var_regex, r'{{ \2 }}', content)
         content = re.sub(escaped_var_regex, r'\1', content)

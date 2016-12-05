@@ -194,16 +194,12 @@ test''', "test")
 </script>''', compiler_options={'attr_wrapper': '"'})
 
     def _test(self, haml, expected_html, compiler_options=None):
-        nodes._inline_variable_regexes = None  # clear cached regexes
-
         compiler = hamlpy.Compiler(compiler_options)
         result = compiler.process(haml)
 
         self.assertEqual(result, expected_html + '\n')
 
     def _test_error(self, haml, expected_message, expected_cause=None, compiler_options=None):
-        nodes._inline_variable_regexes = None  # clear cached regexes
-
         compiler = hamlpy.Compiler(compiler_options)
 
         try:
