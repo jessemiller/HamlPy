@@ -136,10 +136,31 @@ test''', "test")
         self._test(":plain\n  \\Something", "\\Something")
 
     def test_python_filter(self):
+        self._test(":python\n", '\n')  # empty
         self._test(":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)",
                    '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>')
 
         self._test_error(":python\n   print(10 / 0)", "Error whilst executing python filter node", ZeroDivisionError)
+
+    def test_pygments_filter(self):
+        self._test(":highlight\n", '\n')  # empty
+        self._test(":highlight\n  print(1)\n", '\n<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>\n</pre></div>')  # noqa
+
+        nodes._pygments_available = False
+
+        self._test_error(":highlight\n  print(1)\n", "Pygments is not available")
+
+        nodes._pygments_available = True
+
+    def test_markdown_filter(self):
+        self._test(":markdown\n", '\n')  # empty
+        self._test(":markdown\n  *Title*\n", '<p><em>Title</em></p>')
+
+        nodes._markdown_available = False
+
+        self._test_error(":markdown\n  *Title*\n", "Markdown is not available")
+
+        nodes._markdown_available = True
 
     def test_doctypes(self):
         self._test('!!! 5', '<!DOCTYPE html>')
@@ -170,25 +191,27 @@ test''', "test")
 <script type="text/javascript">
 // <![CDATA[
 // ]]>
-</script>''', options={'attr_wrapper': '"'})
+</script>''', compiler_options={'attr_wrapper': '"'})
 
-    def _test(self, haml, expected_html, options=None):
+    def _test(self, haml, expected_html, compiler_options=None):
         nodes._inline_variable_regexes = None  # clear cached regexes
 
-        compiler = hamlpy.Compiler(options)
+        compiler = hamlpy.Compiler(compiler_options)
         result = compiler.process(haml)
 
         self.assertEqual(result, expected_html + '\n')
 
-    def _test_error(self, haml, expected_message, expected_cause, options=None):
+    def _test_error(self, haml, expected_message, expected_cause=None, compiler_options=None):
         nodes._inline_variable_regexes = None  # clear cached regexes
 
-        compiler = hamlpy.Compiler(options)
-
-        self.assertRaisesRegexp(ParseException, expected_message, compiler.process, haml)
+        compiler = hamlpy.Compiler(compiler_options)
 
         try:
             compiler.process(haml)
             self.fail("Expected exception to be raised")
         except Exception as e:
-            self.assertEqual(type(e.__cause__), expected_cause)
+            self.assertIsInstance(e, ParseException)
+            self.assertEqual(str(e), expected_message)
+
+            if expected_cause:
+                self.assertEqual(type(e.__cause__), expected_cause)

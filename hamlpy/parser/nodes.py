@@ -32,10 +32,6 @@ except ImportError:  # pragma: no cover
     _markdown_available = False
 
 
-class NotAvailableError(Exception):
-    pass
-
-
 ELEMENT = '%'
 ID = '#'
 CLASS = '.'
@@ -632,15 +628,19 @@ class PygmentsFilterNode(FilterNode):
     def _render(self):
         if self.children:
             if not _pygments_available:
-                raise NotAvailableError("Pygments is not available")
+                raise ParseException("Pygments is not available")
 
             self.before = self.render_newlines()
             indent_offset = len(self.children[0].spaces)
             text = ''.join(''.join([c.spaces[indent_offset:], c.haml, c.render_newlines()]) for c in self.children)
+
+            # let Pygments try to guess syntax but default to Python
             try:
-                self.before += highlight(text, guess_lexer(self.haml), HtmlFormatter())
+                lexer = guess_lexer(self.haml)
             except ClassNotFound:
-                self.before += highlight(text, PythonLexer(), HtmlFormatter())
+                lexer = PythonLexer()
+
+            self.before += highlight(text, lexer, HtmlFormatter())
         else:
             self.after = self.render_newlines()
 
@@ -649,7 +649,8 @@ class MarkdownFilterNode(FilterNode):
     def _render(self):
         if self.children:
             if not _markdown_available:
-                raise NotAvailableError("Markdown is not available")
+                raise ParseException("Markdown is not available")
+
             self.before = self.render_newlines()[1:]
             indent_offset = len(self.children[0].spaces)
             lines = []
@@ -659,5 +660,6 @@ class MarkdownFilterNode(FilterNode):
                     haml = haml[:-1]
                 lines.append(c.spaces[indent_offset:] + haml + c.render_newlines())
             self.before += markdown(''.join(lines))
+            self.before += '\n'
         else:
             self.after = self.render_newlines()
