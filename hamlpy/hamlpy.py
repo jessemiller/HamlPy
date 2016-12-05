@@ -45,8 +45,7 @@ class Compiler:
                 'ifchanged': ['else'],
                 'ifequal': ['else'],
                 'ifnotequal': ['else'],
-                'for': ['empty'],
-                'with': ['with']
+                'for': ['empty']
             }
         },
         'jinja2': {
@@ -62,8 +61,7 @@ class Compiler:
             },
             'may_contain': {
                 'if': ['else', 'elif'],
-                'for': ['empty', 'else'],
-                'with': ['with']
+                'for': ['empty', 'else']
             }
         }
     }

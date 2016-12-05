@@ -226,7 +226,7 @@ class Node(TreeNode):
         return output
 
     def __repr__(self):  # pragma: no cover
-        return '(%s)' % self.__class__
+        return '%s' % type(self).__name__
 
 
 class HamlNode(Node):
@@ -246,7 +246,7 @@ class HamlNode(Node):
         return content
 
     def __repr__(self):  # pragma: no cover
-        return '(%s in=%d, nl=%d: %s)' % (self.__class__, self.indentation, self.newlines, self.haml)
+        return '%s(indent=%d, newlines=%d): %s' % (type(self).__name__, self.indentation, self.newlines, self.haml)
 
 
 class PlaintextNode(HamlNode):
@@ -481,10 +481,12 @@ class TagNode(HamlNode):
 
     def _render(self):
         self.before = "%s{%% %s %%}" % (self.spaces, self.tag_statement)
-        if self.tag_name in self.compiler.self_closing_tags.keys():
+
+        closing_tag = self.compiler.self_closing_tags.get(self.tag_name)
+
+        if closing_tag:
             self.before += self.render_newlines()
-            self.after = '%s{%% %s %%}%s' \
-                         % (self.spaces, self.compiler.self_closing_tags[self.tag_name], self.render_newlines())
+            self.after = '%s{%% %s %%}%s' % (self.spaces, closing_tag, self.render_newlines())
         else:
             if self.children:
                 self.before += self.render_newlines()
