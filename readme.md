@@ -4,22 +4,26 @@
 [![Coverage Status](https://coveralls.io/repos/github/nyaruka/django-hamlpy/badge.svg?branch=master)](https://coveralls.io/github/nyaruka/django-hamlpy?branch=master)
 [![PyPI Release](https://img.shields.io/pypi/v/django-hamlpy.svg)](https://pypi.python.org/pypi/django-hamlpy/)
 
-This is a tool for Django developers who want to use a Haml like syntax in their templates. It is not a template engine 
-in itself, but simply a compiler which will convert HamlPy files into templates that Django can understand.
+Why type:
 
-Haml is an incredible template language written in Ruby used extensively in the Rails community. You can read more about 
-it [here](http://www.haml-lang.com "Haml Home").
+```html
+<div class="left" id="banner">
+    Greetings!
+</div>
+```
 
-This project is a fork of the no longer maintained [HamlPy](https://github.com/jessemiller/HamlPy), and wouldn't exist 
-without all of hard work by Jesse Miller and others, for which we're very grateful.
+when you can just type:
 
-The major new changes and features are:
+```haml
+.left#banner
+    Greetings!
+```
 
-* The PyPI package has been renamed to *django-hamlpy*
-* Support for Django 1.9+
-* Support for Python 2.7 and 3.4+
-* [Boolean attribute](http://github.com/nyaruka/django-hamlpy/blob/master/reference.md#attributes-without-values-boolean-attributes) syntax is supported
-* Includes Django [class based generic views](https://github.com/nyaruka/django-hamlpy#class-based-generic-views) that look for `*.haml` and `*.hamlpy` templates.
+... and do something more fun with all the time you save not typing angle brackets and remembering to close tags? 
+
+The syntax above is [Haml](http://www.haml-lang.com) - a templating language used extensively in the Ruby on Rails community. This library lets Django developers use a Haml like syntax in their templates. It's not a template engine in itself, but simply a compiler which will convert "HamlPy" files into templates that Django can understand.
+
+This project is a fork of the no longer maintained [HamlPy](https://github.com/jessemiller/HamlPy). It introduces Python 3 support, support for new Django versions, and a host of new features. Note that the package name is now *django-hamlpy*.
 
 ## Installing
 
@@ -27,41 +31,38 @@ The latest stable version can be installed using [pip](http://pypi.python.org/py
 
     pip install django-hamlpy
 
-The latest development version can be installed directly from GitHub:
+And the latest development version can be installed directly from GitHub:
 
     pip install git+https://github.com/nyaruka/django-hamlpy
 
-**NOTE:** If you are using Linux, you may need to install [python's development package](http://stackoverflow.com/a/21530768/2896976) if you are encountering build errors.
+**NOTE:** If you run into build errors, then you may need to install [python's development package](http://stackoverflow.com/a/21530768/2896976).
 
 ## Syntax
 
-Almost all of the XHTML syntax of Haml is preserved.
+Almost all of the syntax of Haml is preserved.
 
 ```haml
-#profile
+#profile{ style:"width: 200px" }
     .left.column
         #date 2010/02/18
         #address Toronto, ON
-    .right.column
+    .right.column<
         #bio Jesse Miller
 ```
 
 turns into:
 
 ```htmldjango
-<div id='profile'>
+<div id='profile' style="width: 200px">
     <div class='left column'>
         <div id='date'>2010/02/18</div>
         <div id='address'>Toronto, ON</div>
     </div>
-    <div class='right column'>
-        <div id='bio'>Jesse Miller</div>
-    </div>
+    <div class='right column'><div id='bio'>Jesse Miller</div></div>
 </div>
 ```
 
-
-The main difference is instead of interpreting Ruby, or even Python we instead can create Django Tags and Variables
+The main difference is instead of interpreting Ruby, or even Python we instead can create Django tags and variables. For example:
 
 ```haml
 %ul#athletes
@@ -69,7 +70,7 @@ The main difference is instead of interpreting Ruby, or even Python we instead c
         %li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
 ```
 
-turns into..
+becomes...
 
 ```htmldjango
 <ul id='athletes'>
@@ -81,30 +82,36 @@ turns into..
 
 ## Usage
 
-### Option 1: Template loader
+There are two different ways to use this library.
 
-The template loader was originally written by [Chris Hartjes](https://github.com/chartjes) under the name 'djaml'. This project has now been merged into the django-hamlpy codebase.
+### Option 1: Template loaders
 
-Add the django-hamlpy template loaders to the Django template loaders:
+These are Django template loaders which will convert any templates with `.haml` or `.hamlpy` extensions to regular Django templates whenever they are requested by a Django view. To use them, add them to the list of template loaders in your Django settings, e.g.
 
 ```python
-TEMPLATE_LOADERS = (
-    'hamlpy.template.loaders.HamlPyFilesystemLoader',
-    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
-    ...
-)
+TEMPLATES=[
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': ['./templates'],
+        'OPTIONS': {
+            'loaders': (
+                'hamlpy.template.loaders.HamlPyFilesystemLoader',
+                'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
+                ...
+            ), 
+        }
+    }
+]
 ```
 
-If you don't put the django-hamlpy template loader first, then the standard Django template loaders will try to process
-it first. Make sure your templates have a `.haml` or `.hamlpy` extension, and put them wherever you've told Django
-to expect to find templates (TEMPLATE_DIRS).
+Ensure they are listed before the standard Django template loaders or these loaders will try to process your Haml templates.
 
 #### Template caching
 
-For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_LOADERS:
+You can use these loaders with template caching - just add `django.template.loaders.cached.Loader` to your list of loaders, e.g.
 
 ```python
-TEMPLATE_LOADERS = (
+'loaders': (
     ('django.template.loaders.cached.Loader', (
         'hamlpy.template.loaders.HamlPyFilesystemLoader',
         'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
@@ -115,7 +122,7 @@ TEMPLATE_LOADERS = (
 
 #### Settings
 
-Following values in Django settings affect haml processing:
+You can configure the Haml compiler with the following Django settings:
 
   * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. Defaults to `'` (an apostrophe).
   * `HAMLPY_DJANGO_INLINE_STYLE` -- Whether to support `={...}` syntax for inline variables in addition to `#{...}`. 
@@ -123,73 +130,53 @@ Following values in Django settings affect haml processing:
 
 ### Option 2: Watcher
 
-HamlPy can also be used as a stand-alone program. There is a script which will watch for changed hamlpy extensions and regenerate the html as they are edited:
+The library can also be used as a stand-alone program. There is a watcher script which will monitor Haml files in a given directory and convert them to HTML as they are edited.
 
-
-        usage: hamlpy-watcher [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S]
-                            [--tag TAG] [--attr-wrapper {",'}]
-                            input_dir [output_dir]
-
-        positional arguments:
-        input_dir             Folder to watch
-        output_dir            Destination folder
-
-        optional arguments:
-        -h, --help            show this help message and exit
-        -v, --verbose         Display verbose output
-        -i EXT [EXT ...], --input-extension EXT [EXT ...]
-                                The file extensions to look for
-        -ext EXT, --extension EXT
-                                The output file extension. Default is .html
-        -r S, --refresh S     Refresh interval for files. Default is 3 seconds
-        --tag TAG             Add self closing tag. eg. --tag macro:endmacro
-        --attr-wrapper {",'}  The character that should wrap element attributes.
-                                This defaults to ' (an apostrophe).
-        --jinja               Makes the necessary changes to be used with Jinja2
-
-Or to simply convert a file and output the result to your console:
-
-```bash
-hamlpy inputFile.haml
 ```
+usage: hamlpy_watcher.py [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S]
+                         [--tag TAG] [--attr-wrapper {",'}] [--django-inline]
+                         [--jinja] [--once]
+                         input_dir [output_dir]
 
-Or you can have it dump to a file:
+positional arguments:
+  input_dir             Folder to watch
+  output_dir            Destination folder
 
-```bash
-hamlpy inputFile.haml outputFile.html
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Display verbose output
+  -i EXT [EXT ...], --input-extension EXT [EXT ...]
+                        The file extensions to look for.
+  -ext EXT, --extension EXT
+                        The output file extension. Default is .html
+  -r S, --refresh S     Refresh interval for files. Default is 3 seconds.
+                        Ignored if the --once flag is set.
+  --tag TAG             Add self closing tag. eg. --tag macro:endmacro
+  --attr-wrapper {",'}  The character that should wrap element attributes.
+                        This defaults to ' (an apostrophe).
+  --django-inline       Whether to support ={...} syntax for inline variables
+                        in addition to #{...}
+  --jinja               Makes the necessary changes to be used with Jinja2.
+  --once                Runs the compiler once and exits on completion.
+                        Returns a non-zero exit code if there were any compile
+                        errors.
 ```
-
-Optionally, `--attr-wrapper` can be specified:
-
-```bash
-hamlpy inputFile.haml --attr-wrapper='"'
-```
-
-Using the `--jinja` compatibility option adds macro and call tags, and changes the `empty` node in the `for` tag to `else`.
-
-For HamlPy developers, the `-d` switch can be used with `hamlpy` to debug the internal tree structure.
 
 ### Create message files for translation
 
-There is a very simple solution.
+Just include your Haml templates along with all the other files which contain translatable strings, e.g.
 
 ```bash
-django-admin.py makemessages --settings=<project.settings> -a --extension haml,html,py,txt
+python manage.py makemessages --extension haml,html,py,txt
 ```
-
-Where:
-
-  * project.settings -- Django configuration file where  module "hamlpy" is configured properly.
 
 ## Reference
 
-Check out the [reference.md](http://github.com/nyaruka/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for a complete reference and more examples.
+Check out the [reference.md](http://github.com/nyaruka/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for the complete syntax reference and more examples.
 
-## Class Based Generic Views
+## Class Based Views
 
-django-hamlpy provides [the same class based generic views than django](https://docs.djangoproject.com/en/1.10/topics/class-based-views/generic-display/) with the enhancement that they start by looking for templates endings with `*.haml` and `*.hamlpy` in additions to their default templates. Appart from that they are exactly the same class based generic views.
-
-Example:
+This library also provides [the same class based generic views than django](https://docs.djangoproject.com/en/1.10/topics/class-based-views/generic-display/) with the enhancement that they start by looking for templates endings with `*.haml` and `*.hamlpy` in addition to their default templates. Apart from that, they are exactly the same class based generic views. For example:
 
 ```python
 from hamlpy.views.generic import DetailView, ListView
@@ -204,7 +191,7 @@ DetailView.as_view(model=SomeModel)
 ListView.as_view(model=SomeModel)
 ```
 
-The available generic views are:
+The available view classes are:
 
 Display views:
 
@@ -227,39 +214,20 @@ Date related views:
 * [DayArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#dayarchiveview)
 * [TodayArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#todayarchiveview)
 
-All views are importable from `hamlpy.views.generic` so you just need to switch
-`django` to `hamlpy` in your files to benefit from them.
-
-### Uses HamlExtensionTemplateView to create similar views
-
-All those views are built using `HamlExtensionTemplateView` mixin. It calls
-[get_template_names](https://docs.djangoproject.com/en/1.10/ref/class-based-views/mixins-simple/#django.views.generic.base.TemplateResponseMixin.get_template_names) from its super classes, looks for all template names
-endings with `.html`, `.htm` and `.xml` and had at the beginning of this list
-of templates name the same template base names but with the `.haml` and
-`.hamlpy` extensions.
-
-Example usage:
+All views are importable from `hamlpy.views.generic` and are built using the `HamlExtensionTemplateView` mixin which you can use to create your own custom Haml-using views. For example:
 
 ```python
 from hamlpy.views.generic import HamlExtensionTemplateView
 
-class MyNewView(HamlExtensionTemplateView, ParentViewWithAGetTemplateNames):
+class MyNewView(HamlExtensionTemplateView, ParentViewType):
     pass
 ```
 
-`HamlExtensionTemplateView` *needs* to be first in the inheritance list.
-
-## Status
-
-HamlPy currently:
-
-- has no configuration file, which it should for a few reasons, like turning off what is autoescaped for example
-- does not support some of the filters yet
+**Note**: `HamlExtensionTemplateView` *needs* to be first in the inheritance list.
 
 ## Contributing
 
-Very happy to have contributions to this project and new co-maintainers. To get started you'll need to clone the
-project and install the dependencies:
+We're always happy to have contributions to this project. To get started you'll need to clone the project and install the dependencies:
 
     virtualenv env
     source env/bin/activate
