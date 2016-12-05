@@ -53,7 +53,7 @@ class Compiler:
                 if haml_node:
                     root.add_node(haml_node)
 
-        if self.options['debug_tree']:
+        if self.options['debug_tree']:  # pragma: no cover
             return root.debug_tree()
         else:
             return root.render()
