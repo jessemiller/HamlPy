@@ -45,11 +45,11 @@ def get_haml_loader(loader):
                     haml_source, template_path = super(Loader, self).load_template_source(
                         self._generate_template_name(name, extension), *args, **kwargs
                     )
-                except TemplateDoesNotExist:
+                except TemplateDoesNotExist:  # pragma: no cover
                     pass
                 else:
-                    hamlParser = hamlpy.Compiler(options_dict=options)
-                    html = hamlParser.process(haml_source)
+                    compiler = hamlpy.Compiler(options_dict=options)
+                    html = compiler.process(haml_source)
 
                     return html, template_path
 
@@ -57,7 +57,8 @@ def get_haml_loader(loader):
 
         load_template_source.is_usable = True
 
-        def _generate_template_name(self, name, extension="hamlpy"):
+        @staticmethod
+        def _generate_template_name(name, extension="hamlpy"):
             return "%s.%s" % (name, extension)
 
     return Loader

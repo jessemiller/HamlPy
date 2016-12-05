@@ -3,13 +3,11 @@ from __future__ import print_function, unicode_literals
 import re
 import sys
 
-try:
-    from StringIO import StringIO  # required on Python 2 to accept non-unicode output
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 from .elements import Element
 
+# Pygments and Markdown are optional dependencies which may or may not be available
 try:
     from pygments import highlight
     from pygments.formatters import HtmlFormatter
@@ -17,14 +15,14 @@ try:
     from pygments.util import ClassNotFound
 
     _pygments_available = True
-except ImportError as e:
+except ImportError:  # pragma: no cover
     _pygments_available = False
 
 try:
     from markdown import markdown
 
     _markdown_available = True
-except ImportError as e:
+except ImportError:  # pragma: no cover
     _markdown_available = False
 
 
@@ -239,10 +237,10 @@ class RootNode(TreeNode):
     def should_contain(self, node):
         return False
 
-    def debug_tree(self):
+    def debug_tree(self):  # pragma: no cover
         return '\n'.join(self._debug_tree([self]))
 
-    def _debug_tree(self, nodes):
+    def _debug_tree(self, nodes):  # pragma: no cover
         output = []
         for n in nodes:
             output.append('%s%s' % (' ' * (n.indentation + 2), n))
@@ -250,8 +248,8 @@ class RootNode(TreeNode):
                 output += self._debug_tree(n.children)
         return output
 
-    def __repr__(self):
-        return '(%s)' % (self.__class__)
+    def __repr__(self):  # pragma: no cover
+        return '(%s)' % self.__class__
 
 
 class HamlNode(RootNode):
@@ -271,7 +269,7 @@ class HamlNode(RootNode):
         content = re.sub(escaped_var_regex, r'\1', content)
         return content
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return '(%s in=%d, nl=%d: %s)' % (self.__class__, self.indentation, self.newlines, self.haml)
 
 
