@@ -21,12 +21,11 @@ def _read_requirements(filename):
     return [line.strip() for line in contents.splitlines() if _is_requirement(line)]
 
 
-# Note to Jesse - only push sdist to PyPi, bdist seems to always break pip installer
 setup(
     name='django-hamlpy',
     version='0.86.1',
     description='HAML like syntax for Django templates. Fork of unmaintained hamlpy.',
-    long_description=read_md('readme.md'),
+    long_description=read_md('README.md'),
 
     classifiers=[
         'Development Status :: 5 - Production/Stable',
@@ -38,13 +37,11 @@ setup(
         'Framework :: Django',
     ],
     keywords='haml django converter',
-    url='http://github.com/psycojoker/django-hamlpy',
+    url='http://github.com/nyaruka/django-hamlpy',
     license='MIT',
 
-    author='Jesse Miller',
-    author_email='millerjesse@gmail.com',
-    maintainer='Laurent Peuch',
-    maintainer_email='cortex@worlddomination.be',
+    maintainer='Nyaruka',
+    maintainer_email='code@nyaruka.com',
 
     packages=find_packages(),
     install_requires=_read_requirements("requirements/base.txt"),

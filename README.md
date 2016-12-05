@@ -172,7 +172,7 @@ python manage.py makemessages --extension haml,html,py,txt
 
 ## Reference
 
-Check out the [reference.md](http://github.com/nyaruka/django-hamlpy/blob/master/reference.md "HamlPy Reference") file for the complete syntax reference and more examples.
+Check out the [reference](http://github.com/nyaruka/django-hamlpy/blob/master/REFERENCE.md) file for the complete syntax reference and more examples.
 
 ## Class Based Views
 
