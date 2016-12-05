@@ -48,8 +48,9 @@ class AttributeDictParserTest(unittest.TestCase):
 
         # attribute value has colon or commas
         self.assertEqual(dict(self._parse("{'lang': 'en:g'}")), {'lang': 'en:g'})
-        self.assertEqual(dict(self._parse('{name:"viewport", content:"width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1"}')),
-                         {'name': 'viewport', 'content': 'width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1'})
+        self.assertEqual(dict(self._parse(
+            '{name:"viewport", content:"width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1"}'
+        )), {'name': 'viewport', 'content': 'width:device-width, initial-scale:1, minimum-scale:1, maximum-scale:1'})
 
         # double quotes
         self.assertEqual(dict(self._parse('{"class": "test", "id": "something"}')),
@@ -102,7 +103,7 @@ class AttributeDictParserTest(unittest.TestCase):
                 'href':
                     - url 'some_view'
                 }""")), {
-            'class': '{% if forloop.first %} link-first {% else %} {% if forloop.last %} link-last {% endif %} {% endif %}',
+            'class': '{% if forloop.first %} link-first {% else %} {% if forloop.last %} link-last {% endif %} {% endif %}',  # noqa
             'href': "{% url 'some_view' %}"
         })
 
@@ -132,10 +133,10 @@ class AttributeDictParserTest(unittest.TestCase):
             self._parse("{'test': \"123}")
 
     def test_duplicate_attributes_raise_error(self):
-        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"{class: 'test', class: 'bar'}\" <-"):
+        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"{class: 'test', class: 'bar'}\" <-"):  # noqa
             self._parse("{class: 'test', class: 'bar'}")
 
-        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"\(class='test' class='bar'\)\" <-"):
+        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"\(class='test' class='bar'\)\" <-"):  # noqa
             self._parse("(class='test' class='bar')")
 
     def test_mixing_ruby_and_html_syntax_raises_errors(self):

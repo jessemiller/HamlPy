@@ -123,5 +123,6 @@ def performance_test(num_runs):
     print("Ran template tests %d times in %.2f seconds (average = %.3f secs)"
           % (num_runs, sum(times), sum(times) / float(num_runs)))
 
+
 if __name__ == '__main__':
     performance_test(500)

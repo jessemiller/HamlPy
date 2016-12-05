@@ -23,5 +23,6 @@ install:
  - pip install coveralls
 script:
  - py.test --cov-report= --cov=hamlpy hamlpy
+ - flake8
 after_success:
  - coveralls

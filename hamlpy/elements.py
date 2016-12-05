@@ -10,7 +10,10 @@ from .parser.generic import Stream
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
 
-    self_closing_tags = ('meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track', 'area', 'base', 'col', 'command', 'embed', 'keygen', 'param', 'wbr')
+    self_closing_tags = (
+        'meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track', 'area', 'base', 'col', 'command', 'embed',
+        'keygen', 'param', 'wbr'
+    )
 
     ELEMENT = '%'
     ID = '#'

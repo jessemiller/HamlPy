@@ -78,10 +78,7 @@ class WatcherTest(unittest.TestCase):
         # patch sys.exit so it throws an exception so we can return execution to this test
         # patch sys.argv to pass our arguments to the script
         # patch time.sleep to be interrupted
-        with patch.object(sys, 'exit', side_effect=raise_exception_with_code), \
-             patch.object(sys, 'argv', script_args), \
-             patch.object(time, 'sleep', side_effect=KeyboardInterrupt), \
-             self.assertRaises(ScriptExit) as raises:
+        with patch.object(sys, 'exit', side_effect=raise_exception_with_code), patch.object(sys, 'argv', script_args), patch.object(time, 'sleep', side_effect=KeyboardInterrupt), self.assertRaises(ScriptExit) as raises:  # noqa
 
             watch_folder()
 
