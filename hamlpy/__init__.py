@@ -1,3 +1,4 @@
 from __future__ import unicode_literals
 
-from . import templatize
+# load templatize module to patch Django's templatize function
+from . import templatize  # noqa

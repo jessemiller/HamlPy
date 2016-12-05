@@ -22,6 +22,7 @@ class Options(object):
     VERBOSE = False
     OUTPUT_EXT = '.html'
 
+
 # dict of compiled files [fullpath : timestamp]
 compiled = dict()
 
@@ -34,8 +35,9 @@ class StoreNameValueTagPair(argparse.Action):
         for item in values:
             n, v = item.split(':')
             tags[n] = v
-        
+
         setattr(namespace, 'tags', tags)
+
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--verbose', help='Display verbose output', action='store_true')
@@ -44,19 +46,22 @@ arg_parser.add_argument('-i', '--input-extension', metavar='EXT', default='.haml
 arg_parser.add_argument('-ext', '--extension', metavar='EXT', default=Options.OUTPUT_EXT,
                         help='The output file extension. Default is .html', type=str)
 arg_parser.add_argument('-r', '--refresh', metavar='S', default=Options.CHECK_INTERVAL, type=int,
-                        help='Refresh interval for files. Default is {} seconds. Ignored if the --once flag is set.'.format(Options.CHECK_INTERVAL))
+                        help='Refresh interval for files. Default is %d seconds. Ignored if the --once flag is set.'
+                             % Options.CHECK_INTERVAL)
 arg_parser.add_argument('input_dir', help='Folder to watch', type=str)
 arg_parser.add_argument('output_dir', help='Destination folder', type=str, nargs='?')
 arg_parser.add_argument('--tag', type=str, nargs=1, action=StoreNameValueTagPair,
                         help='Add self closing tag. eg. --tag macro:endmacro')
-arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices=('"', "'"), default="'", action='store',
+arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices=('"', "'"), default="'",
+                        action='store',
                         help="The character that should wrap element attributes. This defaults to ' (an apostrophe).")
 arg_parser.add_argument('--django-inline', dest='django_inline', action='store_true',
                         help="Whether to support ={...} syntax for inline variables in addition to #{...}")
 arg_parser.add_argument('--jinja', default=False, action='store_true',
                         help='Makes the necessary changes to be used with Jinja2.')
 arg_parser.add_argument('--once', default=False, action='store_true',
-                        help='Runs the compiler once and exits on completion. Returns a non-zero exit code if there were any compile errors.')
+                        help='Runs the compiler once and exits on completion. '
+                             'Returns a non-zero exit code if there were any compile errors.')
 
 
 def watched_extension(extension):
@@ -71,45 +76,45 @@ def watch_folder():
     """Main entry point. Expects one or two arguments (the watch folder + optional destination folder)."""
     args = arg_parser.parse_args(sys.argv[1:])
     compiler_args = {}
-    
+
     input_folder = os.path.realpath(args.input_dir)
     if not args.output_dir:
         output_folder = input_folder
     else:
         output_folder = os.path.realpath(args.output_dir)
-    
+
     if args.verbose:
         Options.VERBOSE = True
         print("Watching {} at refresh interval {} seconds".format(input_folder, args.refresh))
-    
+
     if args.extension:
         Options.OUTPUT_EXT = args.extension
-    
+
     if getattr(args, 'tags', False):
         hamlpynodes.TagNode.self_closing.update(args.tags)
-    
+
     if args.input_extension:
         hamlpy.VALID_EXTENSIONS += args.input_extension
-    
+
     if args.attr_wrapper:
         compiler_args['attr_wrapper'] = args.attr_wrapper
 
     if args.django_inline:
         compiler_args['django_inline_style'] = args.django_inline
-    
+
     if args.jinja:
         for k in ('ifchanged', 'ifequal', 'ifnotequal', 'autoescape', 'blocktrans',
                   'spaceless', 'comment', 'cache', 'localize', 'compress'):
             del hamlpynodes.TagNode.self_closing[k]
-            
+
             hamlpynodes.TagNode.may_contain.pop(k, None)
-        
+
         hamlpynodes.TagNode.self_closing.update({
             'macro': 'endmacro',
             'call': 'endcall',
             'raw': 'endraw'
         })
-        
+
         hamlpynodes.TagNode.may_contain['for'] = 'else'
 
     # Compile once, then exist
@@ -121,7 +126,7 @@ def watch_folder():
         else:
             print('Some files have errors.')
         sys.exit(num_failed)
-    
+
     while True:
         try:
             _watch_folder(input_folder, output_folder, compiler_args)
@@ -144,12 +149,12 @@ def _watch_folder(folder, destination, compiler_args):
                 fullpath = os.path.join(dirpath, filename)
                 subfolder = os.path.relpath(dirpath, folder)
                 mtime = os.stat(fullpath).st_mtime
-                
+
                 # Create subfolders in target directory if they don't exist
                 compiled_folder = os.path.join(destination, subfolder)
                 if not os.path.exists(compiled_folder):
                     os.makedirs(compiled_folder)
-                
+
                 compiled_path = _compiled_path(compiled_folder, filename)
                 if fullpath not in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
                     compiled[fullpath] = mtime
@@ -165,8 +170,9 @@ def _compiled_path(destination, filename):
 
 
 def compile_file(fullpath, outfile_name, compiler_args):
-    """Calls HamlPy compiler. Returns True if the file was compiled and 
-    written successfully."""
+    """
+    Calls HamlPy compiler. Returns True if the file was compiled and written successfully.
+    """
     if Options.VERBOSE:
         print('%s %s -> %s' % (strftime("%H:%M:%S"), fullpath, outfile_name))
     try:

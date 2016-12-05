@@ -10,7 +10,8 @@ MODULE_EXTENSIONS = tuple([suffix[0] for suffix in imp.get_suffixes()])
 
 
 def get_django_template_loaders():
-    return [(loader.__name__.rsplit('.', 1)[1], loader) for loader in get_submodules(loaders) if hasattr(loader, 'Loader')]
+    return [(loader.__name__.rsplit('.', 1)[1], loader)
+            for loader in get_submodules(loaders) if hasattr(loader, 'Loader')]
 
 
 def get_submodules(package):

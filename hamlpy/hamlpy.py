@@ -29,7 +29,7 @@ class Compiler:
         root = RootNode(self.options)
         line_iter = iter(haml_lines)
 
-        haml_node=None
+        haml_node = None
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
@@ -41,7 +41,8 @@ class Compiler:
                         try:
                             line = next(line_iter)
                         except StopIteration:
-                            raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
+                            raise Exception('No closing brace found for multi-line HAML beginning at line %s'
+                                            % (start_multiline+1))
                         node_lines += line
 
             # Blank lines
@@ -88,6 +89,7 @@ def convert_files():  # pragma: no cover
             outfile.write(output)
         else:
             print(output)
+
 
 if __name__ == '__main__':  # pragma: no cover
     convert_files()

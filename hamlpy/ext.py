@@ -31,6 +31,7 @@ def has_any_extension(file_path, extensions):
     file_ext = get_file_extension(file_path)
     return file_ext and extensions and file_ext in [clean_extension(e) for e in extensions]
 
+
 if _jinja2_available:
     class HamlPyExtension(jinja2.ext.Extension):
 
