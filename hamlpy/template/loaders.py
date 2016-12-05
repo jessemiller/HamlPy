@@ -29,7 +29,7 @@ def get_haml_loader(loader):
             extension = _extension.lstrip('.')
 
             if extension in hamlpy.VALID_EXTENSIONS:
-                compiler = hamlpy.Compiler(options_dict=options)
+                compiler = hamlpy.Compiler(options=options)
                 return compiler.process(contents)
 
             return contents
@@ -48,7 +48,7 @@ def get_haml_loader(loader):
                 except TemplateDoesNotExist:  # pragma: no cover
                     pass
                 else:
-                    compiler = hamlpy.Compiler(options_dict=options)
+                    compiler = hamlpy.Compiler(options=options)
                     html = compiler.process(haml_source)
 
                     return html, template_path

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, unicode_literals
 
-from hamlpy.parser.nodes import RootNode, HamlNode, create_node
+from hamlpy.parser.nodes import RootNode, HamlNode, TagNode, create_node
 
 from optparse import OptionParser
 
@@ -11,21 +11,31 @@ VALID_EXTENSIONS = ['haml', 'hamlpy']
 DEFAULT_OPTIONS = {
     'attr_wrapper': '\'',         # how to render attribute values, e.g. foo='bar'
     'django_inline_style': True,  # support both #{...} and ={...}
-    'debug_tree': False
+    'jinja': False,               # enable Jinja2 support
+    'custom_self_closing': {},    # additional self-closing tags
+    'debug_tree': False,
 }
 
 
 class Compiler:
-    def __init__(self, options_dict=None):
+    def __init__(self, options=None):
         self.options = DEFAULT_OPTIONS.copy()
-        if options_dict:
-            self.options.update(options_dict)
+        if options:
+            self.options.update(options)
 
-    def process(self, raw_text):
-        split_text = raw_text.split('\n')
-        return self.process_lines(split_text)
+        # TODO keep list of tags on compiler and pass compiler rather than options to all nodes?
+        TagNode.DJANGO_SELF_CLOSING.update(self.options['custom_self_closing'])
+
+    def process(self, haml):
+        """
+        Converts the given string of Haml to a regular Django HTML
+        """
+        return self.process_lines(haml.split('\n'))
 
     def process_lines(self, haml_lines):
+        """
+        Converts the given list of lines of Haml to a regular Django HTML
+        """
         root = RootNode(self.options)
         line_iter = iter(haml_lines)
 
@@ -35,7 +45,7 @@ class Compiler:
 
             if not root.parent_of(HamlNode(line, self.options)).inside_filter_node():
                 if line.count('{') - line.count('}') == 1:
-                    start_multiline = line_number  # For exception handling
+                    start_multiline = line_number  # for exception handling
 
                     while line.count('{') - line.count('}') != -1:
                         try:

@@ -31,29 +31,29 @@ class WatcherTest(unittest.TestCase):
         os.makedirs(INPUT_DIR)
 
         # create some haml files for testing
-        self._write_file(INPUT_DIR + os.sep + 'test.haml', "%span{'class': 'test'}\n- macro\n")
+        self._write_file(INPUT_DIR + os.sep + 'test.haml', "%span{'class': 'test'}\n- shoutout\n")
         self._write_file(INPUT_DIR + os.sep + 'error.haml', "%div{")
 
         # run as once off pass - should return 1 for number of failed conversions
         self._run_script([
             'hamlpy_watcher.py',
             INPUT_DIR, OUTPUT_DIR,
-            '--once', '--input-extension=.haml', '--verbose', '--tag=macro:endmacro', '--django-inline'
+            '--once', '--input-extension=.haml', '--verbose', '--tag=shoutout:endshoutout', '--django-inline'
         ], 1)
 
         # check file without errors was converted
         self.assertFileContents(OUTPUT_DIR + os.sep + 'test.html',
-                                "<span class='test'></span>\n{% macro %}\n{% endmacro %}\n")
+                                "<span class='test'></span>\n{% shoutout %}\n{% endshoutout %}\n")
 
         # run without output directory which should make it default to re-using the input directory
         self._run_script([
             'hamlpy_watcher.py',
             INPUT_DIR,
-            '--once', '--input-extension=.haml', '--tag=macro:endmacro'
+            '--once', '--input-extension=.haml', '--tag=shoutout:endshoutout'
         ], 1)
 
         self.assertFileContents(INPUT_DIR + os.sep + 'test.html',
-                                "<span class='test'></span>\n{% macro %}\n{% endmacro %}\n")
+                                "<span class='test'></span>\n{% shoutout %}\n{% endshoutout %}\n")
 
         # fix file with error
         self._write_file(INPUT_DIR + os.sep + 'error.haml', "%div{}")
@@ -65,7 +65,7 @@ class WatcherTest(unittest.TestCase):
         self._run_script([
             'hamlpy_watcher.py',
             INPUT_DIR,
-            '--refresh=1', '--input-extension=.haml', '--tag=macro:endmacro'
+            '--refresh=1', '--input-extension=.haml', '--tag=shoutout:endshoutout'
         ], 1)
 
     def assertFileContents(self, path, contents):

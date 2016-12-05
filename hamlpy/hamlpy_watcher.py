@@ -17,7 +17,6 @@ import time
 from time import strftime
 
 from hamlpy import hamlpy
-from hamlpy.parser import nodes as hamlpynodes
 
 
 class Options(object):
@@ -93,7 +92,7 @@ def watch_folder():
         Options.OUTPUT_EXT = args.extension
 
     if getattr(args, 'tags', False):
-        hamlpynodes.TagNode.self_closing.update(args.tags)
+        compiler_args['custom_self_closing'] = args.tags
 
     if args.input_extension:
         hamlpy.VALID_EXTENSIONS += args.input_extension
@@ -105,21 +104,9 @@ def watch_folder():
         compiler_args['django_inline_style'] = args.django_inline
 
     if args.jinja:
-        for k in ('ifchanged', 'ifequal', 'ifnotequal', 'autoescape', 'blocktrans',
-                  'spaceless', 'comment', 'cache', 'localize', 'compress'):
-            del hamlpynodes.TagNode.self_closing[k]
+        compiler_args['jinja'] = True
 
-            hamlpynodes.TagNode.may_contain.pop(k, None)
-
-        hamlpynodes.TagNode.self_closing.update({
-            'macro': 'endmacro',
-            'call': 'endcall',
-            'raw': 'endraw'
-        })
-
-        hamlpynodes.TagNode.may_contain['for'] = 'else'
-
-    # Compile once, then exist
+    # compile once, then exist
     if args.once:
         (total_files, num_failed) = _watch_folder(input_folder, output_folder, compiler_args)
         print('Compiled %d of %d files.' % (total_files - num_failed, total_files))
@@ -139,20 +126,20 @@ def watch_folder():
 
 
 def _watch_folder(folder, destination, compiler_args):
-    """Compares "modified" timestamps against the "compiled" dict, calls compiler
-    if necessary. Returns a tuple of the number of files hit and the number
-    of failed compiles"""
+    """
+    Compares "modified" timestamps against the "compiled" dict, calls compiler if necessary. Returns a tuple of the
+    number of files hit and the number of failed compiles"""
     total_files = 0
     num_failed = 0
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
-            # Ignore filenames starting with ".#" for Emacs compatibility
+            # ignore filenames starting with ".#" for Emacs compatibility
             if watched_extension(filename) and not filename.startswith('.#'):
                 fullpath = os.path.join(dirpath, filename)
                 subfolder = os.path.relpath(dirpath, folder)
                 mtime = os.stat(fullpath).st_mtime
 
-                # Create subfolders in target directory if they don't exist
+                # create subfolders in target directory if they don't exist
                 compiled_folder = os.path.join(destination, subfolder)
                 if not os.path.exists(compiled_folder):
                     os.makedirs(compiled_folder)

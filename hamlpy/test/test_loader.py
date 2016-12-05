@@ -44,7 +44,7 @@ class LoaderTest(unittest.TestCase):
     def test_compiler_settings(self, mock_compiler_class):
         render_to_string('simple.hamlpy')
 
-        mock_compiler_class.assert_called_once_with(options_dict={})
+        mock_compiler_class.assert_called_once_with(options={})
         mock_compiler_class.reset_mock()
 
         with override_settings(HAMLPY_ATTR_WRAPPER='"', HAMLPY_DJANGO_INLINE_STYLE=False):
@@ -52,7 +52,7 @@ class LoaderTest(unittest.TestCase):
 
             rendered = render_to_string('simple.hamlpy')
 
-            mock_compiler_class.assert_called_once_with(options_dict={
+            mock_compiler_class.assert_called_once_with(options={
                 'attr_wrapper': '"',
                 'django_inline_style': False
             })

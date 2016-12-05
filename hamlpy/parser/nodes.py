@@ -472,42 +472,71 @@ class VariableNode(ElementNode):
 
 
 class TagNode(HamlNode):
-    self_closing = {'for': 'endfor',
-                    'if': 'endif',
-                    'ifchanged': 'endifchanged',
-                    'ifequal': 'endifequal',
-                    'ifnotequal': 'endifnotequal',
-                    'block': 'endblock',
-                    'filter': 'endfilter',
-                    'autoescape': 'endautoescape',
-                    'with': 'endwith',
-                    'blocktrans': 'endblocktrans',
-                    'spaceless': 'endspaceless',
-                    'comment': 'endcomment',
-                    'cache': 'endcache',
-                    'localize': 'endlocalize',
-                    'call': 'endcall',
-                    'macro': 'endmacro',
-                    'compress': 'endcompress'}
-    may_contain = {'if': ['else', 'elif'],
-                   'ifchanged': 'else',
-                   'ifequal': 'else',
-                   'ifnotequal': 'else',
-                   'for': 'empty',
-                   'with': 'with'}
+    DJANGO_SELF_CLOSING = {
+        'for': 'endfor',
+        'if': 'endif',
+        'ifchanged': 'endifchanged',
+        'ifequal': 'endifequal',
+        'ifnotequal': 'endifnotequal',
+        'block': 'endblock',
+        'filter': 'endfilter',
+        'autoescape': 'endautoescape',
+        'with': 'endwith',
+        'blocktrans': 'endblocktrans',
+        'spaceless': 'endspaceless',
+        'comment': 'endcomment',
+        'cache': 'endcache',
+        'localize': 'endlocalize',
+        'call': 'endcall',
+        'macro': 'endmacro',
+        'compress': 'endcompress'
+    }
+
+    DJANGO_MAY_CONTAIN = {
+        'if': ['else', 'elif'],
+        'ifchanged': ['else'],
+        'ifequal': ['else'],
+        'ifnotequal': ['else'],
+        'for': ['empty'],
+        'with': ['with']
+    }
+
+    JINJA_SELF_CLOSING = {
+        'for': 'endfor',
+        'if': 'endif',
+        'block': 'endblock',
+        'filter': 'endfilter',
+        'with': 'endwith',
+        'call': 'endcall',
+        'macro': 'endmacro',
+        'raw': 'endraw'
+    }
+
+    JINJA_MAY_CONTAIN = {
+        'if': ['else', 'elif'],
+        'for': ['empty', 'else'],
+        'with': ['with']
+    }
 
     def __init__(self, haml, options):
         super(TagNode, self).__init__(haml, options)
 
+        if options['jinja']:
+            self.self_closing = self.JINJA_SELF_CLOSING
+            self.may_contain = self.JINJA_MAY_CONTAIN
+        else:
+            self.self_closing = self.DJANGO_SELF_CLOSING
+            self.may_contain = self.DJANGO_MAY_CONTAIN
+
         self.tag_statement = self.haml.lstrip(TAG).strip()
         self.tag_name = self.tag_statement.split(' ')[0]
 
-        if (self.tag_name in self.self_closing.values()):
+        if self.tag_name in self.self_closing.values():
             raise TypeError("Do not close your Django tags manually.  It will be done for you.")
 
     def _render(self):
         self.before = "%s{%% %s %%}" % (self.spaces, self.tag_statement)
-        if (self.tag_name in self.self_closing.keys()):
+        if self.tag_name in self.self_closing.keys():
             self.before += self.render_newlines()
             self.after = '%s{%% %s %%}%s' % (self.spaces, self.self_closing[self.tag_name], self.render_newlines())
         else:
