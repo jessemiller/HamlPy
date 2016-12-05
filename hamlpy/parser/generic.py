@@ -8,9 +8,10 @@ WHITESPACE_AND_NEWLINE_CHARS = (' ', '\t', '\r', '\n')
 
 
 class ParseException(Exception):
-    def __init__(self, message, stream):
-        context = stream.text[max(stream.ptr-31, 0):stream.ptr+1]
-        message = "%s @ \"%s\" <-" % (message, context)
+    def __init__(self, message, stream=None):
+        if stream:
+            context = stream.text[max(stream.ptr-31, 0):stream.ptr+1]
+            message = "%s @ \"%s\" <-" % (message, context)
 
         super(ParseException, self).__init__(message)
 

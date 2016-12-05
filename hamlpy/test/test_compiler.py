@@ -5,6 +5,7 @@ import unittest
 
 from hamlpy import hamlpy
 from hamlpy.parser import nodes
+from hamlpy.parser.generic import ParseException
 
 
 class CompilerTest(unittest.TestCase):
@@ -138,6 +139,8 @@ test''', "test")
         self._test(":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)",
                    '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>')
 
+        self._test_error(":python\n   print(10 / 0)", "Error whilst executing python filter node", ZeroDivisionError)
+
     def test_doctypes(self):
         self._test('!!! 5', '<!DOCTYPE html>')
         self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">')  # noqa
@@ -172,7 +175,20 @@ test''', "test")
     def _test(self, haml, expected_html, options=None):
         nodes._inline_variable_regexes = None  # clear cached regexes
 
-        parser = hamlpy.Compiler(options)
-        result = parser.process(haml)
+        compiler = hamlpy.Compiler(options)
+        result = compiler.process(haml)
 
         self.assertEqual(result, expected_html + '\n')
+
+    def _test_error(self, haml, expected_message, expected_cause, options=None):
+        nodes._inline_variable_regexes = None  # clear cached regexes
+
+        compiler = hamlpy.Compiler(options)
+
+        self.assertRaisesRegexp(ParseException, expected_message, compiler.process, haml)
+
+        try:
+            compiler.process(haml)
+            self.fail("Expected exception to be raised")
+        except Exception as e:
+            self.assertEqual(type(e.__cause__), expected_cause)

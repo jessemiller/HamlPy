@@ -3,8 +3,10 @@ from __future__ import print_function, unicode_literals
 import re
 import sys
 
+from future.utils import raise_from
 from io import StringIO
 
+from .generic import ParseException
 from .elements import Element
 
 # Pygments and Markdown are optional dependencies which may or may not be available
@@ -566,13 +568,7 @@ class PythonFilterNode(FilterNode):
             try:
                 exec(compiled_code)
             except Exception as e:
-                # Change exception message to let developer know that exception comes from
-                # a PythonFilterNode
-                if e.args:
-                    args = list(e.args)
-                    args[0] = "Error in :python filter code: " + e.message
-                    e.args = tuple(args)
-                raise e
+                raise_from(ParseException('Error whilst executing python filter node'), e)
             finally:
                 # restore the original stdout
                 sys.stdout = sys.__stdout__
