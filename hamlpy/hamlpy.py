@@ -5,7 +5,7 @@ import regex
 
 from optparse import OptionParser
 
-from hamlpy.parser.nodes import RootNode, HamlNode, create_node
+from hamlpy.parser.nodes import Node, HamlNode
 
 VALID_EXTENSIONS = ['haml', 'hamlpy']
 
@@ -91,7 +91,7 @@ class Compiler:
         """
         Converts the given list of lines of Haml to a regular Django HTML
         """
-        root = RootNode(self.options)
+        root = Node(self.options)
         line_iter = iter(haml_lines)
 
         haml_node = None
@@ -114,7 +114,7 @@ class Compiler:
             if haml_node is not None and len(node_lines.strip()) == 0:
                 haml_node.newlines += 1
             else:
-                haml_node = create_node(node_lines, self)
+                haml_node = Node.create(node_lines, self)
                 if haml_node:
                     root.add_node(haml_node)
 

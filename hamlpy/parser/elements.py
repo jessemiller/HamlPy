@@ -10,7 +10,7 @@ from .generic import Stream
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
 
-    self_closing_tags = (
+    SELF_CLOSING = (
         'meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track', 'area', 'base', 'col', 'command', 'embed',
         'keygen', 'param', 'wbr'
     )
@@ -83,7 +83,7 @@ class Element(object):
         elif isinstance(class_from_attrs, six.string_types):
             self.classes += [class_from_attrs]
 
-        self.self_close = components.get('selfclose') or (self.tag in self.self_closing_tags)
+        self.self_close = components.get('selfclose') or (self.tag in self.SELF_CLOSING)
 
         self.nuke_inner_whitespace = bool(components.get('nuke_inner_whitespace'))
         self.nuke_outer_whitespace = bool(components.get('nuke_outer_whitespace'))
