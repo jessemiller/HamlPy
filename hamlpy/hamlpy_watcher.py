@@ -1,19 +1,23 @@
 from __future__ import print_function, unicode_literals
 
-# haml-watcher.py
-# Author: Christian Stefanescu (st.chris@gmail.com)
-#
-# Watch a folder for files with the given extensions and call the HamlPy
-# compiler if the modified time has changed since the last check.
-from time import strftime
+"""
+Based on original haml-watcher.py by Christian Stefanescu (st.chris@gmail.com)
+
+Watches a folder for files with the given extensions and calls the HamlPy compiler if the modified time has changed
+since the last check.
+"""
+
 import argparse
 import sys
 import codecs
 import os
 import os.path
 import time
+
+from time import strftime
+
 from . import hamlpy
-from . import nodes as hamlpynodes
+from hamlpy.parser import nodes as hamlpynodes
 
 
 class Options(object):

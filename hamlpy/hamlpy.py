@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function, unicode_literals
 
-from .nodes import RootNode, HamlNode, create_node
+from hamlpy.parser.nodes import RootNode, HamlNode, create_node
 
 from optparse import OptionParser
 

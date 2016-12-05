@@ -3,8 +3,8 @@ from __future__ import print_function, unicode_literals
 import regex
 import six
 
-from .parser.attributes import read_attribute_dict
-from .parser.generic import Stream
+from .attributes import read_attribute_dict
+from .generic import Stream
 
 
 class Element(object):

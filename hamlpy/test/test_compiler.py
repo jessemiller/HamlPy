@@ -3,7 +3,8 @@ from __future__ import print_function, unicode_literals
 
 import unittest
 
-from hamlpy import hamlpy, nodes
+from hamlpy import hamlpy
+from hamlpy.parser import nodes
 
 
 class CompilerTest(unittest.TestCase):

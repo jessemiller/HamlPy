@@ -4,7 +4,7 @@ import unittest
 
 from collections import OrderedDict
 
-from hamlpy.elements import Element
+from hamlpy.parser.elements import Element
 
 
 class ElementTest(unittest.TestCase):
