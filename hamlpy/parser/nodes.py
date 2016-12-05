@@ -276,11 +276,9 @@ class ElementNode(HamlNode):
     def __init__(self, haml, compiler):
         super(ElementNode, self).__init__(haml, compiler)
 
-        self.django_variable = False
+        self.element = Element.parse(self.haml)
 
     def _render(self):
-        self.element = Element(self.haml)
-        self.django_variable = self.element.django_variable
         self.before = self._render_before(self.element)
         self.after = self._render_after(self.element)
         self._render_children()
@@ -372,7 +370,7 @@ class ElementNode(HamlNode):
         if inline_content is None or len(inline_content) == 0:
             return None
 
-        if self.django_variable:
+        if self.element.django_variable:
             content = "{{ " + inline_content.strip() + " }}"
             return content
         else:

@@ -8,8 +8,9 @@ from .generic import Stream
 
 
 class Element(object):
-    """contains the pieces of an element and can populate itself from haml element text"""
-
+    """
+    An HTML element with an id, classes, attributes etc
+    """
     SELF_CLOSING = (
         'meta', 'img', 'link', 'br', 'hr', 'input', 'source', 'track', 'area', 'base', 'col', 'command', 'embed',
         'keygen', 'param', 'wbr'
@@ -31,64 +32,69 @@ class Element(object):
         (?P<inline>[^\w\.#\{].*)?
         """, regex.V1 | regex.X | regex.MULTILINE | regex.DOTALL | regex.UNICODE)
 
-    def __init__(self, haml):
-        self.haml = haml
+    def __init__(self, tag, _id, classes, attributes, self_close, nuke_inner_whitespace, nuke_outer_whitespace,
+                 django_variable, inline_content):
+        self.tag = tag
+        self.id = _id
+        self.classes = classes
+        self.attributes = attributes
+        self.self_close = self_close
+        self.nuke_inner_whitespace = nuke_inner_whitespace
+        self.nuke_outer_whitespace = nuke_outer_whitespace
 
-        self.tag = self.DEFAULT_TAG
-        self.id = None
-        self.classes = []
-        self.attributes = {}
-        self.self_close = False
-        self.django_variable = False
-        self.nuke_inner_whitespace = False
-        self.nuke_outer_whitespace = False
-        self.inline_content = ''
+        self.django_variable = django_variable
+        self.inline_content = inline_content
 
-        self._parse_haml()
-
-    def _parse_haml(self):
-        components = self.ELEMENT_REGEX.search(self.haml).capturesdict()
+    @classmethod
+    def parse(cls, haml):
+        components = cls.ELEMENT_REGEX.search(haml).capturesdict()
 
         if components['tag']:
-            self.tag = components.get('tag')[0].lstrip(self.ELEMENT)
+            tag = components.get('tag')[0].lstrip(cls.ELEMENT)
+        else:
+            tag = cls.DEFAULT_TAG
 
         if components['attributes']:
-            self.attributes = read_attribute_dict(Stream(components.get('attributes')[0]))
+            attributes = read_attribute_dict(Stream(components.get('attributes')[0]))
+        else:
+            attributes = {}
 
         # parse ids and classes from the components
         ids = []
+        classes = []
 
         for id_or_class in components.get('id_and_classes'):
             prefix = id_or_class[0]
             name = id_or_class[1:]
-            if prefix == self.ID:
+            if prefix == cls.ID:
                 ids.append(name)
-            elif prefix == self.CLASS:
-                self.classes.append(name)
+            elif prefix == cls.CLASS:
+                classes.append(name)
 
         # include ids and classes in the attribute dictionary
-        id_from_attrs = self.attributes.get('id')
+        id_from_attrs = attributes.get('id')
         if isinstance(id_from_attrs, tuple) or isinstance(id_from_attrs, list):
             ids += id_from_attrs
         elif isinstance(id_from_attrs, six.string_types):
             ids += [id_from_attrs]
 
         # merge ids to a single value with _ separators
-        if ids:
-            self.id = '_'.join(ids)
+        _id = '_'.join(ids) if ids else None
 
-        class_from_attrs = self.attributes.get('class')
+        class_from_attrs = attributes.get('class')
         if isinstance(class_from_attrs, (tuple, list)):
-            self.classes += class_from_attrs
+            classes += class_from_attrs
         elif isinstance(class_from_attrs, six.string_types):
-            self.classes += [class_from_attrs]
+            classes += [class_from_attrs]
 
-        self.self_close = components.get('selfclose') or (self.tag in self.SELF_CLOSING)
+        self_close = components.get('selfclose') or (tag in cls.SELF_CLOSING)
+        nuke_inner_whitespace = bool(components.get('nuke_inner_whitespace'))
+        nuke_outer_whitespace = bool(components.get('nuke_outer_whitespace'))
+        django_variable = bool(components.get('django'))
+        inline_content = components.get('inline')[0].strip() if components.get('inline') else ''
 
-        self.nuke_inner_whitespace = bool(components.get('nuke_inner_whitespace'))
-        self.nuke_outer_whitespace = bool(components.get('nuke_outer_whitespace'))
-        self.django_variable = bool(components.get('django'))
-        self.inline_content = components.get('inline')[0].strip() if components.get('inline') else ''
+        return cls(tag, _id, classes, attributes, self_close, nuke_inner_whitespace, nuke_outer_whitespace,
+                   django_variable, inline_content)
 
     def render_attributes(self, attr_wrapper):
         def attr_wrap(val):
