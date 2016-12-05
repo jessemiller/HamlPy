@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import absolute_import, print_function, unicode_literals
 
-import re
+import regex
 
 from optparse import OptionParser
 
@@ -130,8 +130,8 @@ class Compiler:
         prefixes = ['=', '#'] if self.options['django_inline_style'] else ['#']
         prefixes = ''.join(prefixes)
         return (
-            re.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
-            re.compile(r'\\([' + prefixes + r']\{\s*(.+?)\s*\})')
+            regex.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
+            regex.compile(r'\\([' + prefixes + r']\{\s*(.+?)\s*\})')
         )
 
 

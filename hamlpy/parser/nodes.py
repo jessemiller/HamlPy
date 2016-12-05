@@ -1,6 +1,5 @@
 from __future__ import print_function, unicode_literals
 
-import re
 import sys
 
 try:
@@ -67,7 +66,7 @@ def create_node(haml_line, compiler):
 
     inline_var_regex, escaped_var_regex = compiler.inline_variable_regexes
 
-    if re.match(inline_var_regex, stripped_line) or re.match(escaped_var_regex, stripped_line):
+    if inline_var_regex.match(stripped_line) or escaped_var_regex.match(stripped_line):
         return PlaintextNode(haml_line, compiler)
 
     if stripped_line[0] == HAML_ESCAPE:
@@ -249,8 +248,8 @@ class HamlNode(RootNode):
     def replace_inline_variables(self, content):
         inline_var_regex, escaped_var_regex = self.compiler.inline_variable_regexes
 
-        content = re.sub(inline_var_regex, r'{{ \2 }}', content)
-        content = re.sub(escaped_var_regex, r'\1', content)
+        content = inline_var_regex.sub(r'{{ \2 }}', content)
+        content = escaped_var_regex.sub(r'\1', content)
         return content
 
     def __repr__(self):  # pragma: no cover
