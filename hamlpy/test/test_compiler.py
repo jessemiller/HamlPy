@@ -115,6 +115,12 @@ test''', "test")
         self._test('- if something\n   %p hello\n- else\n   %p goodbye',
                    '{% if something %}\n   <p>hello</p>\n{% else %}\n   <p>goodbye</p>\n{% endif %}')
 
+        # with
+        self._test('- with thing1 as another\n  stuff',
+                   '{% with thing1 as another %}\n  stuff\n{% endwith %}')
+        self._test('- with context\n  hello\n- with other_context\n  goodbye',
+                   '{% with context %}\n  hello\n{% endwith %}\n{% with other_context %}\n  goodbye\n{% endwith %}')
+
         # exception using a closing tag of a self-closing tag
         parser = hamlpy.Compiler()
         self.assertRaises(ParseException, parser.process, '- endfor')
