@@ -4,28 +4,13 @@ import regex
 
 from collections import OrderedDict
 
-from .generic import consume_whitespace, read_symbol, read_number, read_quoted_string, STRING_LITERALS, ParseException
+from .generic import ParseException, consume_whitespace, read_symbol, read_number, read_quoted_string, read_word
+from .generic import STRING_LITERALS
 
 ATTRIBUTE_KEY_REGEX = regex.compile(r'[a-zA-Z0-9-_]+')
 WHITESPACE_REGEX = regex.compile(r'([ \t]+)')
 LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.MULTILINE)
 LINE_REGEX = regex.compile(r'.*')
-
-
-def read_attribute_key(stream):
-    """
-    Reads an attribute key
-    """
-    start = stream.ptr
-
-    while True:
-        ch = stream.text[stream.ptr]
-        if not (('A' <= ch <= 'Z') or ('a' <= ch <= 'z') or ('0' <= ch <= '9') or ch in ('_', '-')):
-            break
-
-        stream.ptr += 1
-
-    return stream.text[start:stream.ptr]
 
 
 def read_attribute_value(stream):
@@ -113,7 +98,7 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
         if stream.text[stream.ptr] == ':':
             stream.ptr += 1
 
-        key = read_attribute_key(stream)
+        key = read_word(stream, include_hypens=True)
 
     if not key:
         raise ParseException("Empty attribute key.", stream)
@@ -145,7 +130,7 @@ def read_attribute_dict(stream):
     """
     data = OrderedDict()
 
-    opener = stream.text[0]
+    opener = stream.text[stream.ptr]
 
     assert opener in ('{', '(')
 

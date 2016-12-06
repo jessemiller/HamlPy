@@ -104,3 +104,18 @@ def read_symbol(stream, symbols):
             return symbol
 
     raise ParseException("Expected %s." % ' or '.join(['"%s"' % s for s in symbols]), stream)
+
+
+def read_word(stream, include_hypens=False):
+    """
+    Reads a sequence of word characters
+    """
+    start = stream.ptr
+
+    while stream.ptr < stream.length:
+        ch = stream.text[stream.ptr]
+        if not (ch.isalnum() or ch == '_' or (ch == '-' and include_hypens)):
+            break
+        stream.ptr += 1
+
+    return stream.text[start:stream.ptr]

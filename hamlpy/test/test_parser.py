@@ -1,9 +1,10 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 import unittest
 
 from hamlpy.parser.generic import Stream, ParseException, consume_whitespace
-from hamlpy.parser.generic import read_quoted_string, read_line, read_number, read_symbol
+from hamlpy.parser.generic import read_quoted_string, read_line, read_number, read_symbol, read_word
 
 
 class ParserTest(unittest.TestCase):
@@ -68,3 +69,24 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(stream.text[stream.ptr:], ' bar')
 
         self.assertRaises(ParseException, read_symbol, Stream('foo'), ['=>'])
+
+    def test_read_word(self):
+        stream = Stream('foo_bar')
+        self.assertEqual(read_word(stream), 'foo_bar')
+        self.assertEqual(stream.text[stream.ptr:], '')
+
+        stream = Stream('foo_bar ')
+        self.assertEqual(read_word(stream), 'foo_bar')
+        self.assertEqual(stream.text[stream.ptr:], ' ')
+
+        stream = Stream('ng-repeat(')
+        self.assertEqual(read_word(stream), 'ng')
+        self.assertEqual(stream.text[stream.ptr:], '-repeat(')
+
+        stream = Stream('ng-repeat(')
+        self.assertEqual(read_word(stream, include_hypens=True), 'ng-repeat')
+        self.assertEqual(stream.text[stream.ptr:], '(')
+
+        stream = Stream('これはテストです...')
+        self.assertEqual(read_word(stream), 'これはテストです')
+        self.assertEqual(stream.text[stream.ptr:], '...')

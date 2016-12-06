@@ -27,8 +27,8 @@ try:
 except ImportError:  # pragma: no cover
     _markdown_available = False
 
-from .generic import ParseException
-from .elements import Element
+from .generic import ParseException, Stream
+from .elements import read_element
 
 
 DOCTYPE_PREFIX = '!!!'
@@ -276,7 +276,7 @@ class ElementNode(HamlNode):
     def __init__(self, haml, compiler):
         super(ElementNode, self).__init__(haml, compiler)
 
-        self.element = Element.parse(self.haml)
+        self.element = read_element(Stream(self.haml))
 
     def _render(self):
         self.before = self._render_before(self.element)
