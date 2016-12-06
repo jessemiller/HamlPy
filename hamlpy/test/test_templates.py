@@ -63,6 +63,9 @@ class TemplateCompareTest(unittest.TestCase):
                 print('\n'.join(["%d. %s" % (i + 1, l) for i, l in enumerate(test.actual_html.split('\n'))]))
                 self._print_diff(test.actual_html, test.expected_html)
 
+                compiler = hamlpy.Compiler({'debug_tree': True})
+                print(compiler.process(test.haml))
+
                 self.fail()
 
     @staticmethod

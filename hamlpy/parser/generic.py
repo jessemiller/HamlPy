@@ -23,14 +23,41 @@ class Stream(object):
         self.ptr = 0
 
 
+class TreeNode(object):
+    """
+    Generic parent/child tree class
+    """
+    def __init__(self):
+        self.parent = None
+        self.children = []
+
+    def left_sibling(self):
+        siblings = self.parent.children
+        index = siblings.index(self)
+        return siblings[index - 1] if index > 0 else None
+
+    def right_sibling(self):
+        siblings = self.parent.children
+        index = siblings.index(self)
+        return siblings[index + 1] if index < len(siblings) - 1 else None
+
+    def add_child(self, child):
+        child.parent = self
+        self.children.append(child)
+
+
 def consume_whitespace(stream, include_newlines=False):
     """
-    Reads and discards whitespace characters
+    Reads whitespace characters, returning the whitespace characters
     """
     whitespace = WHITESPACE_AND_NEWLINE_CHARS if include_newlines else WHITESPACE_CHARS
 
+    start = stream.ptr
+
     while stream.ptr < stream.length and stream.text[stream.ptr] in whitespace:
         stream.ptr += 1
+
+    return stream.text[start:stream.ptr]
 
 
 def read_quoted_string(stream):

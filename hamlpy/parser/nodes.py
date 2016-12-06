@@ -27,7 +27,7 @@ try:
 except ImportError:  # pragma: no cover
     _markdown_available = False
 
-from .generic import ParseException, Stream
+from .generic import ParseException, Stream, TreeNode, read_line, consume_whitespace
 from .elements import read_element
 
 
@@ -52,27 +52,32 @@ PYGMENTS_FILTER = ':highlight'
 HAML_ESCAPE = '\\'
 
 
-class TreeNode(object):
+def read_node(stream, root, prev, compiler):
     """
-    Generic parent/child tree class
+    Reads a node, returning either the node or None if we've reached the end of the input
     """
-    def __init__(self):
-        self.parent = None
-        self.children = []
+    while True:
+        indent = consume_whitespace(stream)
 
-    def left_sibling(self):
-        siblings = self.parent.children
-        index = siblings.index(self)
-        return siblings[index - 1] if index > 0 else None
+        if stream.ptr >= stream.length:
+            return None
 
-    def right_sibling(self):
-        siblings = self.parent.children
-        index = siblings.index(self)
-        return siblings[index + 1] if index < len(siblings) - 1 else None
+        if stream.text[stream.ptr] == '\n':
+            if prev:
+                prev.newlines += 1
+            stream.ptr += 1
+            continue
 
-    def add_child(self, child):
-        child.parent = self
-        self.children.append(child)
+        is_variable = stream.ptr < stream.length - 1 and stream.text[stream.ptr:stream.ptr+2] == '#{'
+
+        if stream.text[stream.ptr] in ('%', '#', '.') and not is_variable:
+            start = stream.ptr
+            element = read_element(stream)
+            haml = stream.text[start:stream.ptr]
+            return ElementNode(indent + haml, compiler, element)
+
+        line = read_line(stream)
+        return Node.create(indent + line, compiler)
 
 
 class Node(TreeNode):
@@ -97,9 +102,6 @@ class Node(TreeNode):
         """
         stripped_line = haml_line.strip()
 
-        if len(stripped_line) == 0:
-            return None
-
         inline_var_regex, escaped_var_regex = compiler.inline_variable_regexes
 
         if inline_var_regex.match(stripped_line) or escaped_var_regex.match(stripped_line):
@@ -110,9 +112,6 @@ class Node(TreeNode):
 
         if stripped_line.startswith(DOCTYPE_PREFIX):
             return DoctypeNode(haml_line, compiler)
-
-        if stripped_line[0] in ELEMENT_PREFIXES:
-            return ElementNode(haml_line, compiler)
 
         if stripped_line.startswith(CONDITIONAL_COMMENT_PREFIX):
             return ConditionalCommentNode(haml_line, compiler)
@@ -273,10 +272,10 @@ class ElementNode(HamlNode):
     """
     An HTML tag node, e.g. %span
     """
-    def __init__(self, haml, compiler):
+    def __init__(self, haml, compiler, element):
         super(ElementNode, self).__init__(haml, compiler)
 
-        self.element = read_element(Stream(self.haml))
+        self.element = element
 
     def _render(self):
         self.before = self._render_before(self.element)
@@ -448,18 +447,16 @@ class HamlCommentNode(HamlNode):
         pass
 
 
-class VariableNode(ElementNode):
+class VariableNode(HamlNode):
     """
     A Django variable node, e.g. =person.name
     """
     def __init__(self, haml, compiler):
         super(VariableNode, self).__init__(haml, compiler)
 
-        self.django_variable = True
-
     def _render(self):
         tag_content = self.haml.lstrip(VARIABLE_PREFIX)
-        self.before = "%s%s" % (self.spaces, self._render_inline_content(tag_content))
+        self.before = "%s{{ %s }}" % (self.spaces, tag_content.strip())
         self.after = self.render_newlines()
 
     def _post_render(self):

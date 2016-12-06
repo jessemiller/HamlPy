@@ -12,20 +12,20 @@ class ParserTest(unittest.TestCase):
     def test_consume_whitespace(self):
         stream = Stream(' \t foo  \n  bar   ')
 
-        consume_whitespace(stream)
+        self.assertEqual(consume_whitespace(stream), ' \t ')
         self.assertEqual(stream.text[stream.ptr:], 'foo  \n  bar   ')
 
         stream.ptr += 3  # skip over foo
 
-        consume_whitespace(stream)
+        self.assertEqual(consume_whitespace(stream), '  ')
         self.assertEqual(stream.text[stream.ptr:], '\n  bar   ')
 
-        consume_whitespace(stream, include_newlines=True)
+        self.assertEqual(consume_whitespace(stream, include_newlines=True), '\n  ')
         self.assertEqual(stream.text[stream.ptr:], 'bar   ')
 
         stream.ptr += 3  # skip over bar
 
-        consume_whitespace(stream)
+        self.assertEqual(consume_whitespace(stream), '   ')
         self.assertEqual(stream.text[stream.ptr:], '')
 
     def test_quoted_string(self):

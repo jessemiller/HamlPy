@@ -5,8 +5,8 @@ import regex
 
 from optparse import OptionParser
 
-from hamlpy.parser.generic import Stream, read_line
-from hamlpy.parser.nodes import Node, HamlNode
+from hamlpy.parser.generic import Stream
+from hamlpy.parser.nodes import Node, read_node
 
 VALID_EXTENSIONS = ['haml', 'hamlpy']
 
@@ -87,36 +87,14 @@ class Compiler:
         stream = Stream(haml)
 
         root = Node(self.options)
-
-        haml_node = None
-        line_number = 1
+        node = None
 
         while True:
-            line = read_line(stream)
-            if line is None:
+            node = read_node(stream, root, prev=node, compiler=self)
+            if not node:
                 break
 
-            node_lines = line
-
-            if not root.parent_of(HamlNode(line, self)).inside_filter_node():
-                if line.count('{') - line.count('}') == 1:
-                    start_multiline = line_number  # for exception handling
-
-                    while line.count('{') - line.count('}') != -1:
-                        line = read_line(stream)
-
-                        if line is None:
-                            raise Exception('No closing brace found for multi-line HAML beginning at line %s'
-                                            % (start_multiline + 1))
-                        node_lines += line
-
-            # Blank lines
-            if haml_node is not None and len(node_lines.strip()) == 0:
-                haml_node.newlines += 1
-            else:
-                haml_node = Node.create(node_lines, self)
-                if haml_node:
-                    root.add_node(haml_node)
+            root.add_node(node)
 
         if self.options['debug_tree']:  # pragma: no cover
             return root.debug_tree()
