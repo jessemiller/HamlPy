@@ -145,11 +145,17 @@ def read_attribute_dict(stream):
     """
     data = OrderedDict()
 
-    start, terminator = stream.text[0], stream.text[-1]
+    opener = stream.text[0]
 
-    assert start in ('{', '(') and terminator in ('}', ')')
+    assert opener in ('{', '(')
 
-    html_style = start == '('
+    if opener == '(':
+        html_style = True
+        terminator = ')'
+    else:
+        html_style = False
+        terminator = '}'
+
     stream.ptr += 1
 
     def record_value(key, value):
@@ -160,7 +166,11 @@ def read_attribute_dict(stream):
     while True:
         consume_whitespace(stream, include_newlines=True)
 
+        if stream.ptr >= stream.length:
+            raise ParseException("Unterminated attribute dictionary", stream)
+
         if stream.text[stream.ptr] == terminator:
+            stream.ptr += 1
             break
 
         # (foo = "bar" a=3)
