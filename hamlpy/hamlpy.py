@@ -5,6 +5,7 @@ import regex
 
 from optparse import OptionParser
 
+from hamlpy.parser.generic import Stream, read_line
 from hamlpy.parser.nodes import Node, HamlNode
 
 VALID_EXTENSIONS = ['haml', 'hamlpy']
@@ -83,13 +84,18 @@ class Compiler:
         """
         Converts the given string of Haml to a regular Django HTML
         """
-        haml_lines = haml.split('\n')
+        stream = Stream(haml)
 
         root = Node(self.options)
-        line_iter = iter(haml_lines)
 
         haml_node = None
-        for line_number, line in enumerate(line_iter):
+        line_number = 1
+
+        while True:
+            line = read_line(stream)
+            if line is None:
+                break
+
             node_lines = line
 
             if not root.parent_of(HamlNode(line, self)).inside_filter_node():
@@ -97,11 +103,11 @@ class Compiler:
                     start_multiline = line_number  # for exception handling
 
                     while line.count('{') - line.count('}') != -1:
-                        try:
-                            line = next(line_iter)
-                        except StopIteration:
+                        line = read_line(stream)
+
+                        if line is None:
                             raise Exception('No closing brace found for multi-line HAML beginning at line %s'
-                                            % (start_multiline+1))
+                                            % (start_multiline + 1))
                         node_lines += line
 
             # Blank lines

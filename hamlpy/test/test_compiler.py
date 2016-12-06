@@ -142,14 +142,14 @@ test''', "test")
         self._test(":plain\n  \\Something", "\\Something")
 
     def test_python_filter(self):
-        self._test(":python\n", '\n')  # empty
+        self._test(":python\n", '')  # empty
         self._test(":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)",
                    '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>')
 
         self._test_error(":python\n   print(10 / 0)", "Error whilst executing python filter node", ZeroDivisionError)
 
     def test_pygments_filter(self):
-        self._test(":highlight\n", '\n')  # empty
+        self._test(":highlight\n", '')  # empty
         self._test(":highlight\n  print(1)\n", '\n<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>\n</pre></div>')  # noqa
 
         nodes._pygments_available = False
@@ -159,7 +159,7 @@ test''', "test")
         nodes._pygments_available = True
 
     def test_markdown_filter(self):
-        self._test(":markdown\n", '\n')  # empty
+        self._test(":markdown\n", '')  # empty
         self._test(":markdown\n  *Title*\n", '<p><em>Title</em></p>')
 
         nodes._markdown_available = False

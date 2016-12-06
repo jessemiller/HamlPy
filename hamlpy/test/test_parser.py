@@ -47,6 +47,8 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(read_line(stream), '')
         self.assertEqual(read_line(stream), None)
 
+        self.assertEqual(read_line(Stream('last line  ')), 'last line  ')
+
     def test_read_number(self):
         stream = Stream('123"')
         self.assertEqual(read_number(stream), '123')

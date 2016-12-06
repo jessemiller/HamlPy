@@ -73,7 +73,7 @@ def read_line(stream):
 
     line = stream.text[start:stream.ptr]
 
-    if stream.text[stream.ptr] == '\n':
+    if stream.ptr < stream.length and stream.text[stream.ptr] == '\n':
         stream.ptr += 1
 
     return line
