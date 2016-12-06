@@ -83,12 +83,8 @@ class Compiler:
         """
         Converts the given string of Haml to a regular Django HTML
         """
-        return self.process_lines(haml.split('\n'))
+        haml_lines = haml.split('\n')
 
-    def process_lines(self, haml_lines):
-        """
-        Converts the given list of lines of Haml to a regular Django HTML
-        """
         root = Node(self.options)
         line_iter = iter(haml_lines)
 

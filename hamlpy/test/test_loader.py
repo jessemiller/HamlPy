@@ -60,7 +60,7 @@ class LoaderTest(unittest.TestCase):
             assert '"someClass"' in rendered
 
     def test_template_rendering(self):
-        assert render_to_string('simple.hamlpy') == self._load_test_template('simple.html') + "\n"
+        assert render_to_string('simple.hamlpy') == self._load_test_template('simple.html')
 
         context = {
             'section': {'title': "News", 'subtitle': "Technology"},

@@ -97,7 +97,8 @@ def read_attribute_value_haml(stream):
     stream.ptr -= 1  # un-consume final newline which will act as separator between this and next entry
 
     from ..hamlpy import Compiler
-    html = Compiler().process_lines(lines)
+    haml = '\n'.join(lines)
+    html = Compiler().process(haml)
     return regex.sub(LEADING_SPACES_REGEX, ' ', html).replace('\n', '').strip()
 
 

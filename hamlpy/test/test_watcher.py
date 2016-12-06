@@ -43,7 +43,7 @@ class WatcherTest(unittest.TestCase):
 
         # check file without errors was converted
         self.assertFileContents(OUTPUT_DIR + os.sep + 'test.html',
-                                "<span class='test'></span>\n{% shoutout %}\n{% endshoutout %}\n")
+                                "<span class='test'></span>\n{% shoutout %}\n\n{% endshoutout %}\n\n")
 
         # run without output directory which should make it default to re-using the input directory
         self._run_script([
@@ -53,7 +53,7 @@ class WatcherTest(unittest.TestCase):
         ], 1)
 
         self.assertFileContents(INPUT_DIR + os.sep + 'test.html',
-                                "<span class='test'></span>\n{% shoutout %}\n{% endshoutout %}\n")
+                                "<span class='test'></span>\n{% shoutout %}\n\n{% endshoutout %}\n\n")
 
         # fix file with error
         self._write_file(INPUT_DIR + os.sep + 'error.haml', "%div{}")
