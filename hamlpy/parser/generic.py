@@ -59,6 +59,26 @@ def read_quoted_string(stream):
     return ast.literal_eval('u' + stream.text[start:stream.ptr])
 
 
+def read_line(stream):
+    """
+    Reads a line
+    """
+    start = stream.ptr
+
+    if stream.ptr >= stream.length:
+        return None
+
+    while stream.ptr < stream.length and stream.text[stream.ptr] != '\n':
+        stream.ptr += 1
+
+    line = stream.text[start:stream.ptr]
+
+    if stream.text[stream.ptr] == '\n':
+        stream.ptr += 1
+
+    return line
+
+
 def read_number(stream):
     """
     Reads a decimal number, returning value as string
