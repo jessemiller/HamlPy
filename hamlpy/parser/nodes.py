@@ -12,6 +12,7 @@ CONDITIONAL_COMMENT_PREFIX = '/['
 HAML_COMMENT_PREFIXES = ['-#', '=#']
 VARIABLE_PREFIX = '='
 TAG_PREFIX = '-'
+FILTER_PREFIX = ':'
 
 HAML_ESCAPE = '\\'
 
@@ -26,6 +27,10 @@ def read_node(stream, prev, compiler):
         if stream.ptr >= stream.length:
             return None
 
+        # convert indent to be all of the first character
+        if indent:
+            indent = indent[0] * len(indent)
+
         # empty lines are recorded as newlines on previous node
         if stream.text[stream.ptr] == '\n':
             if prev:
@@ -34,32 +39,62 @@ def read_node(stream, prev, compiler):
             continue
 
         # parse filter node
-        if stream.text[stream.ptr] == ':':
+        if stream.text[stream.ptr] == FILTER_PREFIX:
             return read_filter_node(stream, indent, compiler)
 
         # peek ahead to differentiate between variable node starting #{.. and element node starting #\w...
         is_variable = stream.ptr < stream.length - 1 and stream.text[stream.ptr:stream.ptr+2] == '#{'
 
-        if stream.text[stream.ptr] in ('%', '#', '.') and not is_variable:
+        if stream.text[stream.ptr] in ELEMENT_PREFIXES and not is_variable:
             start = stream.ptr
             element = read_element(stream)
             haml = stream.text[start:stream.ptr]
-            return ElementNode(indent + haml, compiler, element)
+            return ElementNode(haml, indent, compiler, element)
 
+        # all other nodes are single line
         line = read_line(stream)
-        return Node.create(indent + line, compiler)
+
+        inline_var_regex, escaped_var_regex = compiler.inline_variable_regexes
+
+        if inline_var_regex.match(line) or escaped_var_regex.match(line):
+            return PlaintextNode(line, indent, compiler)
+
+        if line[0] == HAML_ESCAPE:
+            return PlaintextNode(line, indent, compiler)
+
+        if line.startswith(DOCTYPE_PREFIX):
+            return DoctypeNode(line, indent, compiler)
+
+        if line.startswith(CONDITIONAL_COMMENT_PREFIX):
+            return ConditionalCommentNode(line, indent, compiler)
+
+        if line[0] == HTML_COMMENT_PREFIX:
+            return CommentNode(line, indent, compiler)
+
+        for comment_prefix in HAML_COMMENT_PREFIXES:
+            if line.startswith(comment_prefix):
+                return HamlCommentNode(line, indent, compiler)
+
+        if line[0] == VARIABLE_PREFIX:
+            return VariableNode(line, indent, compiler)
+
+        if line[0] == TAG_PREFIX:
+            return TagNode(line, indent, compiler)
+
+        return PlaintextNode(line, indent, compiler)
 
 
 def read_filter_node(stream, indent, compiler):
     """
-    Reads a filter node, e.g. :plain
+    Reads a filter node including its indented content, e.g. :plain
     """
-    assert stream.text[stream.ptr] == ':'
+    assert stream.text[stream.ptr] == FILTER_PREFIX
 
     stream.ptr += 1  # consume the initial colon
     name = read_line(stream)
     content_lines = []
 
+    # read lines below with higher indentation as this filter's content
     while stream.ptr < stream.length:
         line_indentation = peek_indentation(stream)
 
@@ -90,43 +125,6 @@ class Node(TreeNode):
         self.newlines = 0        # number of empty lines to render after node
         self.before = ''         # rendered text at start of node, e.g. "<p>\n"
         self.after = ''          # rendered text at end of node, e.g. "\n</p>"
-        self.empty_node = False  # indicates that a node does not render anything (for whitespace removal)
-
-    @classmethod
-    def create(cls, haml_line, compiler):
-        """
-        Creates a new node from the given line of Haml
-        """
-        stripped_line = haml_line.strip()
-
-        inline_var_regex, escaped_var_regex = compiler.inline_variable_regexes
-
-        if inline_var_regex.match(stripped_line) or escaped_var_regex.match(stripped_line):
-            return PlaintextNode(haml_line, compiler)
-
-        if stripped_line[0] == HAML_ESCAPE:
-            return PlaintextNode(haml_line, compiler)
-
-        if stripped_line.startswith(DOCTYPE_PREFIX):
-            return DoctypeNode(haml_line, compiler)
-
-        if stripped_line.startswith(CONDITIONAL_COMMENT_PREFIX):
-            return ConditionalCommentNode(haml_line, compiler)
-
-        if stripped_line[0] == HTML_COMMENT_PREFIX:
-            return CommentNode(haml_line, compiler)
-
-        for comment_prefix in HAML_COMMENT_PREFIXES:
-            if stripped_line.startswith(comment_prefix):
-                return HamlCommentNode(haml_line, compiler)
-
-        if stripped_line[0] == VARIABLE_PREFIX:
-            return VariableNode(haml_line, compiler)
-
-        if stripped_line[0] == TAG_PREFIX:
-            return TagNode(haml_line, compiler)
-
-        return PlaintextNode(haml_line, compiler)
 
     def render(self):
         # Render (sets self.before and self.after)
@@ -138,19 +136,6 @@ class Node(TreeNode):
 
     def render_newlines(self):
         return '\n' * (self.newlines + 1)
-
-    def parent_of(self, node):
-        if self._should_go_inside_last_node(node):
-            ret = self.children[-1].parent_of(node)
-            return ret
-        else:
-            return self
-
-    def inside_filter_node(self):
-        if self.parent:
-            return self.parent.inside_filter_node()
-        else:
-            return False
 
     def _render_children(self):
         for child in self.children:
@@ -199,13 +184,13 @@ class Node(TreeNode):
 
 
 class HamlNode(Node):
-    def __init__(self, haml, compiler):
+    def __init__(self, haml, indent, compiler):
         super(HamlNode, self).__init__(compiler)
 
         self.haml = haml.strip()
         self.raw_haml = haml
-        self.indentation = (len(haml) - len(haml.lstrip()))
-        self.spaces = ''.join(haml[0] for i in range(self.indentation))
+        self.indent = indent
+        self.indentation = len(indent)
 
     def replace_inline_variables(self, content):
         inline_var_regex, escaped_var_regex = self.compiler.inline_variable_regexes
@@ -225,11 +210,11 @@ class PlaintextNode(HamlNode):
     def _render(self):
         text = self.replace_inline_variables(self.haml)
 
-        # remove escape character unless inside filter node
-        if text and text[0] == HAML_ESCAPE and not self.inside_filter_node():
+        # remove escape character
+        if text and text[0] == HAML_ESCAPE:
             text = text.replace(HAML_ESCAPE, '', 1)
 
-        self.before = '%s%s' % (self.spaces, text)
+        self.before = '%s%s' % (self.indent, text)
         if self.children:
             self.before += self.render_newlines()
         else:
@@ -242,8 +227,8 @@ class ElementNode(HamlNode):
     """
     An HTML tag node, e.g. %span
     """
-    def __init__(self, haml, compiler, element):
-        super(ElementNode, self).__init__(haml, compiler)
+    def __init__(self, haml, indent, compiler, element):
+        super(ElementNode, self).__init__(haml, indent, compiler)
 
         self.element = element
 
@@ -256,7 +241,7 @@ class ElementNode(HamlNode):
         """
         Render opening tag and inline content
         """
-        start = ["%s<%s" % (self.spaces, element.tag)]
+        start = ["%s<%s" % (self.indent, element.tag)]
 
         attributes = element.render_attributes(self.compiler.options['attr_wrapper'])
         if attributes:
@@ -286,7 +271,7 @@ class ElementNode(HamlNode):
         elif element.self_close:
             return self.render_newlines()
         elif self.children:
-            return "%s</%s>\n" % (self.spaces, element.tag)
+            return "%s</%s>\n" % (self.indent, element.tag)
         else:
             return "</%s>\n" % element.tag
 
@@ -298,15 +283,9 @@ class ElementNode(HamlNode):
 
             if self.children:
                 node = self
-                # if node renders nothing, do removal on its first child instead
-                if node.children[0].empty_node:
-                    node = node.children[0]
                 if node.children:
                     node.children[0].before = node.children[0].before.lstrip()
 
-                node = self
-                if node.children[-1].empty_node:
-                    node = node.children[-1]
                 if node.children:
                     node.children[-1].after = node.children[-1].after.rstrip()
 
@@ -421,12 +400,12 @@ class VariableNode(HamlNode):
     """
     A Django variable node, e.g. =person.name
     """
-    def __init__(self, haml, compiler):
-        super(VariableNode, self).__init__(haml, compiler)
+    def __init__(self, haml, indent, compiler):
+        super(VariableNode, self).__init__(haml, indent, compiler)
 
     def _render(self):
         tag_content = self.haml.lstrip(VARIABLE_PREFIX)
-        self.before = "%s{{ %s }}" % (self.spaces, tag_content.strip())
+        self.before = "%s{{ %s }}" % (self.indent, tag_content.strip())
         self.after = self.render_newlines()
 
     def _post_render(self):
@@ -437,8 +416,8 @@ class TagNode(HamlNode):
     """
     A Django/Jinja server-side tag node, e.g. -block
     """
-    def __init__(self, haml, compiler):
-        super(TagNode, self).__init__(haml, compiler)
+    def __init__(self, haml, indent, compiler):
+        super(TagNode, self).__init__(haml, indent, compiler)
 
         self.tag_statement = self.haml.lstrip(TAG_PREFIX).strip()
         self.tag_name = self.tag_statement.split(' ')[0]
@@ -447,13 +426,13 @@ class TagNode(HamlNode):
             raise ParseException("Unexpected closing tag for self-closing tag %s" % self.tag_name)
 
     def _render(self):
-        self.before = "%s{%% %s %%}" % (self.spaces, self.tag_statement)
+        self.before = "%s{%% %s %%}" % (self.indent, self.tag_statement)
 
         closing_tag = self.compiler.self_closing_tags.get(self.tag_name)
 
         if closing_tag:
             self.before += self.render_newlines()
-            self.after = '%s{%% %s %%}%s' % (self.spaces, closing_tag, self.render_newlines())
+            self.after = '%s{%% %s %%}%s' % (self.indent, closing_tag, self.render_newlines())
         else:
             if self.children:
                 self.before += self.render_newlines()
@@ -470,10 +449,10 @@ class FilterNode(HamlNode):
     A type filter, e.g. :javascript
     """
     def __init__(self, indent, compiler, filter_name, content):
-        super(FilterNode, self).__init__('', compiler)
+        super(FilterNode, self).__init__('', indent, compiler)
 
         self.indentation = len(indent)
-        self.spaces = indent
+        self.indent = indent
         self.filter_name = filter_name
         self.content = content
 
@@ -482,7 +461,7 @@ class FilterNode(HamlNode):
         if not filter_func:
             raise ParseException("No such filter: " + self.filter_name)
 
-        self.before = filter_func(self.content, self.spaces, self.compiler.options)
+        self.before = filter_func(self.content, self.indent, self.compiler.options)
         self.after = self.render_newlines() if self.content else ''
 
     def _post_render(self):
