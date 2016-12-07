@@ -5,12 +5,9 @@ import regex
 from collections import OrderedDict
 
 from .generic import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
-from .generic import STRING_LITERALS
+from .generic import peek_indentation, read_line, STRING_LITERALS
 
-ATTRIBUTE_KEY_REGEX = regex.compile(r'[a-zA-Z0-9-_]+')
-WHITESPACE_REGEX = regex.compile(r'([ \t]+)')
-LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.MULTILINE)
-LINE_REGEX = regex.compile(r'.*')
+LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 
 
 def read_attribute_value(stream):
@@ -65,26 +62,34 @@ def read_attribute_value_list(stream):
 
 def read_attribute_value_haml(stream):
     """
-    Reads an attribute value which is a block of indented HAML
+    Reads an attribute value which is a block of indented Haml
     """
-    def whitespace_length():
-        r = WHITESPACE_REGEX.match(stream.text, pos=stream.ptr)
-        return len(r.group(0))
+    indentation = peek_indentation(stream)
+    haml_lines = []
 
-    initial_indentation = whitespace_length()
-    lines = []
+    # read lines below with higher indentation as this filter's content
+    while stream.ptr < stream.length:
+        line_indentation = peek_indentation(stream)
 
-    while whitespace_length() >= initial_indentation:
-        line = LINE_REGEX.match(stream.text, pos=stream.ptr).group(0)
-        lines.append(line)
-        stream.ptr += len(line) + 1
+        if line_indentation is not None and line_indentation < indentation:
+            break
+
+        line = read_line(stream)
+
+        # don't preserve whitespace on empty lines
+        if line.isspace():
+            line = ''
+
+        haml_lines.append(line)
 
     stream.ptr -= 1  # un-consume final newline which will act as separator between this and next entry
 
     from ..hamlpy import Compiler
-    haml = '\n'.join(lines)
+    haml = '\n'.join(haml_lines)
     html = Compiler().process(haml)
-    return regex.sub(LEADING_SPACES_REGEX, ' ', html).replace('\n', '').strip()
+
+    # un-format into single line
+    return LEADING_SPACES_REGEX.sub(' ', html).replace('\n', '').strip()
 
 
 def read_attribute(stream, assignment_symbols, entry_separator, terminator):
