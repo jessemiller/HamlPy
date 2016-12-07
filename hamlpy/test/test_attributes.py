@@ -15,12 +15,6 @@ class AttributeDictParserTest(unittest.TestCase):
         return read_attribute_dict(Stream(text))
 
     def test_read_attribute_dict(self):
-        # TODO
-        # \r\n and \n
-        # Curly braces in multiline HAML
-        # Blank lines in Multiline HAML
-        # Incorrectly indented multiline HAML
-
         # empty dict
         stream = Stream("{}><")
         self.assertEqual(dict(read_attribute_dict(stream)), {})
