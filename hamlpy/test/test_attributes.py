@@ -93,7 +93,7 @@ class AttributeDictParserTest(unittest.TestCase):
                 'class':
                     - if forloop.first
                         link-first
-
+\x20
                     - else
                         - if forloop.last
                             link-last
