@@ -99,14 +99,10 @@ def highlight(content, indent, options):
 def python(content, indent, options):
     if content:
         content = textwrap.dedent(content)
-
-        # self.before = self.render_newlines()[1:]
-        # indent_offset = len(self.children[0].spaces)
-        # code = "\n".join([node.raw_haml[indent_offset:] for node in self.children]) + '\n'
-
         compiled_code = compile(content, "", "exec")
         output_buffer = StringIO()
         sys.stdout = output_buffer
+
         try:
             exec(compiled_code)
         except Exception as e:

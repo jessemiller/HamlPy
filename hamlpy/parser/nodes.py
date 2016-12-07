@@ -464,8 +464,9 @@ class FilterNode(Node):
 
     def _render(self):
         filter_func = get_filter(self.filter_name)
+        filtered_content = filter_func(self.content, self.indent, self.compiler.options)
 
-        self.before = filter_func(self.content, self.indent, self.compiler.options)
+        self.before = filtered_content
         self.after = self.render_newlines() if self.content else ''
 
     def _post_render(self):
