@@ -19,13 +19,13 @@ class NodeTest(unittest.TestCase):
         assert isinstance(self._read_node('   #idName'), nodes.ElementNode)
         assert isinstance(self._read_node('/ some Comment'), nodes.CommentNode)
         assert isinstance(self._read_node('     / some Comment'), nodes.CommentNode)
-        assert isinstance(self._read_node('just some random text'), nodes.HamlNode)
-        assert isinstance(self._read_node('   more random text'), nodes.HamlNode)
+        assert isinstance(self._read_node('just some random text'), nodes.PlaintextNode)
+        assert isinstance(self._read_node('   more random text'), nodes.PlaintextNode)
         assert isinstance(self._read_node('-# This is a haml comment'), nodes.HamlCommentNode)
         assert isinstance(self._read_node('= some.variable'), nodes.VariableNode)
         assert isinstance(self._read_node('- for something in somethings'), nodes.TagNode)
-        assert isinstance(self._read_node('\\= some.variable'), nodes.HamlNode)
-        assert isinstance(self._read_node('    \\= some.variable'), nodes.HamlNode)
+        assert isinstance(self._read_node('\\= some.variable'), nodes.PlaintextNode)
+        assert isinstance(self._read_node('    \\= some.variable'), nodes.PlaintextNode)
         assert isinstance(self._read_node('/[if IE 5]'), nodes.ConditionalCommentNode)
         assert isinstance(self._read_node(':plain'), nodes.FilterNode)
         assert isinstance(self._read_node('   :css\n'), nodes.FilterNode)
@@ -76,11 +76,11 @@ class NodeTest(unittest.TestCase):
         self.assertEqual('  ', space_tab.indent)
 
     def test_lines_are_always_stripped_of_whitespace(self):
-        some_space = self._read_node('   %div')
-        self.assertEqual('%div', some_space.haml)
+        some_space = self._read_node('   text')
+        self.assertEqual('text', some_space.haml)
 
-        lots_of_space = self._read_node('      %div    ')
-        self.assertEqual('%div', lots_of_space.haml)
+        lots_of_space = self._read_node('      text    ')
+        self.assertEqual('text', lots_of_space.haml)
 
     def test_inserts_nodes_into_proper_tree_depth(self):
         no_indentation_node = self._read_node('%div')

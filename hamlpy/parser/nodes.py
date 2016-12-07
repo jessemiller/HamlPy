@@ -46,10 +46,8 @@ def read_node(stream, prev, compiler):
         is_variable = stream.ptr < stream.length - 1 and stream.text[stream.ptr:stream.ptr+2] == '#{'
 
         if stream.text[stream.ptr] in ELEMENT_PREFIXES and not is_variable:
-            start = stream.ptr
             element = read_element(stream)
-            haml = stream.text[start:stream.ptr]
-            return ElementNode(haml, indent, compiler, element)
+            return ElementNode(element, indent, compiler)
 
         # all other nodes are single line
         line = read_line(stream)
@@ -109,22 +107,32 @@ def read_filter_node(stream, indent, compiler):
 
         content_lines.append(line)
 
-    return FilterNode(indent, compiler, name, '\n'.join(content_lines))
+    return FilterNode(name, '\n'.join(content_lines), indent, compiler)
 
 
 class Node(TreeNode):
     """
-    Base class of all nodes and also represents the root node
+    Base class of all nodes
     """
-    def __init__(self, compiler):
+    def __init__(self, indent, compiler):
         super(Node, self).__init__()
+
+        if indent is not None:
+            self.indent = indent
+            self.indentation = len(indent)
+        else:
+            self.indent = None
+            self.indentation = -1
 
         self.compiler = compiler
 
-        self.indentation = -2
         self.newlines = 0        # number of empty lines to render after node
         self.before = ''         # rendered text at start of node, e.g. "<p>\n"
         self.after = ''          # rendered text at end of node, e.g. "\n</p>"
+
+    @classmethod
+    def create_root(cls, compiler):
+        return cls(None, compiler)
 
     def render(self):
         # Render (sets self.before and self.after)
@@ -153,6 +161,13 @@ class Node(TreeNode):
             output.append(child.after)
         output.append(self.after)
         return ''.join(output)
+
+    def replace_inline_variables(self, content):
+        inline_var_regex, escaped_var_regex = self.compiler.inline_variable_regexes
+
+        content = inline_var_regex.sub(r'{{ \2 }}', content)
+        content = escaped_var_regex.sub(r'\1', content)
+        return content
 
     def add_node(self, node):
         if self._should_go_inside_last_node(node):
@@ -183,27 +198,20 @@ class Node(TreeNode):
         return '%s' % type(self).__name__
 
 
-class HamlNode(Node):
-    def __init__(self, haml, indent, compiler):
-        super(HamlNode, self).__init__(compiler)
+class LineNode(Node):
+    """
+    Base class of nodes which are a single line of Haml
+    """
+    def __init__(self, line, indent, compiler):
+        super(LineNode, self).__init__(indent, compiler)
 
-        self.haml = haml.strip()
-        self.raw_haml = haml
-        self.indent = indent
-        self.indentation = len(indent)
-
-    def replace_inline_variables(self, content):
-        inline_var_regex, escaped_var_regex = self.compiler.inline_variable_regexes
-
-        content = inline_var_regex.sub(r'{{ \2 }}', content)
-        content = escaped_var_regex.sub(r'\1', content)
-        return content
+        self.haml = line.rstrip()
 
     def __repr__(self):  # pragma: no cover
         return '%s(indent=%d, newlines=%d): %s' % (type(self).__name__, self.indentation, self.newlines, self.haml)
 
 
-class PlaintextNode(HamlNode):
+class PlaintextNode(LineNode):
     """
     Node that is not modified or processed when rendering
     """
@@ -223,12 +231,12 @@ class PlaintextNode(HamlNode):
         self._render_children()
 
 
-class ElementNode(HamlNode):
+class ElementNode(Node):
     """
     An HTML tag node, e.g. %span
     """
-    def __init__(self, haml, indent, compiler, element):
-        super(ElementNode, self).__init__(haml, indent, compiler)
+    def __init__(self, element, indent, compiler):
+        super(ElementNode, self).__init__(indent, compiler)
 
         self.element = element
 
@@ -325,7 +333,7 @@ class ElementNode(HamlNode):
             return self.replace_inline_variables(inline_content)
 
 
-class CommentNode(HamlNode):
+class CommentNode(LineNode):
     """
     An HTML comment node, e.g. / This is a comment
     """
@@ -338,7 +346,7 @@ class CommentNode(HamlNode):
             self.before = "<!-- %s " % (self.haml.lstrip(HTML_COMMENT_PREFIX).strip())
 
 
-class ConditionalCommentNode(HamlNode):
+class ConditionalCommentNode(LineNode):
     """
     An HTML conditional comment node, e.g. /[if IE]
     """
@@ -355,7 +363,7 @@ class ConditionalCommentNode(HamlNode):
         self._render_children()
 
 
-class DoctypeNode(HamlNode):
+class DoctypeNode(LineNode):
     """
     An XML doctype node, e.g. !!! 5
     """
@@ -385,7 +393,7 @@ class DoctypeNode(HamlNode):
         self.after = self.render_newlines()
 
 
-class HamlCommentNode(HamlNode):
+class HamlCommentNode(LineNode):
     """
     A Haml comment node, e.g. -# This is a comment
     """
@@ -396,7 +404,7 @@ class HamlCommentNode(HamlNode):
         pass
 
 
-class VariableNode(HamlNode):
+class VariableNode(LineNode):
     """
     A Django variable node, e.g. =person.name
     """
@@ -412,7 +420,7 @@ class VariableNode(HamlNode):
         pass
 
 
-class TagNode(HamlNode):
+class TagNode(LineNode):
     """
     A Django/Jinja server-side tag node, e.g. -block
     """
@@ -444,22 +452,18 @@ class TagNode(HamlNode):
         return isinstance(node, TagNode) and node.tag_name in self.compiler.tags_may_contain.get(self.tag_name, '')
 
 
-class FilterNode(HamlNode):
+class FilterNode(Node):
     """
     A type filter, e.g. :javascript
     """
-    def __init__(self, indent, compiler, filter_name, content):
-        super(FilterNode, self).__init__('', indent, compiler)
+    def __init__(self, filter_name, content, indent, compiler):
+        super(FilterNode, self).__init__(indent, compiler)
 
-        self.indentation = len(indent)
-        self.indent = indent
         self.filter_name = filter_name
         self.content = content
 
     def _render(self):
         filter_func = get_filter(self.filter_name)
-        if not filter_func:
-            raise ParseException("No such filter: " + self.filter_name)
 
         self.before = filter_func(self.content, self.indent, self.compiler.options)
         self.after = self.render_newlines() if self.content else ''

@@ -168,6 +168,9 @@ test''', "test")
 
         filters._markdown_available = True
 
+    def test_invalid_filter(self):
+        self._test_error(":nosuchfilter\n", "No such filter: nosuchfilter")
+
     def test_doctypes(self):
         self._test('!!! 5', '<!DOCTYPE html>')
         self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">')  # noqa

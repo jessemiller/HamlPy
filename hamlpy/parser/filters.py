@@ -135,4 +135,7 @@ FILTERS = {
 
 
 def get_filter(name):
+    if name not in FILTERS:
+        raise ParseException("No such filter: " + name)
+
     return FILTERS.get(name)

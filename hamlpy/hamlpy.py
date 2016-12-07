@@ -86,7 +86,7 @@ class Compiler:
         """
         stream = Stream(haml)
 
-        root = Node(self.options)
+        root = Node.create_root(self)
         node = None
 
         while True:
