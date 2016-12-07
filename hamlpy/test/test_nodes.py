@@ -6,6 +6,7 @@ from hamlpy.hamlpy import Compiler
 from hamlpy.parser import nodes
 from hamlpy.parser.generic import Stream
 from hamlpy.parser.elements import read_element
+from hamlpy.parser.nodes import read_filter_node
 
 
 class NodeTest(unittest.TestCase):
@@ -26,8 +27,20 @@ class NodeTest(unittest.TestCase):
         assert isinstance(self._create_node('- for something in somethings'), nodes.TagNode)
         assert isinstance(self._create_node('\\= some.variable'), nodes.HamlNode)
         assert isinstance(self._create_node('    \\= some.variable'), nodes.HamlNode)
-        assert isinstance(self._create_node(':python'), nodes.PythonFilterNode)
         assert isinstance(self._create_node('/[if IE 5]'), nodes.ConditionalCommentNode)
+
+    def test_read_filter_node(self):
+        stream = Stream(':python\n  print("hello")\n')
+        node = read_filter_node(stream, '', Compiler())
+        assert node.filter_name == 'python'
+        assert node.content == '  print("hello")'
+        assert stream.text[stream.ptr:] == ''
+
+        stream = Stream(':javascript\n    var i = 0;\n  var j = 1;\n%span')
+        node = read_filter_node(stream, '', Compiler())
+        assert node.filter_name == 'javascript'
+        assert node.content == '    var i = 0;\n  var j = 1;'
+        assert stream.text[stream.ptr:] == '%span'
 
     @staticmethod
     def _create_node(line):

@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import unittest
 
-from hamlpy.parser.generic import Stream, ParseException, consume_whitespace
+from hamlpy.parser.generic import Stream, ParseException, consume_whitespace, peek_indentation
 from hamlpy.parser.generic import read_quoted_string, read_line, read_number, read_symbol, read_word
 
 
@@ -27,6 +27,12 @@ class ParserTest(unittest.TestCase):
 
         self.assertEqual(consume_whitespace(stream), '   ')
         self.assertEqual(stream.text[stream.ptr:], '')
+
+    def test_peek_indentation(self):
+        self.assertEqual(peek_indentation(Stream('content')), 0)
+        self.assertEqual(peek_indentation(Stream('  content')), 2)
+        self.assertEqual(peek_indentation(Stream('\n')), None)
+        self.assertEqual(peek_indentation(Stream('    \n')), None)
 
     def test_quoted_string(self):
         stream = Stream("'hello'---")

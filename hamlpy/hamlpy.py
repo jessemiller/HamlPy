@@ -90,7 +90,7 @@ class Compiler:
         node = None
 
         while True:
-            node = read_node(stream, root, prev=node, compiler=self)
+            node = read_node(stream, prev=node, compiler=self)
             if not node:
                 break
 

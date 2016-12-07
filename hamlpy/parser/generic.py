@@ -60,6 +60,22 @@ def consume_whitespace(stream, include_newlines=False):
     return stream.text[start:stream.ptr]
 
 
+def peek_indentation(stream):
+    """
+    Counts but doesn't actually read indentation level on new line, returning the count or None if line is blank
+    """
+    indentation = 0
+    while True:
+        ch = stream.text[stream.ptr + indentation]
+        if ch == '\n':
+            return None
+
+        if not ch.isspace():
+            return indentation
+
+        indentation += 1
+
+
 def read_quoted_string(stream):
     """
     Reads a single or double quoted string, returning the value without the quotes
