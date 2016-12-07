@@ -46,7 +46,7 @@ class TreeNode(object):
         self.children.append(child)
 
 
-def consume_whitespace(stream, include_newlines=False):
+def read_whitespace(stream, include_newlines=False):
     """
     Reads whitespace characters, returning the whitespace characters
     """

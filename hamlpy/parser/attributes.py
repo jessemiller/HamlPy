@@ -4,7 +4,7 @@ import regex
 
 from collections import OrderedDict
 
-from .generic import ParseException, consume_whitespace, read_symbol, read_number, read_quoted_string, read_word
+from .generic import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
 from .generic import STRING_LITERALS
 
 ATTRIBUTE_KEY_REGEX = regex.compile(r'[a-zA-Z0-9-_]+')
@@ -46,14 +46,14 @@ def read_attribute_value_list(stream):
     stream.ptr += 1  # consume opening symbol
 
     while True:
-        consume_whitespace(stream)
+        read_whitespace(stream)
 
         if stream.text[stream.ptr] == close_literal:
             break
 
         data.append(read_attribute_value(stream))
 
-        consume_whitespace(stream)
+        read_whitespace(stream)
 
         if stream.text[stream.ptr] != close_literal:
             read_symbol(stream, (',',))
@@ -103,14 +103,14 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
     if not key:
         raise ParseException("Empty attribute key.", stream)
 
-    consume_whitespace(stream)
+    read_whitespace(stream)
 
     if stream.text[stream.ptr] in (entry_separator, terminator):
         value = None
     else:
         read_symbol(stream, assignment_symbols)
 
-        consume_whitespace(stream)
+        read_whitespace(stream)
 
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
@@ -149,7 +149,7 @@ def read_attribute_dict(stream):
         data[key] = value
 
     while True:
-        consume_whitespace(stream, include_newlines=True)
+        read_whitespace(stream, include_newlines=True)
 
         if stream.ptr >= stream.length:
             raise ParseException("Unterminated attribute dictionary", stream)
@@ -162,7 +162,7 @@ def read_attribute_dict(stream):
         if html_style:
             record_value(*read_attribute(stream, ('=',), None, terminator))
 
-            consume_whitespace(stream)
+            read_whitespace(stream)
 
             if stream.text[stream.ptr] == ',':
                 raise ParseException("Unexpected \",\".", stream)
@@ -171,7 +171,7 @@ def read_attribute_dict(stream):
         else:
             record_value(*read_attribute(stream, ('=>', ':'), ',', terminator))
 
-            consume_whitespace(stream)
+            read_whitespace(stream)
 
             if stream.text[stream.ptr] not in (terminator, '\n'):
                 read_symbol(stream, (',',))

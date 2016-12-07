@@ -1,6 +1,6 @@
 from __future__ import print_function, unicode_literals
 
-from .generic import ParseException, TreeNode, read_line, consume_whitespace, peek_indentation
+from .generic import ParseException, TreeNode, read_line, read_whitespace, peek_indentation
 from .elements import read_element
 from .filters import get_filter
 
@@ -22,7 +22,7 @@ def read_node(stream, prev, compiler):
     Reads a node, returning either the node or None if we've reached the end of the input
     """
     while True:
-        indent = consume_whitespace(stream)
+        indent = read_whitespace(stream)
 
         if stream.ptr >= stream.length:
             return None

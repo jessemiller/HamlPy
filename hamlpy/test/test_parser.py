@@ -3,29 +3,29 @@ from __future__ import unicode_literals
 
 import unittest
 
-from hamlpy.parser.generic import Stream, ParseException, consume_whitespace, peek_indentation
+from hamlpy.parser.generic import Stream, ParseException, read_whitespace, peek_indentation
 from hamlpy.parser.generic import read_quoted_string, read_line, read_number, read_symbol, read_word
 
 
 class ParserTest(unittest.TestCase):
 
-    def test_consume_whitespace(self):
+    def test_read_whitespace(self):
         stream = Stream(' \t foo  \n  bar   ')
 
-        self.assertEqual(consume_whitespace(stream), ' \t ')
+        self.assertEqual(read_whitespace(stream), ' \t ')
         self.assertEqual(stream.text[stream.ptr:], 'foo  \n  bar   ')
 
         stream.ptr += 3  # skip over foo
 
-        self.assertEqual(consume_whitespace(stream), '  ')
+        self.assertEqual(read_whitespace(stream), '  ')
         self.assertEqual(stream.text[stream.ptr:], '\n  bar   ')
 
-        self.assertEqual(consume_whitespace(stream, include_newlines=True), '\n  ')
+        self.assertEqual(read_whitespace(stream, include_newlines=True), '\n  ')
         self.assertEqual(stream.text[stream.ptr:], 'bar   ')
 
         stream.ptr += 3  # skip over bar
 
-        self.assertEqual(consume_whitespace(stream), '   ')
+        self.assertEqual(read_whitespace(stream), '   ')
         self.assertEqual(stream.text[stream.ptr:], '')
 
     def test_peek_indentation(self):
