@@ -23,12 +23,11 @@ def _read_requirements(filename):
 
 setup(
     name='django-hamlpy',
-    version='0.86.1',
-    description='HAML like syntax for Django templates. Fork of unmaintained hamlpy.',
+    version=__import__('hamlpy').__version__,
+    description='Haml like syntax for Django templates.',
     long_description=read_md('README.md'),
 
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
