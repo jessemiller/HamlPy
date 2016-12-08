@@ -21,9 +21,13 @@ when you can just type:
 
 ... and do something more fun with all the time you save not typing angle brackets and remembering to close tags? 
 
-The syntax above is [Haml](http://www.haml-lang.com) - a templating language used extensively in the Ruby on Rails community. This library lets Django developers use a Haml like syntax in their templates. It's not a template engine in itself, but simply a compiler which will convert "HamlPy" files into templates that Django can understand.
+The syntax above is [Haml](http://www.haml-lang.com) - a templating language used extensively in the Ruby on Rails 
+community. This library lets Django developers use a Haml like syntax in their templates. It's not a template engine in 
+itself, but simply a compiler which will convert "HamlPy" files into templates that Django can understand.
 
-This project is a fork of the no longer maintained [HamlPy](https://github.com/jessemiller/HamlPy). It introduces Python 3 support, support for new Django versions, and a host of new features. Note that the package name is now *django-hamlpy*.
+This project is a fork of the no longer maintained [HamlPy](https://github.com/jessemiller/HamlPy). It introduces 
+Python 3 support, support for new Django versions, and a host of new features and bug fixes. Note that the package name 
+is now *django-hamlpy*.
 
 ## Installing
 
@@ -62,12 +66,13 @@ turns into:
 </div>
 ```
 
-The main difference is instead of interpreting Ruby, or even Python we instead can create Django tags and variables. For example:
+The main difference is instead of interpreting Ruby, or even Python we instead can create Django tags and variables. For 
+example:
 
 ```haml
 %ul#athletes
     - for athlete in athlete_list
-        %li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
+        %li.athlete{'id': 'athlete_#{ athlete.pk }'}= athlete.name
 ```
 
 becomes...
@@ -86,7 +91,9 @@ There are two different ways to use this library.
 
 ### Option 1: Template loaders
 
-These are Django template loaders which will convert any templates with `.haml` or `.hamlpy` extensions to regular Django templates whenever they are requested by a Django view. To use them, add them to the list of template loaders in your Django settings, e.g.
+These are Django template loaders which will convert any templates with `.haml` or `.hamlpy` extensions to regular 
+Django templates whenever they are requested by a Django view. To use them, add them to the list of template loaders in 
+your Django settings, e.g.
 
 ```python
 TEMPLATES=[
@@ -104,11 +111,13 @@ TEMPLATES=[
 ]
 ```
 
-Ensure they are listed before the standard Django template loaders or these loaders will try to process your Haml templates.
+Ensure they are listed before the standard Django template loaders or these loaders will try to process your Haml 
+templates.
 
 #### Template caching
 
-You can use these loaders with template caching - just add `django.template.loaders.cached.Loader` to your list of loaders, e.g.
+You can use these loaders with template caching - just add `django.template.loaders.cached.Loader` to your list of 
+loaders, e.g.
 
 ```python
 'loaders': (
@@ -130,7 +139,8 @@ You can configure the Haml compiler with the following Django settings:
 
 ### Option 2: Watcher
 
-The library can also be used as a stand-alone program. There is a watcher script which will monitor Haml files in a given directory and convert them to HTML as they are edited.
+The library can also be used as a stand-alone program. There is a watcher script which will monitor Haml files in a 
+given directory and convert them to HTML as they are edited.
 
 ```
 usage: hamlpy_watcher.py [-h] [-v] [-i EXT [EXT ...]] [-ext EXT] [-r S]
@@ -172,7 +182,8 @@ python manage.py makemessages --extension haml,html,py,txt
 
 ## Reference
 
-Check out the [reference](http://github.com/nyaruka/django-hamlpy/blob/master/REFERENCE.md) file for the complete syntax reference and more examples.
+Check out the [reference](http://github.com/nyaruka/django-hamlpy/blob/master/REFERENCE.md) file for the complete syntax 
+reference and more examples.
 
 ## Class Based Views
 
@@ -214,7 +225,8 @@ Date related views:
 * [DayArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#dayarchiveview)
 * [TodayArchiveView](https://docs.djangoproject.com/en/1.10/ref/class-based-views/generic-display/#todayarchiveview)
 
-All views are importable from `hamlpy.views.generic` and are built using the `HamlExtensionTemplateView` mixin which you can use to create your own custom Haml-using views. For example:
+All views are importable from `hamlpy.views.generic` and are built using the `HamlExtensionTemplateView` mixin which you 
+can use to create your own custom Haml-using views. For example:
 
 ```python
 from hamlpy.views.generic import HamlExtensionTemplateView
@@ -227,7 +239,8 @@ class MyNewView(HamlExtensionTemplateView, ParentViewType):
 
 ## Contributing
 
-We're always happy to have contributions to this project. To get started you'll need to clone the project and install the dependencies:
+We're always happy to have contributions to this project. To get started you'll need to clone the project and install 
+the dependencies:
 
     virtualenv env
     source env/bin/activate
