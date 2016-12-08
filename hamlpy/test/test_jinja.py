@@ -4,7 +4,7 @@ import unittest
 
 from jinja2.exceptions import TemplateSyntaxError
 
-from hamlpy.ext import HamlPyExtension
+from hamlpy.jinja import HamlPyExtension
 
 
 class JinjaTest(unittest.TestCase):
