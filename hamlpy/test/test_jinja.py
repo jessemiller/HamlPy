@@ -20,5 +20,5 @@ class JinjaTest(unittest.TestCase):
         self.assertEqual(extension.preprocess('%span Hello', 'test.txt'), "%span Hello")
 
         # exceptions converted to Jinja2 exceptions
-        self.assertRaisesRegexp(TemplateSyntaxError, 'Unterminated string \(expected "\). @ "{"}"',
+        self.assertRaisesRegexp(TemplateSyntaxError, 'Unterminated string \(expected "\). @ "%span{"}"',
                                 extension.preprocess, '%span{"}', 'test.haml')

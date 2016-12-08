@@ -4,7 +4,7 @@ from __future__ import print_function, unicode_literals
 import unittest
 
 from hamlpy import hamlpy
-from hamlpy.parser import nodes
+from hamlpy.parser import filters
 from hamlpy.parser.generic import ParseException
 
 
@@ -142,31 +142,34 @@ test''', "test")
         self._test(":plain\n  \\Something", "\\Something")
 
     def test_python_filter(self):
-        self._test(":python\n", '\n')  # empty
+        self._test(":python\n", '')  # empty
         self._test(":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)",
                    '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>')
 
         self._test_error(":python\n   print(10 / 0)", "Error whilst executing python filter node", ZeroDivisionError)
 
     def test_pygments_filter(self):
-        self._test(":highlight\n", '\n')  # empty
-        self._test(":highlight\n  print(1)\n", '\n<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>\n</pre></div>')  # noqa
+        self._test(":highlight\n", '')  # empty
+        self._test(":highlight\n  print(1)\n", '<div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>\n</pre></div>')  # noqa
 
-        nodes._pygments_available = False
+        filters._pygments_available = False
 
         self._test_error(":highlight\n  print(1)\n", "Pygments is not available")
 
-        nodes._pygments_available = True
+        filters._pygments_available = True
 
     def test_markdown_filter(self):
-        self._test(":markdown\n", '\n')  # empty
+        self._test(":markdown\n", '')  # empty
         self._test(":markdown\n  *Title*\n", '<p><em>Title</em></p>')
 
-        nodes._markdown_available = False
+        filters._markdown_available = False
 
         self._test_error(":markdown\n  *Title*\n", "Markdown is not available")
 
-        nodes._markdown_available = True
+        filters._markdown_available = True
+
+    def test_invalid_filter(self):
+        self._test_error(":nosuchfilter\n", "No such filter: nosuchfilter")
 
     def test_doctypes(self):
         self._test('!!! 5', '<!DOCTYPE html>')
@@ -203,7 +206,9 @@ test''', "test")
         compiler = hamlpy.Compiler(compiler_options)
         result = compiler.process(haml)
 
-        self.assertEqual(result, expected_html + '\n')
+        result = result.rstrip('\n')  # ignore trailing new lines
+
+        self.assertEqual(result, expected_html)
 
     def _test_error(self, haml, expected_message, expected_cause=None, compiler_options=None):
         compiler = hamlpy.Compiler(compiler_options)

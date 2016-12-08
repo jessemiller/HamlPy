@@ -4,28 +4,10 @@ import regex
 
 from collections import OrderedDict
 
-from .generic import consume_whitespace, read_symbol, read_number, read_quoted_string, STRING_LITERALS, ParseException
+from .generic import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
+from .generic import peek_indentation, read_line, STRING_LITERALS
 
-ATTRIBUTE_KEY_REGEX = regex.compile(r'[a-zA-Z0-9-_]+')
-WHITESPACE_REGEX = regex.compile(r'([ \t]+)')
-LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.MULTILINE)
-LINE_REGEX = regex.compile(r'.*')
-
-
-def read_attribute_key(stream):
-    """
-    Reads an attribute key
-    """
-    start = stream.ptr
-
-    while True:
-        ch = stream.text[stream.ptr]
-        if not (('A' <= ch <= 'Z') or ('a' <= ch <= 'z') or ('0' <= ch <= '9') or ch in ('_', '-')):
-            break
-
-        stream.ptr += 1
-
-    return stream.text[start:stream.ptr]
+LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 
 
 def read_attribute_value(stream):
@@ -61,14 +43,14 @@ def read_attribute_value_list(stream):
     stream.ptr += 1  # consume opening symbol
 
     while True:
-        consume_whitespace(stream)
+        read_whitespace(stream)
 
         if stream.text[stream.ptr] == close_literal:
             break
 
         data.append(read_attribute_value(stream))
 
-        consume_whitespace(stream)
+        read_whitespace(stream)
 
         if stream.text[stream.ptr] != close_literal:
             read_symbol(stream, (',',))
@@ -80,25 +62,34 @@ def read_attribute_value_list(stream):
 
 def read_attribute_value_haml(stream):
     """
-    Reads an attribute value which is a block of indented HAML
+    Reads an attribute value which is a block of indented Haml
     """
-    def whitespace_length():
-        r = WHITESPACE_REGEX.match(stream.text, pos=stream.ptr)
-        return len(r.group(0))
+    indentation = peek_indentation(stream)
+    haml_lines = []
 
-    initial_indentation = whitespace_length()
-    lines = []
+    # read lines below with higher indentation as this filter's content
+    while stream.ptr < stream.length:
+        line_indentation = peek_indentation(stream)
 
-    while whitespace_length() >= initial_indentation:
-        line = LINE_REGEX.match(stream.text, pos=stream.ptr).group(0)
-        lines.append(line)
-        stream.ptr += len(line) + 1
+        if line_indentation is not None and line_indentation < indentation:
+            break
+
+        line = read_line(stream)
+
+        # don't preserve whitespace on empty lines
+        if line.isspace():
+            line = ''
+
+        haml_lines.append(line)
 
     stream.ptr -= 1  # un-consume final newline which will act as separator between this and next entry
 
     from ..hamlpy import Compiler
-    html = Compiler().process_lines(lines)
-    return regex.sub(LEADING_SPACES_REGEX, ' ', html).replace('\n', '').strip()
+    haml = '\n'.join(haml_lines)
+    html = Compiler().process(haml)
+
+    # un-format into single line
+    return LEADING_SPACES_REGEX.sub(' ', html).replace('\n', '').strip()
 
 
 def read_attribute(stream, assignment_symbols, entry_separator, terminator):
@@ -112,19 +103,19 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
         if stream.text[stream.ptr] == ':':
             stream.ptr += 1
 
-        key = read_attribute_key(stream)
+        key = read_word(stream, include_hypens=True)
 
     if not key:
         raise ParseException("Empty attribute key.", stream)
 
-    consume_whitespace(stream)
+    read_whitespace(stream)
 
     if stream.text[stream.ptr] in (entry_separator, terminator):
         value = None
     else:
         read_symbol(stream, assignment_symbols)
 
-        consume_whitespace(stream)
+        read_whitespace(stream)
 
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
@@ -144,11 +135,17 @@ def read_attribute_dict(stream):
     """
     data = OrderedDict()
 
-    start, terminator = stream.text[0], stream.text[-1]
+    opener = stream.text[stream.ptr]
 
-    assert start in ('{', '(') and terminator in ('}', ')')
+    assert opener in ('{', '(')
 
-    html_style = start == '('
+    if opener == '(':
+        html_style = True
+        terminator = ')'
+    else:
+        html_style = False
+        terminator = '}'
+
     stream.ptr += 1
 
     def record_value(key, value):
@@ -157,16 +154,20 @@ def read_attribute_dict(stream):
         data[key] = value
 
     while True:
-        consume_whitespace(stream, include_newlines=True)
+        read_whitespace(stream, include_newlines=True)
+
+        if stream.ptr >= stream.length:
+            raise ParseException("Unterminated attribute dictionary", stream)
 
         if stream.text[stream.ptr] == terminator:
+            stream.ptr += 1
             break
 
         # (foo = "bar" a=3)
         if html_style:
             record_value(*read_attribute(stream, ('=',), None, terminator))
 
-            consume_whitespace(stream)
+            read_whitespace(stream)
 
             if stream.text[stream.ptr] == ',':
                 raise ParseException("Unexpected \",\".", stream)
@@ -175,7 +176,7 @@ def read_attribute_dict(stream):
         else:
             record_value(*read_attribute(stream, ('=>', ':'), ',', terminator))
 
-            consume_whitespace(stream)
+            read_whitespace(stream)
 
             if stream.text[stream.ptr] not in (terminator, '\n'):
                 read_symbol(stream, (',',))

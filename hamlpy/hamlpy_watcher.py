@@ -167,9 +167,9 @@ def compile_file(fullpath, outfile_name, compiler_args):
     try:
         if Options.DEBUG:  # pragma: no cover
             print("Compiling %s -> %s" % (fullpath, outfile_name))
-        haml_lines = codecs.open(fullpath, 'r', encoding='utf-8').read().splitlines()
+        haml = codecs.open(fullpath, 'r', encoding='utf-8').read()
         compiler = hamlpy.Compiler(compiler_args)
-        output = compiler.process_lines(haml_lines)
+        output = compiler.process(haml)
         outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
         outfile.write(output)
 

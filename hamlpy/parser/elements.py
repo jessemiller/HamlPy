@@ -1,10 +1,86 @@
 from __future__ import print_function, unicode_literals
 
-import regex
 import six
 
 from .attributes import read_attribute_dict
-from .generic import Stream
+from .generic import read_word, read_line
+
+
+def read_tag(stream):
+    """
+    Reads an element tag, e.g. span, ng-repeat, cs:dropdown
+    """
+    part1 = read_word(stream, include_hypens=True)
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] == ':':
+        stream.ptr += 1
+        part2 = read_word(stream, include_hypens=True)
+    else:
+        part2 = None
+
+    return (part1 + ':' + part2) if part2 else part1
+
+
+def read_element(stream):
+    """
+    Reads an element, e.g. %span, #banner{style:"width: 100px"}, .ng-hide(foo=1)
+    """
+    if stream.text[stream.ptr] == '%':
+        stream.ptr += 1
+        tag = read_tag(stream)
+    else:
+        tag = None
+
+    ids = []
+    classes = []
+    while stream.ptr < stream.length and stream.text[stream.ptr] in ('#', '.'):
+        is_id = stream.text[stream.ptr] == '#'
+        stream.ptr += 1
+
+        id_or_class = read_word(stream, include_hypens=True)
+        if id_or_class:
+            if is_id:
+                ids.append(id_or_class)
+            else:
+                classes.append(id_or_class)
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
+        attributes = read_attribute_dict(stream)
+    else:
+        attributes = {}
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] == '>':
+        stream.ptr += 1
+        nuke_outer_ws = True
+    else:
+        nuke_outer_ws = False
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] == '<':
+        stream.ptr += 1
+        nuke_inner_ws = True
+    else:
+        nuke_inner_ws = False
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] == '/':
+        stream.ptr += 1
+        self_close = True
+    else:
+        self_close = tag in Element.SELF_CLOSING
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] == '=':
+        stream.ptr += 1
+        django_variable = True
+    else:
+        django_variable = False
+
+    if stream.ptr < stream.length:
+        inline = read_line(stream)
+        if inline is not None:
+            inline = inline.strip()
+    else:
+        inline = None
+
+    return Element(tag, ids, classes, attributes, nuke_outer_ws, nuke_inner_ws, self_close, django_variable, inline)
 
 
 class Element(object):
@@ -16,62 +92,19 @@ class Element(object):
         'keygen', 'param', 'wbr'
     )
 
-    ELEMENT = '%'
-    ID = '#'
-    CLASS = '.'
     DEFAULT_TAG = 'div'
 
-    ELEMENT_REGEX = regex.compile(r"""
-        (?P<tag>%[\w\-]+(\:[\w\-]+)?)?
-        (?P<id_and_classes>(\#|\.)[\w-]+)*
-        (?P<attributes>(\{.*\}|\(.*\)))?
-        (?P<nuke_outer_whitespace>\>)?
-        (?P<nuke_inner_whitespace>\<)?
-        (?P<selfclose>/)?
-        (?P<django>=)?
-        (?P<inline>[^\w\.#\{].*)?
-        """, regex.V1 | regex.X | regex.MULTILINE | regex.DOTALL | regex.UNICODE)
-
-    def __init__(self, tag, _id, classes, attributes, self_close, nuke_inner_whitespace, nuke_outer_whitespace,
+    def __init__(self, tag, ids, classes, attributes, nuke_outer_whitespace, nuke_inner_whitespace, self_close,
                  django_variable, inline_content):
-        self.tag = tag
-        self.id = _id
-        self.classes = classes
+        self.tag = tag or self.DEFAULT_TAG
         self.attributes = attributes
-        self.self_close = self_close
         self.nuke_inner_whitespace = nuke_inner_whitespace
         self.nuke_outer_whitespace = nuke_outer_whitespace
-
+        self.self_close = self_close
         self.django_variable = django_variable
         self.inline_content = inline_content
 
-    @classmethod
-    def parse(cls, haml):
-        components = cls.ELEMENT_REGEX.search(haml).capturesdict()
-
-        if components['tag']:
-            tag = components.get('tag')[0].lstrip(cls.ELEMENT)
-        else:
-            tag = cls.DEFAULT_TAG
-
-        if components['attributes']:
-            attributes = read_attribute_dict(Stream(components.get('attributes')[0]))
-        else:
-            attributes = {}
-
-        # parse ids and classes from the components
-        ids = []
-        classes = []
-
-        for id_or_class in components.get('id_and_classes'):
-            prefix = id_or_class[0]
-            name = id_or_class[1:]
-            if prefix == cls.ID:
-                ids.append(name)
-            elif prefix == cls.CLASS:
-                classes.append(name)
-
-        # include ids and classes in the attribute dictionary
+        # merge ids from the attribute dictionary
         id_from_attrs = attributes.get('id')
         if isinstance(id_from_attrs, tuple) or isinstance(id_from_attrs, list):
             ids += id_from_attrs
@@ -79,22 +112,16 @@ class Element(object):
             ids += [id_from_attrs]
 
         # merge ids to a single value with _ separators
-        _id = '_'.join(ids) if ids else None
+        self.id = '_'.join(ids) if ids else None
 
+        # merge classes from the attribute dictionary
         class_from_attrs = attributes.get('class')
         if isinstance(class_from_attrs, (tuple, list)):
             classes += class_from_attrs
         elif isinstance(class_from_attrs, six.string_types):
             classes += [class_from_attrs]
 
-        self_close = components.get('selfclose') or (tag in cls.SELF_CLOSING)
-        nuke_inner_whitespace = bool(components.get('nuke_inner_whitespace'))
-        nuke_outer_whitespace = bool(components.get('nuke_outer_whitespace'))
-        django_variable = bool(components.get('django'))
-        inline_content = components.get('inline')[0].strip() if components.get('inline') else ''
-
-        return cls(tag, _id, classes, attributes, self_close, nuke_inner_whitespace, nuke_outer_whitespace,
-                   django_variable, inline_content)
+        self.classes = classes
 
     def render_attributes(self, attr_wrapper):
         def attr_wrap(val):

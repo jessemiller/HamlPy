@@ -23,14 +23,57 @@ class Stream(object):
         self.ptr = 0
 
 
-def consume_whitespace(stream, include_newlines=False):
+class TreeNode(object):
     """
-    Reads and discards whitespace characters
+    Generic parent/child tree class
+    """
+    def __init__(self):
+        self.parent = None
+        self.children = []
+
+    def left_sibling(self):
+        siblings = self.parent.children
+        index = siblings.index(self)
+        return siblings[index - 1] if index > 0 else None
+
+    def right_sibling(self):
+        siblings = self.parent.children
+        index = siblings.index(self)
+        return siblings[index + 1] if index < len(siblings) - 1 else None
+
+    def add_child(self, child):
+        child.parent = self
+        self.children.append(child)
+
+
+def read_whitespace(stream, include_newlines=False):
+    """
+    Reads whitespace characters, returning the whitespace characters
     """
     whitespace = WHITESPACE_AND_NEWLINE_CHARS if include_newlines else WHITESPACE_CHARS
 
+    start = stream.ptr
+
     while stream.ptr < stream.length and stream.text[stream.ptr] in whitespace:
         stream.ptr += 1
+
+    return stream.text[start:stream.ptr]
+
+
+def peek_indentation(stream):
+    """
+    Counts but doesn't actually read indentation level on new line, returning the count or None if line is blank
+    """
+    indentation = 0
+    while True:
+        ch = stream.text[stream.ptr + indentation]
+        if ch == '\n':
+            return None
+
+        if not ch.isspace():
+            return indentation
+
+        indentation += 1
 
 
 def read_quoted_string(stream):
@@ -59,6 +102,26 @@ def read_quoted_string(stream):
     return ast.literal_eval('u' + stream.text[start:stream.ptr])
 
 
+def read_line(stream):
+    """
+    Reads a line
+    """
+    start = stream.ptr
+
+    if stream.ptr >= stream.length:
+        return None
+
+    while stream.ptr < stream.length and stream.text[stream.ptr] != '\n':
+        stream.ptr += 1
+
+    line = stream.text[start:stream.ptr]
+
+    if stream.ptr < stream.length and stream.text[stream.ptr] == '\n':
+        stream.ptr += 1
+
+    return line
+
+
 def read_number(stream):
     """
     Reads a decimal number, returning value as string
@@ -84,3 +147,18 @@ def read_symbol(stream, symbols):
             return symbol
 
     raise ParseException("Expected %s." % ' or '.join(['"%s"' % s for s in symbols]), stream)
+
+
+def read_word(stream, include_hypens=False):
+    """
+    Reads a sequence of word characters
+    """
+    start = stream.ptr
+
+    while stream.ptr < stream.length:
+        ch = stream.text[stream.ptr]
+        if not (ch.isalnum() or ch == '_' or (ch == '-' and include_hypens)):
+            break
+        stream.ptr += 1
+
+    return stream.text[start:stream.ptr]

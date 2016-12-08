@@ -14,18 +14,14 @@ class AttributeDictParserTest(unittest.TestCase):
     def _parse(text):
         return read_attribute_dict(Stream(text))
 
-    def test_parse(self):
-        # TODO
-        # \r\n and \n
-        # Curly braces in multiline HAML
-        # Blank lines in Multiline HAML
-        # Incorrectly indented multiline HAML
-
+    def test_read_attribute_dict(self):
         # empty dict
-        self.assertEqual(dict(self._parse("{}")), {})
+        stream = Stream("{}><")
+        self.assertEqual(dict(read_attribute_dict(stream)), {})
+        self.assertEqual(stream.text[stream.ptr:], '><')
 
         # string values
-        self.assertEqual(dict(self._parse("{'class': 'test'}")), {'class': 'test'})
+        self.assertEqual(dict(self._parse("{'class': 'test'} =Test")), {'class': 'test'})
         self.assertEqual(dict(self._parse("{'class': 'test', 'id': 'something'}")),
                          {'class': 'test', 'id': 'something'})
 
@@ -97,6 +93,7 @@ class AttributeDictParserTest(unittest.TestCase):
                 'class':
                     - if forloop.first
                         link-first
+\x20
                     - else
                         - if forloop.last
                             link-last

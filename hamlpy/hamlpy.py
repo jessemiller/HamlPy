@@ -5,7 +5,8 @@ import regex
 
 from optparse import OptionParser
 
-from hamlpy.parser.nodes import Node, HamlNode
+from hamlpy.parser.generic import Stream
+from hamlpy.parser.nodes import Node, read_node
 
 VALID_EXTENSIONS = ['haml', 'hamlpy']
 
@@ -83,38 +84,17 @@ class Compiler:
         """
         Converts the given string of Haml to a regular Django HTML
         """
-        return self.process_lines(haml.split('\n'))
+        stream = Stream(haml)
 
-    def process_lines(self, haml_lines):
-        """
-        Converts the given list of lines of Haml to a regular Django HTML
-        """
-        root = Node(self.options)
-        line_iter = iter(haml_lines)
+        root = Node.create_root(self)
+        node = None
 
-        haml_node = None
-        for line_number, line in enumerate(line_iter):
-            node_lines = line
+        while True:
+            node = read_node(stream, prev=node, compiler=self)
+            if not node:
+                break
 
-            if not root.parent_of(HamlNode(line, self)).inside_filter_node():
-                if line.count('{') - line.count('}') == 1:
-                    start_multiline = line_number  # for exception handling
-
-                    while line.count('{') - line.count('}') != -1:
-                        try:
-                            line = next(line_iter)
-                        except StopIteration:
-                            raise Exception('No closing brace found for multi-line HAML beginning at line %s'
-                                            % (start_multiline+1))
-                        node_lines += line
-
-            # Blank lines
-            if haml_node is not None and len(node_lines.strip()) == 0:
-                haml_node.newlines += 1
-            else:
-                haml_node = Node.create(node_lines, self)
-                if haml_node:
-                    root.add_node(haml_node)
+            root.add_node(node)
 
         if self.options['debug_tree']:  # pragma: no cover
             return root.debug_tree()
