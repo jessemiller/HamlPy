@@ -76,39 +76,38 @@ test''', "test")
                    "<!--[if lte IE 7]>\n\ttest\n<![endif]-->\n<div id='test'></div>")
 
     def test_django_variables(self):
-        # Django variable on tag
+        # whole-line variable with =
+        self._test('= story.tease', '{{ story.tease }}')
+
+        # element content variable with =
         self._test('%div= story.tease', '<div>{{ story.tease }}</div>')
 
-        # standalone Django variables using =
-        self._test('= story.tease', '{{ story.tease }}')
-        self._test("={greeting} #{name}, how are you ={date}?",
+        # embedded Django variables using #{...}
+        self._test("#{greeting} #{name}, how are you #{date}?",
                    "{{ greeting }} {{ name }}, how are you {{ date }}?")
-
-        # standalone Django variables using #
-        self._test("#{name}, how are you?", "{{ name }}, how are you?")
         self._test("%h1 Hello, #{person.name}, how are you?", "<h1>Hello, {{ person.name }}, how are you?</h1>")
 
+        # embedded Django variables using ={...} (not enabled by default)
+        self._test("Hi ={name}, how are you?", "Hi ={name}, how are you?")
+        self._test("Hi ={name}, how are you?", "Hi {{ name }}, how are you?",
+                   compiler_options={'django_inline_style': True})
+
         # variables can use Django filters
-        self._test("={value|center:\"15\"}", "{{ value|center:\"15\" }}")
+        self._test("#{value|center:\"15\"}", "{{ value|center:\"15\" }}")
 
         # variables can be used in attribute values
-        self._test("%a{'b': '={greeting} test'} blah", "<a b='{{ greeting }} test'>blah</a>")
+        self._test("%a{'b': '#{greeting} test'} blah", "<a b='{{ greeting }} test'>blah</a>")
 
         # including in the id or class
-        self._test("%div{'id':'package_={object.id}'}", "<div id='package_{{ object.id }}'></div>")
-        self._test("%div{'class':'package_={object.id}'}", "<div class='package_{{ object.id }}'></div>")
+        self._test("%div{'id':'package_#{object.id}'}", "<div id='package_{{ object.id }}'></div>")
+        self._test("%div{'class':'package_#{object.id}'}", "<div class='package_{{ object.id }}'></div>")
 
         # they can be escaped
-        self._test("%a{'b': '\\\\={greeting} test', title: \"It can't be removed\"} blah",
-                   "<a b='={greeting} test' title='It can\\'t be removed'>blah</a>")
-        self._test("%h1 Hello, \\#{name}, how are you ={ date }?",
-                   "<h1>Hello, #{name}, how are you {{ date }}?</h1>")
-        self._test("\\={name}, how are you?", "={name}, how are you?")
+        self._test("%a{'b': '\\\\#{greeting} test', title: \"It can't be removed\"} blah",
+                   "<a b='#{greeting} test' title='It can\\'t be removed'>blah</a>")
+        self._test("%h1 Hello, \\={name}, how are you ={ date }?",
+                   "<h1>Hello, ={name}, how are you {{ date }}?</h1>", compiler_options={'django_inline_style': True})
         self._test("\\#{name}, how are you?", "#{name}, how are you?")
-
-        # can disable use of ={...} syntax
-        options = {'django_inline_style': False}
-        self._test("Dear ={title} #{name} href={{ var }}", "Dear ={title} {{ name }} href={{ var }}", options)
 
     def test_django_tags(self):
         # if/else

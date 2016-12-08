@@ -12,7 +12,7 @@ VALID_EXTENSIONS = ['haml', 'hamlpy']
 class Compiler:
     DEFAULT_OPTIONS = {
         'attr_wrapper': '\'',            # how to render attribute values, e.g. foo='bar'
-        'django_inline_style': True,     # support both #{...} and ={...}
+        'django_inline_style': False,    # support both #{...} and ={...}
         'tag_config': 'django',          # Django vs Jinja2 tags
         'custom_self_closing_tags': {},  # additional self-closing tags
         'debug_tree': False,

@@ -126,7 +126,7 @@ You can configure the Haml compiler with the following Django settings:
 
   * `HAMLPY_ATTR_WRAPPER` -- The character that should wrap element attributes. Defaults to `'` (an apostrophe).
   * `HAMLPY_DJANGO_INLINE_STYLE` -- Whether to support `={...}` syntax for inline variables in addition to `#{...}`. 
-     Defaults to `True`.
+     Defaults to `False`.
 
 ### Option 2: Watcher
 
