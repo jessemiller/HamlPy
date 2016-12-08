@@ -3,8 +3,6 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import regex
 
-from optparse import OptionParser
-
 from hamlpy.parser.generic import Stream
 from hamlpy.parser.nodes import Node, read_node
 
@@ -111,39 +109,3 @@ class Compiler:
             regex.compile(r'(?<!\\)([' + prefixes + r']\{\s*(.+?)\s*\})'),
             regex.compile(r'\\([' + prefixes + r']\{\s*(.+?)\s*\})')
         )
-
-
-def convert_files():  # pragma: no cover
-    import codecs
-
-    parser = OptionParser()
-    parser.add_option(
-        "-d", "--debug-tree", dest="debug_tree",
-        action="store_true",
-        help="Print the generated tree instead of the HTML")
-    parser.add_option(
-        "--attr-wrapper", dest="attr_wrapper",
-        type="choice", choices=('"', "'"), default="'",
-        action="store",
-        help="The character that should wrap element attributes. "
-        "This defaults to ' (an apostrophe).")
-    (options, args) = parser.parse_args()
-
-    if len(args) < 1:
-        print("Specify the input file as the first argument.")
-    else:
-        infile = args[0]
-        haml_lines = codecs.open(infile, 'r', encoding='utf-8').read().splitlines()
-
-        compiler = Compiler(options.__dict__)
-        output = compiler.process_lines(haml_lines)
-
-        if len(args) == 2:
-            outfile = codecs.open(args[1], 'w', encoding='utf-8')
-            outfile.write(output)
-        else:
-            print(output)
-
-
-if __name__ == '__main__':  # pragma: no cover
-    convert_files()

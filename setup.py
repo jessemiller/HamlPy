@@ -47,7 +47,6 @@ setup(
     tests_require=_read_requirements("requirements/tests.txt"),
     entry_points={
         'console_scripts': [
-            'hamlpy = hamlpy.hamlpy:convert_files',
             'hamlpy-watcher = hamlpy.hamlpy_watcher:watch_folder'
         ]
     }
