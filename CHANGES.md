@@ -1,15 +1,29 @@
-1.0a1 (TBD)
+1.0 (TBD)
 ===================
 
+This is the first major release and there are some potentially breaking changes noted below.
+
 * Refactor of parsing code giving ~40% performance improvement
-* Added support for HTML style attribute dictionaries, e.g. %span(foo="bar")
+* Added support for HTML style attribute dictionaries, e.g. `%span(foo="bar")`
 * Fixed attribute values not being able to include braces (https://github.com/nyaruka/django-hamlpy/issues/39)
 * Fixed attribute values which are Haml not being able to have blank lines (https://github.com/nyaruka/django-hamlpy/issues/41)
-* Fixed sequential with tags ended up nested (https://github.com/nyaruka/django-hamlpy/issues/23) 
+* Fixed sequential `with` tags ended up nested (https://github.com/nyaruka/django-hamlpy/issues/23) 
 * Fixed templatize patching for Django 1.9+
-* Changed support for ={..} style expressions (use #{..}) to be disabled by default (https://github.com/nyaruka/django-hamlpy/issues/16)
-* Removed support for =# comment syntax which wasn't documented (use -#)
+* Changed support for `={..}` style expressions to be disabled by default (https://github.com/nyaruka/django-hamlpy/issues/16)
+* Removed support for `=#` comment syntax
 * Project now maintained by Nyaruka (https://github.com/nyaruka)
+
+Breaking Changes
+----------------
+
+* Support for `={...}` variable substitutions is disabled by default but can be enabled by setting 
+  `HAMLPY_DJANGO_INLINE_STYLE` to `True` if you are using the template loaders, or specifying --django-inline if you are 
+  using the watcher script. The preferred syntax for variable substitutions is `#{...}` as this is actual Haml and is 
+  less likely conflict with other uses of the `=` character.
+* The `=# ...` comment syntax is no longer supported. This is not Haml and was never documented anywhere. You should use 
+  the `-# ...` syntax instead.
+* Any line beginning with a colon is interpreted as a filter, so if this is not the case, you should escape the colon, 
+  e.g. `\: not a filter `
 
 0.86.1 (2016-11-15)
 ===================
