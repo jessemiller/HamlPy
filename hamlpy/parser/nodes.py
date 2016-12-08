@@ -9,7 +9,7 @@ DOCTYPE_PREFIX = '!!!'
 ELEMENT_PREFIXES = ('%', '#', '.')
 HTML_COMMENT_PREFIX = '/'
 CONDITIONAL_COMMENT_PREFIX = '/['
-HAML_COMMENT_PREFIXES = ['-#', '=#']
+HAML_COMMENT_PREFIX = '-#'
 VARIABLE_PREFIX = '='
 TAG_PREFIX = '-'
 FILTER_PREFIX = ':'
@@ -69,9 +69,8 @@ def read_node(stream, prev, compiler):
         if line[0] == HTML_COMMENT_PREFIX:
             return CommentNode(line, indent, compiler)
 
-        for comment_prefix in HAML_COMMENT_PREFIXES:
-            if line.startswith(comment_prefix):
-                return HamlCommentNode(line, indent, compiler)
+        if line.startswith(HAML_COMMENT_PREFIX):
+            return HamlCommentNode(line, indent, compiler)
 
         if line[0] == VARIABLE_PREFIX:
             return VariableNode(line, indent, compiler)
