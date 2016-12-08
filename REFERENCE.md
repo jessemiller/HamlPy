@@ -88,9 +88,10 @@ is compiled to:
 
 Any string is a valid element name and an opening and closing tag will automatically be generated.
 
-### Attributes: {}
+### Attributes: {} or ()
 
-Brackets represent a Python dictionary that is used for specifying the attributes of an element.  The dictionary is placed after the tag is defined.  For example:
+Brackets represent a dictionary that is used for specifying the attributes of an element.  The dictionary is placed 
+after the tag is defined. For example:
 
 ```haml
 %html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}
@@ -107,6 +108,12 @@ Long attribute dictionaries can be separated into multiple lines:
 ```haml
 %script{'type': 'text/javascript', 'charset': 'utf-8',
         'href': '/long/url/to/javascript/resource.js'}
+```
+
+And the more HTML-like () syntax is also supported:
+
+```haml
+%script(type='text/javascript' charset='utf-8' href='/long/url/to/javascript/resource.js')
 ```
 
 #### Attributes without values (Boolean attributes)
@@ -426,7 +433,6 @@ Hello #{name}
 
 Django style `={...}` syntax is also optionally supported. If you are using the template loader
 then ensure `HAMLPY_DJANGO_INLINE_STYLE` is `True`, and the two syntaxes can then be used interchangeably.
-
 
 
 
