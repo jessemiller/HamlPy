@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 
 import unittest
 
-from hamlpy import hamlpy
+from hamlpy.compiler import Compiler
 from hamlpy.parser import filters
 from hamlpy.parser.generic import ParseException
 
@@ -121,7 +121,7 @@ test''', "test")
                    '{% with context %}\n  hello\n{% endwith %}\n{% with other_context %}\n  goodbye\n{% endwith %}')
 
         # exception using a closing tag of a self-closing tag
-        parser = hamlpy.Compiler()
+        parser = Compiler()
         self.assertRaises(ParseException, parser.process, '- endfor')
 
     def test_plain_text(self):
@@ -202,7 +202,7 @@ test''', "test")
 </script>''', compiler_options={'attr_wrapper': '"'})
 
     def _test(self, haml, expected_html, compiler_options=None):
-        compiler = hamlpy.Compiler(compiler_options)
+        compiler = Compiler(compiler_options)
         result = compiler.process(haml)
 
         result = result.rstrip('\n')  # ignore trailing new lines
@@ -210,7 +210,7 @@ test''', "test")
         self.assertEqual(result, expected_html)
 
     def _test_error(self, haml, expected_message, expected_cause=None, compiler_options=None):
-        compiler = hamlpy.Compiler(compiler_options)
+        compiler = Compiler(compiler_options)
 
         try:
             compiler.process(haml)

@@ -5,7 +5,7 @@ import codecs
 import time
 import unittest
 
-from hamlpy import hamlpy
+from hamlpy.compiler import Compiler
 from os import listdir, path
 
 
@@ -39,7 +39,7 @@ class TemplateCheck(object):
         return tests
 
     def run(self):
-        compiler = hamlpy.Compiler()
+        compiler = Compiler()
         parsed = compiler.process(self.haml)
 
         # ignore line ending differences

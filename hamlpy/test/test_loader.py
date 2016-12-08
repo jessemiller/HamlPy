@@ -1,7 +1,6 @@
 from __future__ import print_function, unicode_literals
 
 import django
-import hamlpy
 import mock
 import unittest
 
@@ -12,7 +11,8 @@ from django.template.loader import render_to_string
 from django.test.utils import override_settings
 from six.moves import reload_module
 
-from hamlpy.hamlpy import Compiler
+from hamlpy.compiler import Compiler
+
 
 TEMPLATE_DIR = 'hamlpy/test/templates'
 TEMPLATE_LOADERS = [
@@ -38,9 +38,10 @@ django.setup()
 
 class LoaderTest(unittest.TestCase):
     def tearDown(self):
-        reload_module(hamlpy.template.loaders)
+        from hamlpy.template import loaders
+        reload_module(loaders)
 
-    @mock.patch('hamlpy.hamlpy.Compiler', wraps=Compiler)
+    @mock.patch('hamlpy.compiler.Compiler', wraps=Compiler)
     def test_compiler_settings(self, mock_compiler_class):
         render_to_string('simple.hamlpy')
 
@@ -48,7 +49,8 @@ class LoaderTest(unittest.TestCase):
         mock_compiler_class.reset_mock()
 
         with override_settings(HAMLPY_ATTR_WRAPPER='"', HAMLPY_DJANGO_INLINE_STYLE=False):
-            reload_module(hamlpy.template.loaders)
+            from hamlpy.template import loaders
+            reload_module(loaders)
 
             rendered = render_to_string('simple.hamlpy')
 

@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 
 import unittest
 
-from hamlpy.hamlpy import Compiler
+from hamlpy.compiler import Compiler
 from hamlpy.parser import nodes
 from hamlpy.parser.generic import Stream
 from hamlpy.parser.nodes import read_node, read_filter_node

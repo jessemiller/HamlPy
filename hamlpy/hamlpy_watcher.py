@@ -16,7 +16,7 @@ import time
 
 from time import strftime
 
-from hamlpy import hamlpy
+from hamlpy.compiler import Compiler, VALID_EXTENSIONS
 
 
 class Options(object):
@@ -42,7 +42,7 @@ class StoreNameValueTagPair(argparse.Action):
 
 arg_parser = argparse.ArgumentParser()
 arg_parser.add_argument('-v', '--verbose', help='Display verbose output', action='store_true')
-arg_parser.add_argument('-i', '--input-extension', metavar='EXT', default='.hamlpy',
+arg_parser.add_argument('-i', '--input-extension', metavar='EXT',
                         help='The file extensions to look for.', type=str, nargs='+')
 arg_parser.add_argument('-ext', '--extension', metavar='EXT', default=Options.OUTPUT_EXT,
                         help='The output file extension. Default is .html', type=str)
@@ -63,14 +63,6 @@ arg_parser.add_argument('--jinja', default=False, action='store_true',
 arg_parser.add_argument('--once', default=False, action='store_true',
                         help='Runs the compiler once and exits on completion. '
                              'Returns a non-zero exit code if there were any compile errors.')
-
-
-def watched_extension(extension):
-    """Return True if the given extension is one of the watched extensions"""
-    for ext in hamlpy.VALID_EXTENSIONS:
-        if extension.endswith('.' + ext):
-            return True
-    return False
 
 
 def watch_folder():
@@ -95,7 +87,9 @@ def watch_folder():
         compiler_args['custom_self_closing_tags'] = args.tags
 
     if args.input_extension:
-        hamlpy.VALID_EXTENSIONS += args.input_extension
+        input_extensions = [(e[1:] if e.startswith('.') else e) for e in args.input_extension]  # strip . chars
+    else:
+        input_extensions = VALID_EXTENSIONS
 
     if args.attr_wrapper:
         compiler_args['attr_wrapper'] = args.attr_wrapper
@@ -108,7 +102,7 @@ def watch_folder():
 
     # compile once, then exist
     if args.once:
-        (total_files, num_failed) = _watch_folder(input_folder, output_folder, compiler_args)
+        (total_files, num_failed) = _watch_folder(input_folder, input_extensions, output_folder, compiler_args)
         print('Compiled %d of %d files.' % (total_files - num_failed, total_files))
         if num_failed == 0:
             print('All files compiled successfully.')
@@ -118,40 +112,59 @@ def watch_folder():
 
     while True:
         try:
-            _watch_folder(input_folder, output_folder, compiler_args)
+            _watch_folder(input_folder, input_extensions, output_folder, compiler_args)
             time.sleep(args.refresh)
         except KeyboardInterrupt:
             # allow graceful exit (no stacktrace output)
             sys.exit(0)
 
 
-def _watch_folder(folder, destination, compiler_args):
+def _watch_folder(folder, extensions, destination, compiler_args):
     """
     Compares "modified" timestamps against the "compiled" dict, calls compiler if necessary. Returns a tuple of the
-    number of files hit and the number of failed compiles"""
+    number of files hit and the number of failed compiles
+    """
     total_files = 0
     num_failed = 0
+
+    print('_watch_folder(%s, %s, %s)' % (folder, repr(extensions), destination))
+
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
             # ignore filenames starting with ".#" for Emacs compatibility
-            if watched_extension(filename) and not filename.startswith('.#'):
-                fullpath = os.path.join(dirpath, filename)
-                subfolder = os.path.relpath(dirpath, folder)
-                mtime = os.stat(fullpath).st_mtime
+            if filename.startswith('.#'):
+                continue
 
-                # create subfolders in target directory if they don't exist
-                compiled_folder = os.path.join(destination, subfolder)
-                if not os.path.exists(compiled_folder):
-                    os.makedirs(compiled_folder)
+            if not _has_extension(filename, extensions):
+                continue
 
-                compiled_path = _compiled_path(compiled_folder, filename)
-                if fullpath not in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
-                    compiled[fullpath] = mtime
-                    total_files += 1
-                    if not compile_file(fullpath, compiled_path, compiler_args):
-                        num_failed += 1
+            fullpath = os.path.join(dirpath, filename)
+            subfolder = os.path.relpath(dirpath, folder)
+            mtime = os.stat(fullpath).st_mtime
+
+            # create subfolders in target directory if they don't exist
+            compiled_folder = os.path.join(destination, subfolder)
+            if not os.path.exists(compiled_folder):
+                os.makedirs(compiled_folder)
+
+            compiled_path = _compiled_path(compiled_folder, filename)
+            if fullpath not in compiled or compiled[fullpath] < mtime or not os.path.isfile(compiled_path):
+                compiled[fullpath] = mtime
+                total_files += 1
+                if not compile_file(fullpath, compiled_path, compiler_args):
+                    num_failed += 1
 
     return total_files, num_failed
+
+
+def _has_extension(filename, extensions):
+    """
+    Checks if the given filename has one of the given extensions
+    """
+    for ext in extensions:
+        if filename.endswith('.' + ext):
+            return True
+    return False
 
 
 def _compiled_path(destination, filename):
@@ -168,7 +181,7 @@ def compile_file(fullpath, outfile_name, compiler_args):
         if Options.DEBUG:  # pragma: no cover
             print("Compiling %s -> %s" % (fullpath, outfile_name))
         haml = codecs.open(fullpath, 'r', encoding='utf-8').read()
-        compiler = hamlpy.Compiler(compiler_args)
+        compiler = Compiler(compiler_args)
         output = compiler.process(haml)
         outfile = codecs.open(outfile_name, 'w', encoding='utf-8')
         outfile.write(output)
@@ -182,5 +195,5 @@ def compile_file(fullpath, outfile_name, compiler_args):
     return False
 
 
-if __name__ == '__main__':  # pragma: no cover
+if __name__ == '__main__':
     watch_folder()

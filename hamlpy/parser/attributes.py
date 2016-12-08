@@ -84,7 +84,7 @@ def read_attribute_value_haml(stream):
 
     stream.ptr -= 1  # un-consume final newline which will act as separator between this and next entry
 
-    from ..hamlpy import Compiler
+    from ..compiler import Compiler
     haml = '\n'.join(haml_lines)
     html = Compiler().process(haml)
 
