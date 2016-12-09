@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 
 import django
 import mock
+import pytest
 import unittest
 
 from distutils.version import StrictVersion
@@ -84,7 +85,8 @@ class LoaderTest(unittest.TestCase):
         assert render_to_string('simple.html') == self._load_test_template('simple.html')
 
     def test_should_raise_exception_when_template_doesnt_exist(self):
-        self.assertRaises(TemplateDoesNotExist, render_to_string, 'simple.xyz')
+        with pytest.raises(TemplateDoesNotExist):
+            render_to_string('simple.xyz')
 
     def _load_test_template(self, name):
         return open('hamlpy/test/templates/' + name, 'r').read()

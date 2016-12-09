@@ -207,7 +207,7 @@ test''', "test")
 
         result = result.rstrip('\n')  # ignore trailing new lines
 
-        self.assertEqual(result, expected_html)
+        assert result == expected_html
 
     def _test_error(self, haml, expected_message, expected_cause=None, compiler_options=None):
         compiler = Compiler(compiler_options)
@@ -217,7 +217,7 @@ test''', "test")
             self.fail("Expected exception to be raised")
         except Exception as e:
             self.assertIsInstance(e, ParseException)
-            self.assertEqual(str(e), expected_message)
+            assert str(e) == expected_message
 
             if expected_cause:
-                self.assertEqual(type(e.__cause__), expected_cause)
+                assert type(e.__cause__) == expected_cause
