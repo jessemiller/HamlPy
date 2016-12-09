@@ -2,6 +2,7 @@
 from __future__ import absolute_import, print_function, unicode_literals
 
 import regex
+import warnings
 
 from hamlpy.parser.generic import Stream
 from hamlpy.parser.nodes import Node, read_node
@@ -67,6 +68,9 @@ class Compiler:
         self.options = self.DEFAULT_OPTIONS.copy()
         if options:
             self.options.update(options)
+
+        if self.options['django_inline_style']:  # pragma: no cover
+            warnings.warn("Support for ={..} style variables is deprecated", DeprecationWarning)
 
         tag_config = self.TAG_CONFIGS[self.options['tag_config']]
         self.self_closing_tags = tag_config['self_closing']
