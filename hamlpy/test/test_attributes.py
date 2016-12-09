@@ -106,9 +106,16 @@ class AttributeDictParserTest(unittest.TestCase):
         assert dict(self._parse("{class: 'test\u1234'}")) == {'class': 'test\u1234'}
 
         # html style dicts
+        assert dict(self._parse("()")) == {}
+        assert dict(self._parse("(   )")) == {}
+
         assert dict(self._parse(
-            "(:class='test' :data-number = 123\n foo=\"bar\")"
-        )) == {'class': 'test', 'data-number': '123', 'foo': 'bar'}
+            "(disabled :class='test' data-number = 123\n 'foo'=\"bar\")"
+        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+
+        assert dict(self._parse(
+            "(:class='test' data-number = 123\n 'foo'=\"bar\"  \t   disabled)"
+        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
     def test_empty_attribute_raises_error(self):
         # empty quoted string
@@ -149,7 +156,7 @@ class AttributeDictParserTest(unittest.TestCase):
             self._parse("(class='test', foo = 'bar')")
 
         # use : in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Expected \"=\". @ \"\(class:\" <-"):
+        with self.assertRaisesRegexp(ParseException, "Unexpected \":\". @ \"\(class:\" <-"):
             self._parse("(class:'test')")
 
         # use => in HTML style dict

@@ -5,7 +5,7 @@ import regex
 from collections import OrderedDict
 
 from .generic import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
-from .generic import peek_indentation, read_line, STRING_LITERALS
+from .generic import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CHARS
 
 LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 
@@ -108,11 +108,15 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
     if not key:
         raise ParseException("Empty attribute key.", stream)
 
+    assignment_prefixes = [s[0] for s in assignment_symbols]
+
+    ch = stream.text[stream.ptr]
+    if ch not in WHITESPACE_CHARS and ch not in (entry_separator, terminator) and ch not in assignment_prefixes:
+        raise ParseException("Unexpected \"%s\"." % ch, stream)
+
     read_whitespace(stream)
 
-    if stream.text[stream.ptr] in (entry_separator, terminator):
-        value = None
-    else:
+    if stream.text[stream.ptr] in assignment_prefixes:
         read_symbol(stream, assignment_symbols)
 
         read_whitespace(stream)
@@ -125,6 +129,8 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
             value = read_attribute_value_list(stream)
         else:
             value = read_attribute_value(stream)
+    else:
+        value = None
 
     return key, value
 
