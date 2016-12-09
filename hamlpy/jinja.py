@@ -4,7 +4,8 @@ import jinja2.ext
 import os
 import six
 
-from hamlpy.compiler import Compiler, VALID_EXTENSIONS
+from hamlpy import HAML_EXTENSIONS
+from hamlpy.compiler import Compiler
 from hamlpy.parser.generic import ParseException
 
 
@@ -13,7 +14,7 @@ class HamlPyExtension(jinja2.ext.Extension):
     def preprocess(self, source, name, filename=None):
         extension = os.path.splitext(name)[1][1:]
 
-        if extension in VALID_EXTENSIONS:
+        if extension in HAML_EXTENSIONS:
             compiler = Compiler()
             try:
                 return compiler.process(source)

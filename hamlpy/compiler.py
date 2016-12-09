@@ -6,8 +6,6 @@ import regex
 from hamlpy.parser.generic import Stream
 from hamlpy.parser.nodes import Node, read_node
 
-VALID_EXTENSIONS = ['haml', 'hamlpy']
-
 
 class Compiler:
     DEFAULT_OPTIONS = {

@@ -16,7 +16,8 @@ import time
 
 from time import strftime
 
-from hamlpy.compiler import Compiler, VALID_EXTENSIONS
+from hamlpy import HAML_EXTENSIONS
+from hamlpy.compiler import Compiler
 
 
 class Options(object):
@@ -89,7 +90,7 @@ def watch_folder():
     if args.input_extension:
         input_extensions = [(e[1:] if e.startswith('.') else e) for e in args.input_extension]  # strip . chars
     else:
-        input_extensions = VALID_EXTENSIONS
+        input_extensions = HAML_EXTENSIONS
 
     if args.attr_wrapper:
         compiler_args['attr_wrapper'] = args.attr_wrapper

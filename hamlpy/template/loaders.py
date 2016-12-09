@@ -6,7 +6,8 @@ from django.conf import settings
 from django.template import TemplateDoesNotExist
 from django.template.loaders import filesystem, app_directories
 
-from hamlpy.compiler import Compiler, VALID_EXTENSIONS
+from hamlpy import HAML_EXTENSIONS
+from hamlpy.compiler import Compiler
 from hamlpy.template.utils import get_django_template_loaders
 
 # Get options from Django settings
@@ -28,7 +29,7 @@ def get_haml_loader(loader):
             # os.path.splitext always returns a period at the start of extension
             extension = _extension.lstrip('.')
 
-            if extension in VALID_EXTENSIONS:
+            if extension in HAML_EXTENSIONS:
                 compiler = Compiler(options=options)
                 return compiler.process(contents)
 
@@ -40,7 +41,7 @@ def get_haml_loader(loader):
             # os.path.splitext always returns a period at the start of extension
             extension = _extension.lstrip('.')
 
-            if extension in VALID_EXTENSIONS:
+            if extension in HAML_EXTENSIONS:
                 try:
                     haml_source, template_path = super(Loader, self).load_template_source(
                         self._generate_template_name(name, extension), *args, **kwargs

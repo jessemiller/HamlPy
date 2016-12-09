@@ -9,7 +9,8 @@ import os
 
 from django.utils.translation import trans_real
 
-from hamlpy.compiler import Compiler, VALID_EXTENSIONS
+from hamlpy import HAML_EXTENSIONS
+from hamlpy.compiler import Compiler
 
 
 def decorate_templatize(func):
@@ -18,7 +19,7 @@ def decorate_templatize(func):
         if origin:
             extension = os.path.splitext(origin.name)[1][1:].lower()
 
-            if extension in VALID_EXTENSIONS:
+            if extension in HAML_EXTENSIONS:
                 compiler = Compiler()
                 src = compiler.process(src)
 
