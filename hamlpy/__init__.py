@@ -1,6 +1,6 @@
 from __future__ import unicode_literals
 
-__version__ = '1.0a1'
+__version__ = '1.0b1'
 
 
 HAML_EXTENSIONS = ('haml', 'hamlpy')
