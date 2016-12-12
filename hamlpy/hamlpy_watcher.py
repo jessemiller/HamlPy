@@ -196,5 +196,5 @@ def compile_file(fullpath, outfile_name, compiler_args):
     return False
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     watch_folder()
