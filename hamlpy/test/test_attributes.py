@@ -133,7 +133,7 @@ class AttributeDictParserTest(unittest.TestCase):
         # attribute names with characters found in JS frameworks
         assert dict(self._parse('([foo]="a" ?foo$="b")')) == {'[foo]': 'a', '?foo$': 'b'}
 
-    def test_empty_attribute_raises_error(self):
+    def test_empty_attribute_name_raises_error(self):
         # empty quoted string in Ruby new style
         with self.assertRaisesRegexp(ParseException, "Attribute name can't be an empty string. @ \"{'':\" <-"):
             self._parse("{'': 'test'}")
@@ -147,6 +147,14 @@ class AttributeDictParserTest(unittest.TestCase):
             self._parse("(='test')")
         with self.assertRaisesRegexp(ParseException, "Unexpected \"=\". @ \"\(foo='bar' =\" <-"):
             self._parse("(foo='bar' ='test')")
+
+    def test_empty_attribute_value_raises_error(self):
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"}\". @ \"{:class=>}\" <-"):
+            self._parse("{:class=>}")
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"}\". @ \"{class:}\" <-"):
+            self._parse("{class:}")
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"\)\". @ \"\(class=\)\" <-"):
+            self._parse("(class=)")
 
     def test_unterminated_string_raises_error(self):
         # on attribute key
@@ -194,3 +202,11 @@ class AttributeDictParserTest(unittest.TestCase):
         # use => in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \">\". @ \"\(class=>\" <-"):
             self._parse("(class=>'test')")
+
+    def test_unexpected_eof(self):
+        with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"{:class=>\" <-"):
+            self._parse("{:class=>")
+        with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"{class:\" <-"):
+            self._parse("{class:")
+        with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"\(class=\" <-"):
+            self._parse("(class=")

@@ -10,7 +10,6 @@ from .generic import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CH
 LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 
 # non-word characters that we allow in attribute keys (in HTML style attribute dicts)
-# TODO figure out what todo about Angular 2 style attribute names with parentheses. Allow quoted attribute names?
 ATTRIBUTE_KEY_EXTRA_CHARS = {':', '-', '$', '?', '[', ']'}
 
 
@@ -126,6 +125,8 @@ def read_ruby_attribute(stream):
 
         read_whitespace(stream, include_newlines=False)
 
+        stream.expect_input()
+
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
 
@@ -161,6 +162,8 @@ def read_html_attribute(stream):
         read_symbol(stream, '=')
 
         read_whitespace(stream, include_newlines=False)
+
+        stream.expect_input()
 
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
