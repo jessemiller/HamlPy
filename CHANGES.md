@@ -5,6 +5,7 @@ This is the first major release and there are some potentially breaking changes 
 
 * Refactor of parsing code giving ~40% performance improvement
 * Added support for HTML style attribute dictionaries, e.g. `%span(foo="bar")`
+* Improved error reporting from parser to help find problems in your templates
 * Fixed attribute values not being able to include braces (https://github.com/nyaruka/django-hamlpy/issues/39)
 * Fixed attribute values which are Haml not being able to have blank lines (https://github.com/nyaruka/django-hamlpy/issues/41)
 * Fixed sequential `with` tags ended up nested (https://github.com/nyaruka/django-hamlpy/issues/23) 
