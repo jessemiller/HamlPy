@@ -109,14 +109,24 @@ class AttributeDictParserTest(unittest.TestCase):
         assert dict(self._parse("{class: 'test\u1234'}")) == {'class': 'test\u1234'}
 
     def test_read_html_style_attribute_dict(self):
-        # empty dict
-        stream = Stream("{}><")
-        assert dict(read_attribute_dict(stream)) == {}
-        assert stream.text[stream.ptr:] == '><'
-
         # html style dicts
         assert dict(self._parse("()><")) == {}
         assert dict(self._parse("(   )")) == {}
+
+        # string values
+        assert dict(self._parse("(class='test') =Test")) == {'class': 'test'}
+        assert dict(self._parse("(class='test' id='something')")) == {'class': 'test', 'id': 'something'}
+
+        # integer values
+        assert dict(self._parse("(data-number=0)")) == {'data-number': '0'}
+        assert dict(self._parse("(data-number=12345)")) == {'data-number': '12345'}
+
+        # float values
+        assert dict(self._parse("(data-number=123.456)")) == {'data-number': '123.456'}
+        assert dict(self._parse("(data-number=0.001)")) == {'data-number': '0.001'}
+
+        # None value
+        assert dict(self._parse("(controls=None)")) == {'controls': None}
 
         # boolean attributes
         assert dict(self._parse(
@@ -132,6 +142,9 @@ class AttributeDictParserTest(unittest.TestCase):
 
         # attribute names with characters found in JS frameworks
         assert dict(self._parse('([foo]="a" ?foo$="b")')) == {'[foo]': 'a', '?foo$': 'b'}
+
+        # double quotes
+        assert dict(self._parse('(class="test" id="something")')) == {'class': 'test', 'id': 'something'}
 
         # list attribute values
         assert dict(self._parse(

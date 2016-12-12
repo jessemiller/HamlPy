@@ -90,30 +90,27 @@ Any string is a valid element name and an opening and closing tag will automatic
 
 ### Attributes: {} or ()
 
-Brackets represent a dictionary that is used for specifying the attributes of an element.  The dictionary is placed 
-after the tag is defined. For example:
+Haml has three different styles for attributes which are all supported. For example:
 
 ```haml
-%html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}
+%html{:xmlns => 'http://www.w3.org/1999/xhtml', :lang => 'en'}
+
+%html{'xmlns': 'http://www.w3.org/1999/xhtml', 'lang': 'en'}
+
+%html(xmlns='http://www.w3.org/1999/xhtml' lang='en')
 ```
 
-is compiled to:
+are all compiled to:
 
 ```htmldjango
-<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' lang='en'></html>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='en'></html>
 ```
 
 Long attribute dictionaries can be separated into multiple lines:
 
 ```haml
-%script{'type': 'text/javascript', 'charset': 'utf-8',
-        'href': '/long/url/to/javascript/resource.js'}
-```
-
-And the more HTML-like () syntax is also supported:
-
-```haml
-%script(type='text/javascript' charset='utf-8' href='/long/url/to/javascript/resource.js')
+%script(type='text/javascript' charset='utf-8'
+        href='/long/url/to/javascript/resource.js')
 ```
 
 #### Attributes without values (Boolean attributes)
@@ -121,7 +118,7 @@ And the more HTML-like () syntax is also supported:
 Attributes without values can be specified using singe variable. For example:
 
 ```haml
-%input{'type':'checkbox', value:'Test', checked}
+%input(type='checkbox' value='Test' checked)
 ```
 
 is compiled to:
@@ -133,7 +130,7 @@ is compiled to:
 Alternatively the values can be specified using Python's ```None``` keyword (without quotes). For example:
 
 ```haml
-%input{'type':'checkbox', value:'Test', checked: None}
+%input(type='checkbox' value='Test' checked=None)
 ```
 
 is compiled to:
