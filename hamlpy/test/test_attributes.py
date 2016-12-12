@@ -14,7 +14,7 @@ class AttributeDictParserTest(unittest.TestCase):
     def _parse(text):
         return read_attribute_dict(Stream(text))
 
-    def test_read_attribute_dict(self):
+    def test_read_ruby_style_attribute_dict(self):
         # empty dict
         stream = Stream("{}><")
         assert dict(read_attribute_dict(stream)) == {}
@@ -35,8 +35,14 @@ class AttributeDictParserTest(unittest.TestCase):
         # None value
         assert dict(self._parse("{'controls': None}")) == {'controls': None}
 
-        # implicit boolean value
-        assert dict(self._parse("{'data-number'}")) == {'data-number': None}
+        # boolean attributes
+        assert dict(self._parse(
+            "{disabled, class:'test', data-number : 123,\n foo:\"bar\"}"
+        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+
+        assert dict(self._parse(
+            "{class:'test', data-number : 123,\n foo:\"bar\",  \t   disabled}"
+        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         # attribute name has colon
         assert dict(self._parse("{'xml:lang': 'en'}")) == {'xml:lang': 'en'}
@@ -64,20 +70,17 @@ class AttributeDictParserTest(unittest.TestCase):
         # attributes split onto multiple lines
         assert dict(self._parse("{class: 'test',\n     data-number: 123}")) == {'class': 'test', 'data-number': '123'}
 
-        # Ruby style arrows
-        assert dict(self._parse("{'class' => 'test', data-number=>123}")) == {'class': 'test', 'data-number': '123'}
-
-        # Ruby style colons
+        # old style Ruby
         assert dict(self._parse("{:class => 'test', :data-number=>123}")) == {'class': 'test', 'data-number': '123'}
 
         # list attribute values
         assert dict(self._parse(
-            "{'class': [ 'a', 'b', 'c' ], data-list=>[1, 2, 3]}"
+            "{'class': [ 'a', 'b', 'c' ], data-list:[1, 2, 3]}"
         )) == {'class': ['a', 'b', 'c'], 'data-list': ['1', '2', '3']}
 
         # tuple attribute values
         assert dict(self._parse(
-            "{'class': ( 'a', 'b', 'c' ), data-list=>(1, 2, 3)}"
+            "{:class=>( 'a', 'b', 'c' ), :data-list => (1, 2, 3)}"
         )) == {'class': ('a', 'b', 'c'), 'data-list': ('1', '2', '3')}
 
         # attribute order is maintained
@@ -105,26 +108,39 @@ class AttributeDictParserTest(unittest.TestCase):
         # non-ascii attribute values
         assert dict(self._parse("{class: 'test\u1234'}")) == {'class': 'test\u1234'}
 
+    def test_read_html_style_attribute_dict(self):
+        # empty dict
+        stream = Stream("{}><")
+        assert dict(read_attribute_dict(stream)) == {}
+        assert stream.text[stream.ptr:] == '><'
+
         # html style dicts
-        assert dict(self._parse("()")) == {}
+        assert dict(self._parse("()><")) == {}
         assert dict(self._parse("(   )")) == {}
 
+        # boolean attributes
         assert dict(self._parse(
-            "(disabled :class='test' data-number = 123\n 'foo'=\"bar\")"
+            "(disabled class='test' data-number = 123\n foo=\"bar\")"
         )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         assert dict(self._parse(
-            "(:class='test' data-number = 123\n 'foo'=\"bar\"  \t   disabled)"
+            "(class='test' data-number = 123\n foo=\"bar\"  \t   disabled)"
         )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
     def test_empty_attribute_raises_error(self):
-        # empty quoted string
-        with self.assertRaisesRegexp(ParseException, "Empty attribute key. @ \"{'':\" <-"):
+        # empty quoted string in Ruby new style
+        with self.assertRaisesRegexp(ParseException, "Attribute name can't be an empty string. @ \"{'':\" <-"):
             self._parse("{'': 'test'}")
 
-        # empty unquoted
-        with self.assertRaisesRegexp(ParseException, "Empty attribute key. @ \"{: \" <-"):
+        # empty old style Ruby attribute
+        with self.assertRaisesRegexp(ParseException, "Unexpected \" \". @ \"{: \" <-"):
             self._parse("{: 'test'}")
+
+        # missing (HTML style)
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"=\". @ \"\(=\" <-"):
+            self._parse("(='test')")
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"=\". @ \"\(foo='bar' =\" <-"):
+            self._parse("(foo='bar' ='test')")
 
     def test_unterminated_string_raises_error(self):
         # on attribute key
@@ -148,16 +164,30 @@ class AttributeDictParserTest(unittest.TestCase):
             self._parse("{class: 'test' foo: 'bar'}")
 
         # use = in Ruby style dict
-        with self.assertRaisesRegexp(ParseException, "Expected \"=>\" or \":\". @ \"{class=\" <-"):
+        with self.assertRaisesRegexp(ParseException, "Expected \":\". @ \"{class=\" <-"):
             self._parse("{class='test'}")
+        with self.assertRaisesRegexp(ParseException, "Expected \"=>\". @ \"{:class=\" <-"):
+            self._parse("{:class='test'}")
+
+        # use colon as assignment for old style Ruby attribute
+        with self.assertRaisesRegexp(ParseException, "Expected \"=>\". @ \"{:class:\" <-"):
+            self._parse("{:class:'test'}")
 
         # use comma in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \",\". @ \"\(class='test',\" <-"):
             self._parse("(class='test', foo = 'bar')")
 
-        # use : in HTML style dict
+        # use : for assignment in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \":\". @ \"\(class:\" <-"):
             self._parse("(class:'test')")
+
+        # use : attribute prefix in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \":\". @ \"\(:\" <-"):
+            self._parse("(:class='test')")
+
+        # use attribute quotes in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"'\". @ \"\('\" <-"):
+            self._parse("('class'='test')")
 
         # use => in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \">\". @ \"\(class=>\" <-"):

@@ -22,6 +22,22 @@ class Stream(object):
         self.length = len(self.text)
         self.ptr = 0
 
+    def expect_input(self):
+        """
+        We expect more input, raise exception if there isn't any
+        """
+        if self.ptr >= self.length:
+            raise ParseException("Unexpected end of input.", self)
+
+    def raise_unexpected(self):
+        """
+        Raises exception that current character is unexpected
+        """
+        raise ParseException("Unexpected \"%s\"." % self.text[self.ptr], self)
+
+    def __repr__(self):  # pragma: no cover
+        return '"%s" >> "%s"' % (self.text[:self.ptr], self.text[self.ptr:])
+
 
 class TreeNode(object):
     """
@@ -153,6 +169,8 @@ def read_word(stream, include_hypens=False):
     """
     Reads a sequence of word characters
     """
+    stream.expect_input()
+
     start = stream.ptr
 
     while stream.ptr < stream.length:
@@ -160,5 +178,9 @@ def read_word(stream, include_hypens=False):
         if not (ch.isalnum() or ch == '_' or (ch == '-' and include_hypens)):
             break
         stream.ptr += 1
+
+    # if we immediately hit a non-word character, raise it as unexpected
+    if start == stream.ptr:
+        stream.raise_unexpected()
 
     return stream.text[start:stream.ptr]

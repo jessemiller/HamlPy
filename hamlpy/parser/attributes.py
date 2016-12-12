@@ -92,40 +92,77 @@ def read_attribute_value_haml(stream):
     return LEADING_SPACES_REGEX.sub(' ', html).replace('\n', '').strip()
 
 
-def read_attribute(stream, assignment_symbols, entry_separator, terminator):
+def read_ruby_attribute(stream):
     """
-    Reads a single dictionary entry, e.g. :foo => "bar" or foo="bar"
+    Reads a Ruby style attribute, e.g. :foo => "bar" or foo: "bar"
     """
-    if stream.text[stream.ptr] in STRING_LITERALS:
-        key = read_quoted_string(stream)
-    else:
-        # attribute keys may be prefixed with : which we ignore
-        if stream.text[stream.ptr] == ':':
-            stream.ptr += 1
+    old_style = stream.text[stream.ptr] == ':'
+
+    if old_style:
+        stream.ptr += 1
 
         key = read_word(stream, include_hypens=True)
+    else:
+        # new style Ruby / Python style allows attribute to be quoted string
+        if stream.text[stream.ptr] in STRING_LITERALS:
+            key = read_quoted_string(stream)
 
-    if not key:
-        raise ParseException("Empty attribute key.", stream)
-
-    assignment_prefixes = [s[0] for s in assignment_symbols]
-
-    ch = stream.text[stream.ptr]
-    if ch not in WHITESPACE_CHARS and ch not in (entry_separator, terminator) and ch not in assignment_prefixes:
-        raise ParseException("Unexpected \"%s\"." % ch, stream)
+            if not key:
+                raise ParseException("Attribute name can't be an empty string.", stream)
+        else:
+            key = read_word(stream, include_hypens=True)
 
     read_whitespace(stream)
 
-    if stream.text[stream.ptr] in assignment_prefixes:
-        read_symbol(stream, assignment_symbols)
+    if stream.text[stream.ptr] in ('=', ':'):
+        if old_style:
+            read_symbol(stream, ('=>',))
+        else:
+            read_symbol(stream, (':',))
 
-        read_whitespace(stream)
+        read_whitespace(stream, include_newlines=False)
 
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
 
             value = read_attribute_value_haml(stream)
         elif stream.text[stream.ptr] in ('(', '['):
+            value = read_attribute_value_list(stream)
+        else:
+            value = read_attribute_value(stream)
+
+    elif stream.text[stream.ptr] in (',', '}'):
+        value = None
+
+    else:
+        stream.raise_unexpected()
+
+    return key, value
+
+
+def read_html_attribute(stream):
+    """
+    Reads an HTML style attribute, e.g. foo="bar"
+    """
+    key = read_word(stream, include_hypens=True)
+
+    # can't have attributes without whitespace separating them
+    ch = stream.text[stream.ptr]
+    if ch not in WHITESPACE_CHARS and ch not in ('=', ')'):
+        stream.raise_unexpected()
+
+    read_whitespace(stream)
+
+    if stream.text[stream.ptr] == '=':
+        read_symbol(stream, '=')
+
+        read_whitespace(stream, include_newlines=False)
+
+        if stream.text[stream.ptr] == '\n':
+            stream.ptr += 1
+
+            value = read_attribute_value_haml(stream)
+        elif stream.text[stream.ptr] == '[':
             value = read_attribute_value_list(stream)
         else:
             value = read_attribute_value(stream)
@@ -137,7 +174,10 @@ def read_attribute(stream, assignment_symbols, entry_separator, terminator):
 
 def read_attribute_dict(stream):
     """
-    Reads an attribute dictionary, e.g. {:foo => "bar", a => 3} or (foo="bar" a=3)
+    Reads an attribute dictionary which may use one of 3 syntaxes:
+     1. {:foo => "bar", :a => 3}  (old Ruby)
+     2. {foo: "bar", a: 3}  (new Ruby / Python)
+     3. (foo="bar" a=3)  (HTML)
     """
     data = OrderedDict()
 
@@ -171,16 +211,16 @@ def read_attribute_dict(stream):
 
         # (foo = "bar" a=3)
         if html_style:
-            record_value(*read_attribute(stream, ('=',), None, terminator))
+            record_value(*read_html_attribute(stream))
 
             read_whitespace(stream)
 
             if stream.text[stream.ptr] == ',':
                 raise ParseException("Unexpected \",\".", stream)
 
-        # {:foo => "bar", a=>3}
+        # {:foo => "bar", :a=>3} or {foo: "bar", a: 3}
         else:
-            record_value(*read_attribute(stream, ('=>', ':'), ',', terminator))
+            record_value(*read_ruby_attribute(stream))
 
             read_whitespace(stream)
 

@@ -6,7 +6,7 @@
 - [Doctype](#doctype)
 - [HTML Elements](#html-elements)
     - [Element Name: %](#element-name-)
-    - [Attributes: {}](#attributes-)
+    - [Attributes: {} or ()](#attributes-)
         - [Attributes without values (Boolean attributes)](#attributes-without-values-boolean-attributes)
         - ['class' and 'id' attributes](#class-and-id-attributes)
     - [Class and ID: . and #](#class-and-id--and-)
@@ -203,7 +203,7 @@ is compiled to:
 </div>
 ```
 
-These shortcuts can be combined with the attribute dictionary and they will be combined as if they were all put inside a tuple.  For example:
+These shortcuts can be combined with the attribute dictionary and they will be combined as if they were all put inside a list.  For example:
 
 ```haml
 %div#Article.article.entry{'id':'1', 'class':'visible'} Booyaka
@@ -212,19 +212,13 @@ These shortcuts can be combined with the attribute dictionary and they will be c
 is equivalent to:
 
 ```haml
-%div{'id':('Article','1'), 'class':('article','entry','visible')} Booyaka
+%div{'id':['Article','1'], 'class':['article','entry','visible']} Booyaka
 ```
 
 and would compile to:
 
 ```htmldjango
 <div id='Article_1' class='article entry visible'>Booyaka</div>
-```
-
-You can also use more pythonic array structures in the dictionary, like so:
-
-```haml
-%div{'id':['Article','1'], 'class':['article','entry','visible']} Booyaka
 ```
 
 #### Implicit div elements

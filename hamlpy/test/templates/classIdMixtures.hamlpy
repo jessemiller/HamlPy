@@ -1,4 +1,4 @@
-%div#Article.article.entry{'id':'123', 'class':'true'}
+%div#Article.article.entry{'id':'123', class:'true'}
   Now this is interesting
-%div.article.entry#Article('id'='123' 'class'='true')
+%div.article.entry#Article(id='123' class='true')
   Now this is really interesting
