@@ -33,6 +33,7 @@ class WatcherTest(unittest.TestCase):
         # create some haml files for testing
         self._write_file(INPUT_DIR + os.sep + 'test.haml', "%span{'class': 'test'}\n- shoutout\n")
         self._write_file(INPUT_DIR + os.sep + 'error.haml', "%div{")
+        self._write_file(INPUT_DIR + os.sep + '.#test.haml', "%hr")  # will be ignored
 
         # run as once off pass - should return 1 for number of failed conversions
         self._run_script([
@@ -44,6 +45,9 @@ class WatcherTest(unittest.TestCase):
         # check file without errors was converted
         self.assertFileContents(OUTPUT_DIR + os.sep + 'test.html',
                                 "<span class='test'></span>\n{% shoutout %}\n{% endshoutout %}\n")
+
+        # check .#test.haml was ignored
+        assert not os.path.exists(OUTPUT_DIR + os.sep + '.#test.html')
 
         # run without output directory which should make it default to re-using the input directory
         self._run_script([
