@@ -127,6 +127,12 @@ class AttributeDictParserTest(unittest.TestCase):
             "(class='test' data-number = 123\n foo=\"bar\"  \t   disabled)"
         )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
+        # attribute name has colon
+        assert dict(self._parse('(xml:lang="en")')) == {'xml:lang': 'en'}
+
+        # attribute names with characters found in JS frameworks
+        assert dict(self._parse('([foo]="a" ?foo$="b")')) == {'[foo]': 'a', '?foo$': 'b'}
+
     def test_empty_attribute_raises_error(self):
         # empty quoted string in Ruby new style
         with self.assertRaisesRegexp(ParseException, "Attribute name can't be an empty string. @ \"{'':\" <-"):
@@ -177,13 +183,9 @@ class AttributeDictParserTest(unittest.TestCase):
         with self.assertRaisesRegexp(ParseException, "Unexpected \",\". @ \"\(class='test',\" <-"):
             self._parse("(class='test', foo = 'bar')")
 
-        # use : for assignment in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Unexpected \":\". @ \"\(class:\" <-"):
+        # use : for assignment in HTML style dict (will treat as part of attribute name)
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"'\". @ \"\(class:'\" <-"):
             self._parse("(class:'test')")
-
-        # use : attribute prefix in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Unexpected \":\". @ \"\(:\" <-"):
-            self._parse("(:class='test')")
 
         # use attribute quotes in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \"'\". @ \"\('\" <-"):

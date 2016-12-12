@@ -36,7 +36,8 @@ class Stream(object):
         raise ParseException("Unexpected \"%s\"." % self.text[self.ptr], self)
 
     def __repr__(self):  # pragma: no cover
-        return '"%s" >> "%s"' % (self.text[:self.ptr], self.text[self.ptr:])
+        return '"%s" >> "%s"' \
+               % (self.text[:self.ptr].replace('\n', '\\n'), self.text[self.ptr:].replace('\n', '\\n'))
 
 
 class TreeNode(object):
@@ -165,7 +166,7 @@ def read_symbol(stream, symbols):
     raise ParseException("Expected %s." % ' or '.join(['"%s"' % s for s in symbols]), stream)
 
 
-def read_word(stream, include_hypens=False):
+def read_word(stream, include_chars=()):
     """
     Reads a sequence of word characters
     """
@@ -175,7 +176,7 @@ def read_word(stream, include_hypens=False):
 
     while stream.ptr < stream.length:
         ch = stream.text[stream.ptr]
-        if not (ch.isalnum() or ch == '_' or (ch == '-' and include_hypens)):
+        if not (ch.isalnum() or ch == '_' or ch in include_chars):
             break
         stream.ptr += 1
 

@@ -90,7 +90,7 @@ class ParserTest(unittest.TestCase):
         assert stream.text[stream.ptr:] == '-repeat('
 
         stream = Stream('ng-repeat(')
-        assert read_word(stream, include_hypens=True) == 'ng-repeat'
+        assert read_word(stream, ('-',)) == 'ng-repeat'
         assert stream.text[stream.ptr:] == '('
 
         stream = Stream('これはテストです...')

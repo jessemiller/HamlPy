@@ -9,6 +9,10 @@ from .generic import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CH
 
 LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 
+# non-word characters that we allow in attribute keys (in HTML style attribute dicts)
+# TODO figure out what todo about Angular 2 style attribute names with parentheses. Allow quoted attribute names?
+ATTRIBUTE_KEY_EXTRA_CHARS = {':', '-', '$', '?', '[', ']'}
+
 
 def read_attribute_value(stream):
     """
@@ -101,7 +105,7 @@ def read_ruby_attribute(stream):
     if old_style:
         stream.ptr += 1
 
-        key = read_word(stream, include_hypens=True)
+        key = read_word(stream, include_chars=('-',))
     else:
         # new style Ruby / Python style allows attribute to be quoted string
         if stream.text[stream.ptr] in STRING_LITERALS:
@@ -110,7 +114,7 @@ def read_ruby_attribute(stream):
             if not key:
                 raise ParseException("Attribute name can't be an empty string.", stream)
         else:
-            key = read_word(stream, include_hypens=True)
+            key = read_word(stream, include_chars=('-',))
 
     read_whitespace(stream)
 
@@ -144,7 +148,7 @@ def read_html_attribute(stream):
     """
     Reads an HTML style attribute, e.g. foo="bar"
     """
-    key = read_word(stream, include_hypens=True)
+    key = read_word(stream, include_chars=ATTRIBUTE_KEY_EXTRA_CHARS)
 
     # can't have attributes without whitespace separating them
     ch = stream.text[stream.ptr]
