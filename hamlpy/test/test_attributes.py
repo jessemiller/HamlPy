@@ -88,7 +88,7 @@ class AttributeDictParserTest(unittest.TestCase):
             "{'class': 'test', 'id': 'something', foo: 'bar'}"
         ) == OrderedDict([('class', 'test'), ('id', 'something'), ('foo', 'bar')])
 
-        # attributes values split over multiple lines
+        # attribute values can be multi-line Haml
         assert dict(self._parse("""{
                 'class':
                     - if forloop.first
@@ -132,6 +132,28 @@ class AttributeDictParserTest(unittest.TestCase):
 
         # attribute names with characters found in JS frameworks
         assert dict(self._parse('([foo]="a" ?foo$="b")')) == {'[foo]': 'a', '?foo$': 'b'}
+
+        # list attribute values
+        assert dict(self._parse(
+            "(class=[ 'a', 'b', 'c' ] data-list=[1, 2, 3])"
+        )) == {'class': ['a', 'b', 'c'], 'data-list': ['1', '2', '3']}
+
+        # attribute values can be multi-line Haml
+        assert dict(self._parse("""(
+                class=
+                    - if forloop.first
+                        link-first
+\x20
+                    - else
+                        - if forloop.last
+                            link-last
+                href=
+                    - url 'some_view'
+                )"""
+                        )) == {
+           'class': '{% if forloop.first %} link-first {% else %} {% if forloop.last %} link-last {% endif %} {% endif %}',  # noqa
+           'href': "{% url 'some_view' %}"
+       }
 
     def test_empty_attribute_name_raises_error(self):
         # empty quoted string in Ruby new style
@@ -202,6 +224,10 @@ class AttributeDictParserTest(unittest.TestCase):
         # use => in HTML style dict
         with self.assertRaisesRegexp(ParseException, "Unexpected \">\". @ \"\(class=>\" <-"):
             self._parse("(class=>'test')")
+
+        # use tuple syntax in HTML style dict
+        with self.assertRaisesRegexp(ParseException, "Unexpected \"\(\". @ \"\(class=\(\" <-"):
+            self._parse("(class=(1, 2))")
 
     def test_unexpected_eof(self):
         with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"{:class=>\" <-"):

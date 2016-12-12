@@ -135,12 +135,8 @@ def read_ruby_attribute(stream):
             value = read_attribute_value_list(stream)
         else:
             value = read_attribute_value(stream)
-
-    elif stream.text[stream.ptr] in (',', '}'):
-        value = None
-
     else:
-        stream.raise_unexpected()
+        value = None
 
     return key, value
 
