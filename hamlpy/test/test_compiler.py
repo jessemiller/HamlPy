@@ -178,6 +178,8 @@ test''', "test")
 
     def test_escaping(self):
         self._test("\\= Escaped", "= Escaped")
+        self._test("\%}", "%}")
+        self._test("  \:python", "  :python")
 
     def test_utf8(self):
         self._test("%a{'href':'', 'title':'링크(Korean)'} Some Link",

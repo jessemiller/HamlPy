@@ -6,15 +6,19 @@ from .attributes import read_attribute_dict
 from .generic import read_word, read_line
 
 
+# non-word characters that we allow in tag names, ids and classes
+DOM_OBJECT_EXTRA_CHARS = ('-',)
+
+
 def read_tag(stream):
     """
     Reads an element tag, e.g. span, ng-repeat, cs:dropdown
     """
-    part1 = read_word(stream, include_hypens=True)
+    part1 = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
 
     if stream.ptr < stream.length and stream.text[stream.ptr] == ':':
         stream.ptr += 1
-        part2 = read_word(stream, include_hypens=True)
+        part2 = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
     else:
         part2 = None
 
@@ -25,20 +29,32 @@ def read_element(stream):
     """
     Reads an element, e.g. %span, #banner{style:"width: 100px"}, .ng-hide(foo=1)
     """
+    assert stream.text[stream.ptr] in ('%', '.', '#')
+
+    tag = None
+    empty_class = False
+
     if stream.text[stream.ptr] == '%':
         stream.ptr += 1
         tag = read_tag(stream)
-    else:
-        tag = None
+
+    elif stream.text[stream.ptr] == '.':
+        # Element may start with a period representing an unidentified div rather than a CSS class. In this case it
+        # can't have other classes or ids, e.g. .{foo:"bar"}
+        next_ch = stream.text[stream.ptr + 1] if stream.ptr < stream.length - 1 else None
+        if not (next_ch.isalnum() or next_ch == '_' or next_ch in DOM_OBJECT_EXTRA_CHARS):
+            stream.ptr += 1
+            empty_class = True
 
     ids = []
     classes = []
-    while stream.ptr < stream.length and stream.text[stream.ptr] in ('#', '.'):
-        is_id = stream.text[stream.ptr] == '#'
-        stream.ptr += 1
 
-        id_or_class = read_word(stream, include_hypens=True)
-        if id_or_class:
+    if not empty_class:
+        while stream.ptr < stream.length and stream.text[stream.ptr] in ('#', '.'):
+            is_id = stream.text[stream.ptr] == '#'
+            stream.ptr += 1
+
+            id_or_class = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
             if is_id:
                 ids.append(id_or_class)
             else:
