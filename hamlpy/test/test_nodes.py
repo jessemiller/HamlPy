@@ -4,7 +4,7 @@ import unittest
 
 from hamlpy.compiler import Compiler
 from hamlpy.parser import nodes
-from hamlpy.parser.generic import Stream
+from hamlpy.parser.core import Stream
 from hamlpy.parser.nodes import read_node, read_filter_node
 
 

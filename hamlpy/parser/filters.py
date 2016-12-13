@@ -30,7 +30,7 @@ except ImportError:  # pragma: no cover
 
 from future.utils import raise_from
 
-from .generic import ParseException
+from .core import ParseException
 
 
 def plain(content, indent, options):

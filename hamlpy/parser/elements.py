@@ -3,7 +3,7 @@ from __future__ import print_function, unicode_literals
 import six
 
 from .attributes import read_attribute_dict
-from .generic import read_word, read_line
+from .core import read_word, read_line
 
 
 # non-word characters that we allow in tag names, ids and classes

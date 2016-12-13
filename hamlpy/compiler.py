@@ -4,7 +4,7 @@ from __future__ import absolute_import, print_function, unicode_literals
 import regex
 import warnings
 
-from hamlpy.parser.generic import Stream
+from hamlpy.parser.core import Stream
 from hamlpy.parser.nodes import Node, read_node
 
 

@@ -4,8 +4,8 @@ import regex
 
 from collections import OrderedDict
 
-from .generic import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
-from .generic import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CHARS
+from .core import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
+from .core import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CHARS
 
 LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 

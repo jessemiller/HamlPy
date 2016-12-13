@@ -5,7 +5,7 @@ import unittest
 
 from hamlpy.compiler import Compiler
 from hamlpy.parser import filters
-from hamlpy.parser.generic import ParseException
+from hamlpy.parser.core import ParseException
 
 
 class CompilerTest(unittest.TestCase):

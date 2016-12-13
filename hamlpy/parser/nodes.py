@@ -1,6 +1,6 @@
 from __future__ import print_function, unicode_literals
 
-from .generic import ParseException, TreeNode, read_line, read_whitespace, peek_indentation
+from .core import ParseException, TreeNode, read_line, read_whitespace, peek_indentation
 from .elements import read_element
 from .filters import get_filter
 

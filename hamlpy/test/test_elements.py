@@ -4,7 +4,7 @@ import unittest
 
 from collections import OrderedDict
 
-from hamlpy.parser.generic import Stream
+from hamlpy.parser.core import Stream
 from hamlpy.parser.elements import Element, read_tag, read_element
 
 

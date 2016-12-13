@@ -5,7 +5,7 @@ import unittest
 from collections import OrderedDict
 
 from hamlpy.parser.attributes import read_attribute_dict
-from hamlpy.parser.generic import Stream, ParseException
+from hamlpy.parser.core import Stream, ParseException
 
 
 class AttributeDictParserTest(unittest.TestCase):

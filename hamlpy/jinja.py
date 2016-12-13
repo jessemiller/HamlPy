@@ -6,7 +6,7 @@ import six
 
 from hamlpy import HAML_EXTENSIONS
 from hamlpy.compiler import Compiler
-from hamlpy.parser.generic import ParseException
+from hamlpy.parser.core import ParseException
 
 
 class HamlPyExtension(jinja2.ext.Extension):

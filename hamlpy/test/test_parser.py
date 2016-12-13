@@ -3,8 +3,8 @@ from __future__ import unicode_literals
 
 import unittest
 
-from hamlpy.parser.generic import Stream, ParseException, read_whitespace, peek_indentation
-from hamlpy.parser.generic import read_quoted_string, read_line, read_number, read_symbol, read_word
+from hamlpy.parser.core import Stream, ParseException, read_whitespace, peek_indentation
+from hamlpy.parser.core import read_quoted_string, read_line, read_number, read_symbol, read_word
 
 
 class ParserTest(unittest.TestCase):
