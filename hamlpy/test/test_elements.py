@@ -136,6 +136,9 @@ class ElementTest(unittest.TestCase):
         element = read_element(Stream("%div Some Text"))
         assert element.inline_content == 'Some Text'
 
+        element = read_element(Stream("%div {% trans 'hello' %}"))
+        assert element.inline_content == "{% trans 'hello' %}"
+
     def test_multiline_attributes(self):
         element = read_element(Stream("""%link{'rel': 'stylesheet', 'type': 'text/css',
             'href': '/long/url/to/stylesheet/resource.css'}"""))
