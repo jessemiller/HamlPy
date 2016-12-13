@@ -42,10 +42,8 @@ def read_node(stream, prev, compiler):
         if stream.text[stream.ptr] == FILTER_PREFIX:
             return read_filter_node(stream, indent, compiler)
 
-        # peek ahead to differentiate between variable node starting #{.. and element node starting #\w...
-        is_variable = stream.ptr < stream.length - 1 and stream.text[stream.ptr:stream.ptr+2] == '#{'
-
-        if stream.text[stream.ptr] in ELEMENT_PREFIXES and not is_variable:
+        # peek ahead to so we don't try to parse an element from a variable node starting #{ or a Django tag ending %}
+        if stream.text[stream.ptr] in ELEMENT_PREFIXES and stream.text[stream.ptr:stream.ptr+2] not in ('#{', '%}'):
             element = read_element(stream)
             return ElementNode(element, indent, compiler)
 

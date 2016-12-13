@@ -14,6 +14,9 @@ class CompilerTest(unittest.TestCase):
         # tags can have xml namespaces
         self._test("%fb:tag\n  content", "<fb:tag>\n  content\n</fb:tag>")
 
+        # tags can have dashes
+        self._test("%ng-tag\n  content", "<ng-tag>\n  content\n</ng-tag>")
+
     def test_ids_and_classes(self):
         # id on tag
         self._test('%div#someId Some text', "<div id='someId'>Some text</div>")
@@ -128,6 +131,10 @@ test''', "test")
         self._test("This should be plain text", "This should be plain text")
         self._test("This should be plain text\n    This should be indented",
                    "This should be plain text\n    This should be indented")
+
+        # native Django tags {% %} should be treated as plain text
+        self._test("text   {%\n  trans ''\n%}", "text   {%\n  trans ''\n%}")
+        self._test("text\n   {%\n  trans ''\n%}", "text\n   {%\n  trans ''\n%}")
 
     def test_plain_filter(self):
         # with indentation
