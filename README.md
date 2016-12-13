@@ -46,7 +46,7 @@ And the latest development version can be installed directly from GitHub:
 Almost all of the syntax of Haml is preserved.
 
 ```haml
-#profile{ style:"width: 200px" }
+#profile(style="width: 200px")
     .left.column
         #date 2010/02/18
         #address Toronto, ON
