@@ -1,4 +1,4 @@
-1.0 (TBD)
+1.0 (2016-12-14)
 ===================
 
 This is the first major release and there are some potentially breaking changes noted below.
