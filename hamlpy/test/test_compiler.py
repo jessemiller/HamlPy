@@ -147,6 +147,19 @@ test''', "test")
         # with escaped back slash
         self._test(":plain\n  \\Something", "\\Something")
 
+    def test_preserve_filter(self):
+        # with indentation
+        self._test(":preserve\n    -This should be plain text\n    .This should be more\n      This should be indented",
+                   "-This should be plain text&#10;    .This should be more&#10;      This should be indented")
+
+        # with no children
+        self._test(":preserve\nNothing", "Nothing")
+
+        # with escaped back slash
+        self._test(":preserve\n  \\Something", "\\Something")
+
+
+
     def test_python_filter(self):
         self._test(":python\n", '')  # empty
         self._test(":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)",

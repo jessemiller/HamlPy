@@ -4,7 +4,10 @@
 	These { { braces
 
 	should } not be interpreted as a multiline string
+:preserve
+        These { { braces
 
+        should } not be interpreted as a multiline string
 :css
 	.test {
 		display: inline;

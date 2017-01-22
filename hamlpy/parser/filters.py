@@ -37,6 +37,10 @@ def plain(content, indent, options):
     return textwrap.dedent(content)
 
 
+def preserve(content, intent, options):
+    return textwrap.dedent(content.replace('\n', '&#10;').replace('\r', '&#13;'))
+
+
 def cdata(content, indent, options):
     return indent + '<![CDATA[\n' \
            + content + '\n' \
@@ -118,6 +122,7 @@ def python(content, indent, options):
 
 FILTERS = {
     'plain': plain,
+    'preserve': preserve,
     'cdata': cdata,
     'css': css,
     'stylus': stylus,
