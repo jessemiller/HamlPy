@@ -147,10 +147,14 @@ test''', "test")
         # with escaped back slash
         self._test(":plain\n  \\Something", "\\Something")
 
+        # with space after filter name
+        self._test(":plain \n    -This should be plain text\n",
+                   "-This should be plain text")
+
     def test_preserve_filter(self):
         # with indentation
         self._test(":preserve\n    -This should be plain text\n    .This should be more\n      This should be indented",
-                   "-This should be plain text&#10;    .This should be more&#10;      This should be indented")
+                   "-This should be plain text&#x000A;    .This should be more&#x000A;      This should be indented")
 
         # with no children
         self._test(":preserve\nNothing", "Nothing")

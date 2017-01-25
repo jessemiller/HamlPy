@@ -37,8 +37,11 @@ def plain(content, indent, options):
     return textwrap.dedent(content)
 
 
-def preserve(content, intent, options):
-    return textwrap.dedent(content.replace('\n', '&#10;').replace('\r', '&#13;'))
+def preserve(content, indent, options):
+    s = content.rstrip()
+    s = s.replace('\n', '&#x000A;')
+    s = s.replace('\r', '')
+    return textwrap.dedent(s)
 
 
 def cdata(content, indent, options):
