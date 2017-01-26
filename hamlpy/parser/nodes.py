@@ -104,7 +104,7 @@ def read_filter_node(stream, indent, compiler):
 
         content_lines.append(line)
 
-    return FilterNode(name, '\n'.join(content_lines), indent, compiler)
+    return FilterNode(name.rstrip(), '\n'.join(content_lines), indent, compiler)
 
 
 class Node(TreeNode):
