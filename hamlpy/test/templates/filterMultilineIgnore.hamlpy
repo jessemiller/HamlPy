@@ -9,14 +9,14 @@
 
         should } not be interpreted as a multiline string
 :css
-	.test {
-		display: inline;
-	}
+  .test {
+    display: inline;
+  }
 :javascript
-	These {
-	Braces should {
-		also
-	} be { ignored
+    These {
+    Braces should {
+      also
+    } be { ignored
 		
 .multilinetest2{id:'{{myId}}',
 	class:'{{myClass}}',
