@@ -226,6 +226,14 @@ test''', "test")
   //]]>
 </script>''', compiler_options={'attr_wrapper': '"'})
 
+    def test_custom_filter(self):
+        def upper(text, options):
+            return text.upper()
+
+        filters.register_filter('upper', upper)
+
+        self._test(":upper\n  welcome", 'WELCOME')
+
     def _test(self, haml, expected_html, compiler_options=None):
         compiler = Compiler(compiler_options)
         result = compiler.process(haml)
