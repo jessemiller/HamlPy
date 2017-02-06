@@ -7,6 +7,17 @@
   .someClass {
     width: 100px;
   }
+:stylus
+  .someClass
+    width: 100px
+:less
+  .someClass {
+    width: 100px;
+  }
+:sass
+  .someClass {
+    width: 100px;
+  }
 :cdata
   if (a < b && a < 0)
   {

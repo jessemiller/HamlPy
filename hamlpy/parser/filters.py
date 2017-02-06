@@ -67,6 +67,14 @@ def stylus(text, options):
     return style_filter(text, 'text/stylus', options)
 
 
+def less(text, options):
+    return style_filter(text, 'text/less', options)
+
+
+def sass(text, options):
+    return style_filter(text, 'text/sass', options)
+
+
 def javascript(text, options):
     return script_filter(text, 'text/javascript', '//', options)
 
@@ -151,6 +159,8 @@ FILTERS = {
     'cdata': cdata,
     'css': css,
     'stylus': stylus,
+    'less': less,
+    'sass': sass,
     'javascript': javascript,
     'coffee': coffee,
     'coffeescript': coffee,
