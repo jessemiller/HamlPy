@@ -37,6 +37,7 @@ except ImportError:  # pragma: no cover
 from future.utils import raise_from
 
 from .core import ParseException
+from .utils import html_escape
 
 
 # ----------------------------------------------------------------------------------
@@ -51,6 +52,10 @@ def preserve(text, options):
     text = text.rstrip()
     text = text.replace('\n', '&#x000A;')
     return text.replace('\r', '')
+
+
+def escaped(text, options):
+    return html_escape(text)
 
 
 def cdata(text, options):
@@ -156,6 +161,7 @@ def script_filter(text, mime_type, comment, options):
 FILTERS = {
     'plain': plain,
     'preserve': preserve,
+    'escaped': escaped,
     'cdata': cdata,
     'css': css,
     'stylus': stylus,

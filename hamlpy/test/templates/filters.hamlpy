@@ -1,3 +1,5 @@
+:escaped
+  <"&'>
 :javascript
   $(document).ready(function(){
     $("#form{{form.initial.id}}").submit(form_submit);
