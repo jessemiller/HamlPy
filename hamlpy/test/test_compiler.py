@@ -154,7 +154,7 @@ test''', "test")
     def test_preserve_filter(self):
         # with indentation
         self._test(":preserve\n    -This should be plain text\n    .This should be more\n      This should be indented",
-                   "-This should be plain text&#x000A;    .This should be more&#x000A;      This should be indented")
+                   "-This should be plain text&#x000A;.This should be more&#x000A;  This should be indented")
 
         # with no children
         self._test(":preserve\nNothing", "Nothing")
@@ -221,9 +221,18 @@ test''', "test")
   </body>
 </html>
 <script type="text/javascript">
-// <![CDATA[
-// ]]>
+  //<![CDATA[
+\x20\x20\x20\x20
+  //]]>
 </script>''', compiler_options={'attr_wrapper': '"'})
+
+    def test_custom_filter(self):
+        def upper(text, options):
+            return text.upper()
+
+        filters.register_filter('upper', upper)
+
+        self._test(":upper\n  welcome", 'WELCOME')
 
     def _test(self, haml, expected_html, compiler_options=None):
         compiler = Compiler(compiler_options)

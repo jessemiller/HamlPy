@@ -1,5 +1,7 @@
 from __future__ import print_function, unicode_literals
 
+import textwrap
+
 from .core import ParseException, TreeNode, read_line, read_whitespace, peek_indentation
 from .elements import read_element
 from .filters import get_filter
@@ -460,10 +462,14 @@ class FilterNode(Node):
         self.content = content
 
     def _render(self):
-        filter_func = get_filter(self.filter_name)
-        filtered_content = filter_func(self.content, self.indent, self.compiler.options)
+        content = textwrap.dedent(self.content)
 
-        self.before = filtered_content
+        filter_func = get_filter(self.filter_name)
+        content = filter_func(content, self.compiler.options)
+
+        content = self.indent + content.replace('\n', '\n' + self.indent)
+
+        self.before = content
         self.after = self.render_newlines() if self.content else ''
 
     def _post_render(self):

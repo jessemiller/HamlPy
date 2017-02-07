@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 
 import os
 import codecs
+import regex
 import time
 import unittest
 
@@ -42,8 +43,9 @@ class TemplateCheck(object):
         compiler = Compiler()
         parsed = compiler.process(self.haml)
 
-        # ignore line ending differences
+        # ignore line ending differences and blank lines
         self.actual_html = parsed.replace('\r', '')
+        self.actual_html = regex.sub('\n[ \t]+(?=\n)', '\n', self.actual_html)
 
     def passed(self):
         return self.actual_html == self.expected_html

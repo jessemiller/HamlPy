@@ -14,6 +14,7 @@ class Compiler:
         'django_inline_style': False,    # support both #{...} and ={...}
         'tag_config': 'django',          # Django vs Jinja2 tags
         'custom_self_closing_tags': {},  # additional self-closing tags
+        'cdata': True,                   # wrap CSS, Javascript etc content in CDATA section
         'debug_tree': False,
     }
 

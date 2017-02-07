@@ -1,7 +1,13 @@
 from __future__ import unicode_literals
+"""
+Core HamlPy filters.
+
+The implementation of these should match https://github.com/haml/haml/blob/master/lib/haml/filters.rb as closely as
+possible. Where we differ is that we don't compile Stylus, Coffeescript etc into CSS or Javascript - but place the
+content into suitable <style> and <script> that can be transformed later by something like django-compressor.
+"""
 
 import sys
-import textwrap
 
 # Required on Python 2 to accept non-unicode output
 try:
@@ -31,67 +37,69 @@ except ImportError:  # pragma: no cover
 from future.utils import raise_from
 
 from .core import ParseException
+from .utils import html_escape
 
 
-def plain(content, indent, options):
-    return textwrap.dedent(content)
+# ----------------------------------------------------------------------------------
+# Core filters
+# ----------------------------------------------------------------------------------
+
+def plain(text, options):
+    return text
 
 
-def preserve(content, indent, options):
-    s = content.rstrip()
-    s = s.replace('\n', '&#x000A;')
-    s = s.replace('\r', '')
-    return textwrap.dedent(s)
+def preserve(text, options):
+    text = text.rstrip()
+    text = text.replace('\n', '&#x000A;')
+    return text.replace('\r', '')
 
 
-def cdata(content, indent, options):
-    return indent + '<![CDATA[\n' \
-           + content + '\n' \
-           + indent + ']]>'
+def escaped(text, options):
+    return html_escape(text)
 
 
-def css(content, indent, options):
-    return '<style type=%(attr_wrapper)stext/css%(attr_wrapper)s>\n' \
-           '/*<![CDATA[*/\n' % {'attr_wrapper': options['attr_wrapper']} \
-           + content + '\n' \
-           + '/*]]>*/\n</style>'
+def cdata(text, options):
+    text = '\n' + text.rstrip()
+    text = text.replace("\n", "\n    ")
+    return '<![CDATA[%s\n]]>' % text
 
 
-def stylus(content, indent, options):
-    return indent + '<style type=%(attr_wrapper)stext/stylus%(attr_wrapper)s>\n' \
-                    '/*<![CDATA[*/\n' % {'attr_wrapper': options['attr_wrapper']} \
-           + textwrap.dedent(content) + '\n' \
-           + indent + '/*]]>*/\n</style>'
+def css(text, options):
+    return style_filter(text, 'text/css', options)
 
 
-def javascript(content, indent, options):
-    return '<script type=%(attr_wrapper)stext/javascript%(attr_wrapper)s>\n' \
-           '// <![CDATA[\n' % {'attr_wrapper': options['attr_wrapper']} \
-           + (content + '\n' if content else '') \
-           + '// ]]>\n</script>'
+def stylus(text, options):
+    return style_filter(text, 'text/stylus', options)
 
 
-def coffeescript(content, indent, options):
-    return '<script type=%(attr_wrapper)stext/coffeescript%(attr_wrapper)s>\n' \
-           '#<![CDATA[\n' % {'attr_wrapper': options['attr_wrapper']} \
-           + (content + '\n' if content else '') \
-           + '#]]>\n</script>'
+def less(text, options):
+    return style_filter(text, 'text/less', options)
 
 
-def markdown(content, indent, options):
+def sass(text, options):
+    return style_filter(text, 'text/sass', options)
+
+
+def javascript(text, options):
+    return script_filter(text, 'text/javascript', '//', options)
+
+
+def coffee(text, options):
+    return script_filter(text, 'text/coffeescript', '#', options)
+
+
+def markdown(content, options):
     if not _markdown_available:
         raise ParseException("Markdown is not available")
 
-    return markdown_lib(textwrap.dedent(content))
+    return markdown_lib(content)
 
 
-def highlight(content, indent, options):
+def highlight(content, options):
     if not _pygments_available:
         raise ParseException("Pygments is not available")
 
     if content:
-        content = textwrap.dedent(content)
-
         # let Pygments try to guess syntax but default to Python
         try:
             lexer = guess_lexer(content)
@@ -103,9 +111,8 @@ def highlight(content, indent, options):
         return ''
 
 
-def python(content, indent, options):
+def python(content, options):
     if content:
-        content = textwrap.dedent(content)
         compiled_code = compile(content, "", "exec")
         output_buffer = StringIO()
         sys.stdout = output_buffer
@@ -123,19 +130,54 @@ def python(content, indent, options):
         return ''
 
 
+# ----------------------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------------------
+
+def style_filter(text, mime_type, options):
+    indent = '    ' if options['cdata'] else '  '
+    text = text.rstrip().replace('\n', '\n' + indent)
+    type_attr = ' type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s' % \
+                {'attr_wrapper': options['attr_wrapper'], 'mime_type': mime_type}
+    before, after = ('  /*<![CDATA[*/\n', '  /*]]>*/\n') if options['cdata'] else ('', '')
+
+    return '<style%s>\n%s%s%s\n%s</style>' % (type_attr, before, indent, text, after)
+
+
+def script_filter(text, mime_type, comment, options):
+    indent = '    ' if options['cdata'] else '  '
+    text = text.rstrip().replace('\n', '\n' + indent)
+    type_attr = ' type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s' % \
+                {'attr_wrapper': options['attr_wrapper'], 'mime_type': mime_type}
+    before, after = ('  %s<![CDATA[\n' % comment, '  %s]]>\n' % comment) if options['cdata'] else ('', '')
+
+    return '<script%s>\n%s%s%s\n%s</script>' % (type_attr, before, indent, text, after)
+
+
+# ----------------------------------------------------------------------------------
+# Filter registration
+# ----------------------------------------------------------------------------------
+
 FILTERS = {
     'plain': plain,
     'preserve': preserve,
+    'escaped': escaped,
     'cdata': cdata,
     'css': css,
     'stylus': stylus,
+    'less': less,
+    'sass': sass,
     'javascript': javascript,
-    'coffee': coffeescript,
-    'coffeescript': coffeescript,
+    'coffee': coffee,
+    'coffeescript': coffee,
     'markdown': markdown,
     'highlight': highlight,
     'python': python
 }
+
+
+def register_filter(name, callback):
+    FILTERS[name] = callback
 
 
 def get_filter(name):
