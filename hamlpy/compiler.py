@@ -40,6 +40,7 @@ class Compiler:
                 'compress': 'endcompress'
             },
             'may_contain': {
+                'blocktrans': ['plural'],
                 'if': ['else', 'elif'],
                 'ifchanged': ['else'],
                 'ifequal': ['else'],

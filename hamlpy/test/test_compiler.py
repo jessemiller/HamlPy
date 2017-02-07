@@ -123,6 +123,22 @@ test''', "test")
         self._test('- with context\n  hello\n- with other_context\n  goodbye',
                    '{% with context %}\n  hello\n{% endwith %}\n{% with other_context %}\n  goodbye\n{% endwith %}')
 
+        # blocktrans
+        self._test('- blocktrans with amount=num_cookies\n'
+                   '  There are #{ amount } cookies',
+                   '{% blocktrans with amount=num_cookies %}\n'
+                   '  There are {{ amount }} cookies\n'
+                   '{% endblocktrans %}')
+        self._test('- blocktrans with amount=num_cookies\n'
+                   '  There is one cookie\n'
+                   '- plural\n'
+                   '  There are #{ amount } cookies',
+                   '{% blocktrans with amount=num_cookies %}\n'
+                   '  There is one cookie\n'
+                   '{% plural %}\n'
+                   '  There are {{ amount }} cookies\n'
+                   '{% endblocktrans %}')
+
         # exception using a closing tag of a self-closing tag
         parser = Compiler()
         self.assertRaises(ParseException, parser.process, '- endfor')
