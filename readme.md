@@ -21,40 +21,41 @@ The latest development version can be installed directly from GitHub:
 ## Syntax
 
 Almost all of the XHTML syntax of Haml is preserved.  
-
-	#profile
-		.left.column
-			#date 2010/02/18
-			#address Toronto, ON
-		.right.column
-			#bio Jesse Miller
-			
+```haml
+#profile
+	.left.column
+		#date 2010/02/18
+		#address Toronto, ON
+	.right.column
+		#bio Jesse Miller
+```		
 turns into..
-
-	<div id='profile'>
-		<div class='left column'>
-			<div id='date'>2010/02/18</div>
-			<div id='address'>Toronto, ON</div>
-		</div>
-		<div class='right column'>
-			<div id='bio'>Jesse Miller</div>
-		</div>
+```html
+<div id='profile'>
+	<div class='left column'>
+		<div id='date'>2010/02/18</div>
+		<div id='address'>Toronto, ON</div>
 	</div>
-	
+	<div class='right column'>
+		<div id='bio'>Jesse Miller</div>
+	</div>
+</div>
+```
 
 The main difference is instead of interpreting Ruby, or even Python we instead can create Django Tags and Variables
-
-	%ul#athletes
-		- for athlete in athlete_list
-			%li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
-
+```haml
+%ul#athletes
+	- for athlete in athlete_list
+		%li.athlete{'id': 'athlete_{{ athlete.pk }}'}= athlete.name
+```
 turns into..
-
-	<ul id='athletes'>
-		{% for athlete in athlete_list %}
-			<li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
-		{% endfor %}
-	</ul>
+```html
+<ul id='athletes'>
+	{% for athlete in athlete_list %}
+		<li class='athlete' id='athlete_{{ athlete.pk }}'>{{ athlete.name }}</li>
+	{% endfor %}
+</ul>
+```
 
 ## Usage
 
@@ -63,13 +64,13 @@ turns into..
 The template loader was originally written by [Chris Hartjes](https://github.com/chartjes) under the name 'djaml'. This project has now been merged into the HamlPy codebase.
 
 Add the HamlPy template loaders to the Django template loaders:
-
+```python
     TEMPLATE_LOADERS = (
 	    'hamlpy.template.loaders.HamlPyFilesystemLoader',
 	    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',   
         ...
     )
-
+```
 If you don't put the HamlPy template loader first, then the standard Django template loaders will try to process
 it first. Make sure your templates have a `.haml` or `.hamlpy` extension, and put them wherever you've told Django
 to expect to find templates (TEMPLATE_DIRS).
@@ -77,15 +78,15 @@ to expect to find templates (TEMPLATE_DIRS).
 #### Template caching
 
 For caching, just add `django.template.loaders.cached.Loader` to your TEMPLATE_LOADERS:
-
-	TEMPLATE_LOADERS = (
-	    ('django.template.loaders.cached.Loader', (
-		    'hamlpy.template.loaders.HamlPyFilesystemLoader',
-		    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
-		    ...
-	    )),   
-	)
-
+```python
+TEMPLATE_LOADERS = (
+    ('django.template.loaders.cached.Loader', (
+	    'hamlpy.template.loaders.HamlPyFilesystemLoader',
+	    'hamlpy.template.loaders.HamlPyAppDirectoriesLoader',
+	    ...
+    )),   
+)
+```
 #### Settings
 
 Following values in Django settings affect haml processing:
