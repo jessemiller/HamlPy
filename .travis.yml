@@ -3,15 +3,19 @@ python:
  - "2.7"
  - "3.4"
  - "3.5"
+ - "3.6"
 env:
  - DJANGO_VERSION=1.7.10
  - DJANGO_VERSION=1.8.16
  - DJANGO_VERSION=1.9.11
  - DJANGO_VERSION=1.10.3
+ - DJANGO_VERSION=1.11b1
 matrix:
   exclude:
-  - python: "3.5"
-    env: DJANGO_VERSION=1.7.10
+   - python: "3.5"
+     env: DJANGO_VERSION=1.7.10
+   - python: "3.6"
+     env: DJANGO_VERSION=1.7.10
 sudo: false
 cache:
   directories:
