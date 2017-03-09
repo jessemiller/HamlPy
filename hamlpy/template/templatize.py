@@ -7,7 +7,7 @@ tags from it.
 
 import os
 
-from django.utils.translation import trans_real
+from django.utils import translation
 
 from hamlpy import HAML_EXTENSIONS
 from hamlpy.compiler import Compiler
@@ -23,8 +23,8 @@ def decorate_templatize(func):
                 compiler = Compiler()
                 src = compiler.process(src)
 
-        return func(src, origin)
+        return func(src, origin=origin)
     return templatize
 
 
-trans_real.templatize = decorate_templatize(trans_real.templatize)
+translation.templatize = decorate_templatize(translation.templatize)
