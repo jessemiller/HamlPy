@@ -82,7 +82,7 @@ class AttributeDictParserTest(unittest.TestCase):
         # tuple attribute values
         assert dict(self._parse(
             "{:class=>( 'a', 'b', 'c' ), :data-list => (1, 2, 3)}"
-        )) == {'class': ('a', 'b', 'c'), 'data-list': ('1', '2', '3')}
+        )) == {'class': ['a', 'b', 'c'], 'data-list': ['1', '2', '3']}
 
         # attribute order is maintained
         assert self._parse(

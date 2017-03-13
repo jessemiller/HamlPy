@@ -67,7 +67,7 @@ def read_attribute_value_list(stream, options):
 
     stream.ptr += 1  # consume closing symbol
 
-    return tuple(data) if read_tuple else data
+    return data
 
 
 def read_attribute_value_haml(stream, options):

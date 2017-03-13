@@ -132,25 +132,17 @@ class Element(object):
         self.id = '_'.join(ids) if ids else None
 
         # merge classes from the attribute dictionary
-        class_from_attrs = attributes.get('class')
-        if isinstance(class_from_attrs, (tuple, list)):
-            classes += class_from_attrs
-        elif isinstance(class_from_attrs, six.string_types):
-            classes += [class_from_attrs]
+        class_from_attrs = attributes.get('class', [])
+        if not isinstance(class_from_attrs, (tuple, list)):
+            class_from_attrs = [class_from_attrs]
 
-        self.classes = classes
+        self.classes = class_from_attrs + classes
 
     def render_attributes(self, attr_wrapper):
         def attr_wrap(val):
             return '%s%s%s' % (attr_wrapper, val, attr_wrapper)
 
         rendered = []
-
-        if self.id:
-            rendered.append("id=%s" % attr_wrap(self.id))
-
-        if len(self.classes) > 0:
-            rendered.append("class=%s" % attr_wrap(" ".join(self.classes)))
 
         for name, value in self.attributes.items():
             if name in ('id', 'class'):
@@ -161,6 +153,12 @@ class Element(object):
             else:
                 value = self._escape_attribute_quotes(value, attr_wrapper)
                 rendered.append("%s=%s" % (name, attr_wrap(value)))
+
+        if len(self.classes) > 0:
+            rendered.append("class=%s" % attr_wrap(" ".join(self.classes)))
+
+        if self.id:
+            rendered.append("id=%s" % attr_wrap(self.id))
 
         return ' '.join(rendered)
 

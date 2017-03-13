@@ -21,7 +21,7 @@ class ElementTest(unittest.TestCase):
         element = read_element(stream, Options())
         self.assertEqual(element.tag, 'angular:ng-repeat')
         self.assertEqual(element.id, 'my-id')
-        self.assertEqual(element.classes, ['my-class', 'test'])
+        self.assertEqual(element.classes, ['test', 'my-class'])
         self.assertEqual(dict(element.attributes), {'class': "test"})
         self.assertEqual(element.nuke_outer_whitespace, True)
         self.assertEqual(element.nuke_inner_whitespace, True)
@@ -103,7 +103,7 @@ class ElementTest(unittest.TestCase):
     def test_attribute_merges_classes_properly(self):
         element = self._read_element("%div.someClass.anotherClass{'class':'hello'}")
 
-        assert element.classes == ['someClass', 'anotherClass', 'hello']
+        assert element.classes == ['hello', 'someClass', 'anotherClass']
 
     def test_attribute_merges_ids_properly(self):
         element = self._read_element("%div#someId{'id':'hello'}")

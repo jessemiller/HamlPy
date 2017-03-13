@@ -34,7 +34,7 @@ class CompilerTest(unittest.TestCase):
         self._test('%div.someClass.anotherClass Some text', "<div class='someClass anotherClass'>Some text</div>")
 
         # class can come before id
-        self._test('%div.someClass#someId', "<div id='someId' class='someClass'></div>")
+        self._test('%div.someClass#someId', "<div class='someClass' id='someId'></div>")
 
     def test_attribute_dictionaries(self):
         # attribute dictionaries
@@ -57,9 +57,9 @@ class CompilerTest(unittest.TestCase):
 
         # attributes as lists
         self._test("%div{'id':['Article','1'], 'class':['article','entry','visible']} Booyaka",
-                   "<div id='Article_1' class='article entry visible'>Booyaka</div>")
+                   "<div class='article entry visible' id='Article_1'>Booyaka</div>")
         self._test("%div{'id': ('article', '3'), 'class': ('newest', 'urgent')} Content",
-                   "<div id='article_3' class='newest urgent'>Content</div>")
+                   "<div class='newest urgent' id='article_3'>Content</div>")
 
     def test_comments(self):
         self._test('/ some comment', "<!-- some comment -->")
@@ -251,10 +251,10 @@ test''', "test")
 
     def test_attr_escaping(self):
         self._test("""#foo{:class => '<?php echo "&quot;" ?>'}""",
-                   """<div id='foo' class='<?php echo "&quot;" ?>'></div>""",
+                   """<div class='<?php echo "&quot;" ?>' id='foo'></div>""",
                    compiler_options={'escape_attrs': False})
         self._test("""#foo{:class => '"&lt;&gt;&amp;"'}""",
-                   """<div id='foo' class='&quot;&amp;lt;&amp;gt;&amp;amp;&quot;'></div>""",
+                   """<div class='&quot;&amp;lt;&amp;gt;&amp;amp;&quot;' id='foo'></div>""",
                    compiler_options={'escape_attrs': True})
 
     def test_node_escaping(self):
