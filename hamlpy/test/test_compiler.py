@@ -44,6 +44,9 @@ class CompilerTest(unittest.TestCase):
         # attribute whitespace is ignored
         self._test('%form{ id : "myform" }', "<form id='myform'></form>")
 
+        # HTML style
+        self._test('%form(foo=bar id="myform")', "<form foo='{{ bar }}' id='myform'></form>")
+
     def test_boolean_attributes(self):
         self._test("%input{required}", "<input required>")
         self._test("%input{required, a: 'b'}", "<input required a='b'>")

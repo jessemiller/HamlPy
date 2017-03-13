@@ -152,6 +152,9 @@ class AttributeDictParserTest(unittest.TestCase):
             "(class=[ 'a', 'b', 'c' ] data-list=[1, 2, 3])"
         )) == {'class': ['a', 'b', 'c'], 'data-list': ['1', '2', '3']}
 
+        # variable attribute values
+        assert dict(self._parse('(foo=bar)')) == {'foo': '{{ bar }}'}
+
         # attribute values can be multi-line Haml
         assert dict(self._parse("""(
                 class=

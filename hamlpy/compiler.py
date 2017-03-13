@@ -105,7 +105,10 @@ class Compiler:
     }
 
     def __init__(self, options=None):
-        self.options = Options(**(options or {}))
+        if isinstance(options, Options):
+            self.options = options
+        else:
+            self.options = Options(**(options or {}))
 
         tag_config = self.TAG_CONFIGS[self.options.tag_config]
         self.self_closing_tags = tag_config['self_closing']

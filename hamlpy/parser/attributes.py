@@ -22,17 +22,20 @@ def read_attribute_value(stream, options):
 
     if ch in STRING_LITERALS:
         value = read_quoted_string(stream)
+
+        if options.escape_attrs:
+            # TODO handle escape_attrs=once
+            value = html_escape(value)
+
     elif ch.isdigit():
         value = read_number(stream)
     elif stream.text[stream.ptr:stream.ptr+4].lower() == 'none':
         stream.ptr += 4
         value = None
+    elif ch.isalnum():
+        value = '{{ %s }}' % read_word(stream)
     else:
         raise ParseException("Unexpected \"%s\"." % ch, stream)
-
-    if options.escape_attrs and value:
-        # TODO handle escape_attrs=once
-        value = html_escape(value)
 
     return value
 
@@ -96,7 +99,7 @@ def read_attribute_value_haml(stream, options):
 
     from ..compiler import Compiler
     haml = '\n'.join(haml_lines)
-    html = Compiler().process(haml)
+    html = Compiler(options).process(haml)
 
     # un-format into single line
     return LEADING_SPACES_REGEX.sub(' ', html).replace('\n', '').strip()
