@@ -15,10 +15,10 @@ class Options(object):
 
     def __init__(self, **kwargs):
         # standard Haml options
-        self.attr_wrapper = '\''  # how to render attribute values, e.g. foo='bar'
-        self.format = self.HTML5  # HTML4, HTML5 or XHTML
-        self.escape_attrs = True  # escape HTML-sensitive characters in attribute values
-        self.cdata = True         # wrap CSS, Javascript etc content in CDATA section
+        self.attr_wrapper = '\''   # how to render attribute values, e.g. foo='bar'
+        self.format = self.HTML5   # HTML4, HTML5 or XHTML
+        self.escape_attrs = True   # escape HTML-sensitive characters in attribute values
+        self.cdata = False         # wrap CSS, Javascript etc content in CDATA section
 
         # implementation specific options
         self.django_inline_style = False    # support both #{...} and ={...}
@@ -31,6 +31,8 @@ class Options(object):
 
         if self.django_inline_style:  # pragma: no cover
             warnings.warn("Support for ={..} style variables is deprecated", DeprecationWarning)
+
+        self.cdata = self._cdata
 
     @property
     def html4(self):
@@ -47,6 +49,10 @@ class Options(object):
     @property
     def xhtml(self):
         return self.format == self.XHTML
+
+    @property
+    def _cdata(self):
+        return self.xhtml or self.cdata
 
 
 class Compiler:

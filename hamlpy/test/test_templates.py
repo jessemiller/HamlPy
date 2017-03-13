@@ -15,6 +15,8 @@ TEMPLATE_EXTENSION = '.hamlpy'
 
 
 class TemplateCheck(object):
+    compiler = Compiler(options={'format': 'xhtml'})
+
     def __init__(self, name, haml, html):
         self.name = name
         self.haml = haml
@@ -40,8 +42,7 @@ class TemplateCheck(object):
         return tests
 
     def run(self):
-        compiler = Compiler()
-        parsed = compiler.process(self.haml)
+        parsed = self.compiler.process(self.haml)
 
         # ignore line ending differences and blank lines
         self.actual_html = parsed.replace('\r', '')
