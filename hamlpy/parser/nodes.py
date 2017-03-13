@@ -267,7 +267,7 @@ class ElementNode(Node):
         """
         start = ["%s<%s" % (self.indent, element.tag)]
 
-        attributes = element.render_attributes(self.compiler.options.attr_wrapper)
+        attributes = element.render_attributes(self.compiler.options)
         if attributes:
             start.append(' ' + self.replace_inline_variables(attributes))
 

@@ -138,9 +138,9 @@ class Element(object):
 
         self.classes = class_from_attrs + classes
 
-    def render_attributes(self, attr_wrapper):
+    def render_attributes(self, options):
         def attr_wrap(val):
-            return '%s%s%s' % (attr_wrapper, val, attr_wrapper)
+            return '%s%s%s' % (options.attr_wrapper, val, options.attr_wrapper)
 
         rendered = []
 
@@ -148,10 +148,13 @@ class Element(object):
             if name in ('id', 'class') or value in (None, False):
                 continue
 
-            if value is True:
-                rendered.append("%s" % name)  # boolean attribute
+            if value is True:  # boolean attribute
+                if options.xhtml:
+                    rendered.append("%s=%s" % (name, attr_wrap(name)))
+                else:
+                    rendered.append(name)
             else:
-                value = self._escape_attribute_quotes(value, attr_wrapper)
+                value = self._escape_attribute_quotes(value, options.attr_wrapper)
                 rendered.append("%s=%s" % (name, attr_wrap(value)))
 
         if len(self.classes) > 0:
