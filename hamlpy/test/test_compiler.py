@@ -45,11 +45,11 @@ class CompilerTest(unittest.TestCase):
         self._test('%form{ id : "myform" }', "<form id='myform'></form>")
 
     def test_boolean_attributes(self):
-        self._test("%input{required}", "<input required />")
-        self._test("%input{required, a: 'b'}", "<input required a='b' />")
-        self._test("%input{a: 'b', required, b: 'c'}", "<input a='b' required b='c' />")
-        self._test("%input{a: 'b', required}", "<input a='b' required />")
-        self._test("%input{checked, required, visible}", "<input checked required visible />")
+        self._test("%input{required}", "<input required>")
+        self._test("%input{required, a: 'b'}", "<input required a='b'>")
+        self._test("%input{a: 'b', required, b: 'c'}", "<input a='b' required b='c'>")
+        self._test("%input{a: 'b', required}", "<input a='b' required>")
+        self._test("%input{checked, required, visible}", "<input checked required visible>")
 
     def test_attribute_values_as_tuples_and_lists(self):
         # id attribute as tuple

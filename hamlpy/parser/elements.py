@@ -25,7 +25,7 @@ def read_tag(stream):
     return (part1 + ':' + part2) if part2 else part1
 
 
-def read_element(stream, compiler):
+def read_element(stream, options):
     """
     Reads an element, e.g. %span, #banner{style:"width: 100px"}, .ng-hide(foo=1)
     """
@@ -61,7 +61,7 @@ def read_element(stream, compiler):
                 classes.append(id_or_class)
 
     if stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
-        attributes = read_attribute_dict(stream, compiler)
+        attributes = read_attribute_dict(stream, options)
     else:
         attributes = {}
 

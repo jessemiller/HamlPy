@@ -63,7 +63,7 @@ def read_node(stream, prev, compiler):
 
         # peek ahead to so we don't try to parse an element from a variable node starting #{ or a Django tag ending %}
         if stream.text[stream.ptr] in ELEMENT_PREFIXES and stream.text[stream.ptr:stream.ptr+2] not in ('#{', '%}'):
-            element = read_element(stream, compiler)
+            element = read_element(stream, compiler.options)
             return ElementNode(element, indent, compiler)
 
         # all other nodes are single line
@@ -267,7 +267,7 @@ class ElementNode(Node):
         """
         start = ["%s<%s" % (self.indent, element.tag)]
 
-        attributes = element.render_attributes(self.compiler.options['attr_wrapper'])
+        attributes = element.render_attributes(self.compiler.options.attr_wrapper)
         if attributes:
             start.append(' ' + self.replace_inline_variables(attributes))
 
@@ -277,7 +277,7 @@ class ElementNode(Node):
             content = content.strip()
 
         if element.self_close and not content:
-            start.append(" />")
+            start.append(">" if self.compiler.options.html else " />")
         elif content:
             start.append(">%s" % content)
         elif self.children:
@@ -385,32 +385,28 @@ class DoctypeNode(LineNode):
     """
     def _render(self):
         doctype = self.haml.lstrip(DOCTYPE_PREFIX).strip().lower()
-        fmt = self.compiler.options['format']
 
-        self.before = self.get_header(doctype, fmt)
+        self.before = self.get_header(doctype, self.compiler.options)
         self.after = self.render_newlines()
 
-    def get_header(self, doctype, fmt):
-        from ..compiler import Compiler
-
+    def get_header(self, doctype, options):
         if doctype.startswith('xml'):
-            if fmt in (Compiler.FORMAT_HTML4, Compiler.FORMAT_HTML5):
+            if options.html:
                 return ''
             parts = doctype.split()
             encoding = parts[1] if len(parts) > 1 else 'utf-8'
-            attr_wrapper = self.compiler.options['attr_wrapper']
             return "<?xml version=%s1.0%s encoding=%s%s%s ?>" % (
-                attr_wrapper, attr_wrapper,
-                attr_wrapper, encoding, attr_wrapper,
+                options.attr_wrapper, options.attr_wrapper,
+                options.attr_wrapper, encoding, options.attr_wrapper,
             )
-        elif fmt == Compiler.FORMAT_HTML5:
+        elif options.html5:
             return '<!DOCTYPE html>'
-        elif fmt == Compiler.FORMAT_XHTML:
+        elif options.xhtml:
             if doctype == "5":
                 return '<!DOCTYPE html>'
             else:
                 return XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[''])
-        elif fmt == Compiler.FORMAT_HTML4:
+        elif options.html4:
             return HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
         else:
             return ''
