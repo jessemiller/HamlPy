@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 
 import six
 
+from collections import OrderedDict
 from .attributes import read_attribute_dict
 from .core import read_word, read_line
 
@@ -60,10 +61,9 @@ def read_element(stream, options):
             else:
                 classes.append(id_or_class)
 
-    if stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
-        attributes = read_attribute_dict(stream, options)
-    else:
-        attributes = {}
+    attributes = OrderedDict()
+    while stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
+        attributes.update(read_attribute_dict(stream, options))
 
     if stream.ptr < stream.length and stream.text[stream.ptr] == '>':
         stream.ptr += 1

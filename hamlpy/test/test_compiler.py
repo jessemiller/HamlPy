@@ -47,6 +47,9 @@ class CompilerTest(unittest.TestCase):
         # HTML style
         self._test('%form(foo=bar id="myform")', "<form foo='{{ bar }}' id='myform'></form>")
 
+        # multiple dicts
+        self._test('%a(a="b"){:c => "d"} Stuff', "<a a='b' c='d'>Stuff</a>")
+
     def test_boolean_attributes(self):
         self._test("%input{required}", "<input required>")
         self._test("%input{required, a: 'b'}", "<input required a='b'>")
