@@ -4,6 +4,7 @@ import unittest
 
 from collections import OrderedDict
 
+from hamlpy.compiler import Compiler
 from hamlpy.parser.attributes import read_attribute_dict
 from hamlpy.parser.core import Stream, ParseException
 
@@ -12,12 +13,12 @@ class AttributeDictParserTest(unittest.TestCase):
 
     @staticmethod
     def _parse(text):
-        return read_attribute_dict(Stream(text))
+        return read_attribute_dict(Stream(text), Compiler())
 
     def test_read_ruby_style_attribute_dict(self):
         # empty dict
         stream = Stream("{}><")
-        assert dict(read_attribute_dict(stream)) == {}
+        assert dict(read_attribute_dict(stream, Compiler())) == {}
         assert stream.text[stream.ptr:] == '><'
 
         # string values

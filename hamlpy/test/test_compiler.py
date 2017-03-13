@@ -107,7 +107,7 @@ test''', "test")
 
         # they can be escaped
         self._test("%a{'b': '\\\\#{greeting} test', title: \"It can't be removed\"} blah",
-                   "<a b='#{greeting} test' title='It can\\'t be removed'>blah</a>")
+                   "<a b='#{greeting} test' title='It can&#39;t be removed'>blah</a>")
         self._test("%h1 Hello, \\={name}, how are you ={ date }?",
                    "<h1>Hello, ={name}, how are you {{ date }}?</h1>", compiler_options={'django_inline_style': True})
         self._test("\\#{name}, how are you?", "#{name}, how are you?")
@@ -209,12 +209,51 @@ test''', "test")
         self._test_error(":nosuchfilter\n", "No such filter: nosuchfilter")
 
     def test_doctypes(self):
+        self._test('!!!', '<!DOCTYPE html>',
+                   compiler_options={'format': 'html5'})
         self._test('!!! 5', '<!DOCTYPE html>')
-        self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">')  # noqa
-        self._test('!!! XML', "<?xml version='1.0' encoding='utf-8' ?>")
-        self._test('!!! XML iso-8859-1', "<?xml version='1.0' encoding='iso-8859-1' ?>")
+        self._test('!!! strict', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
+                   compiler_options={'format': 'xhtml'})
+        self._test('!!! frameset', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
+                   compiler_options={'format': 'xhtml'})
+        self._test('!!! mobile', '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',  # noqa
+                   compiler_options={'format': 'xhtml'})
+        self._test('!!! basic', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',  # noqa
+                   compiler_options={'format': 'xhtml'})
+        self._test('!!! transitional', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
+                   compiler_options={'format': 'xhtml'})
+        self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
+                   compiler_options={'format': 'xhtml'})
+        self._test('!!! strict', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',  # noqa
+                   compiler_options={'format': 'html4'})
+        self._test('!!! frameset', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',  # noqa
+                   compiler_options={'format': 'html4'})
+        self._test('!!! transitional', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',  # noqa
+                   compiler_options={'format': 'html4'})
+        self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',  # noqa
+                   compiler_options={'format': 'html4'})
 
-    def test_escaping(self):
+    def test_attr_wrapper(self):
+        self._test("%p{ :strange => 'attrs'}", "<p strange=*attrs*></p>",
+                   compiler_options={'attr_wrapper': '*'})
+        self._test("%p{ :escaped => 'quo\"te'}", "<p escaped=\"quo&quot;te\"></p>",
+                   compiler_options={'attr_wrapper': '"'})
+        self._test("%p{ :escaped => 'quo\\'te'}", "<p escaped=\"quo&#39;te\"></p>",
+                   compiler_options={'attr_wrapper': '"'})
+        self._test("%p{ :escaped => 'q\\'uo\"te'}", "<p escaped=\"q&#39;uo&quot;te\"></p>",
+                   compiler_options={'attr_wrapper': '"'})
+        self._test("!!! XML", "<?xml version=\"1.0\" encoding=\"utf-8\" ?>",
+                   compiler_options={'attr_wrapper': '"', 'format': 'xhtml'})
+
+    def test_attr_escaping(self):
+        self._test("""#foo{:class => '<?php echo "&quot;" ?>'}""",
+                   """<div id='foo' class='<?php echo "&quot;" ?>'></div>""",
+                   compiler_options={'escape_attrs': False})
+        self._test("""#foo{:class => '"&lt;&gt;&amp;"'}""",
+                   """<div id='foo' class='&quot;&amp;lt;&amp;gt;&amp;amp;&quot;'></div>""",
+                   compiler_options={'escape_attrs': True})
+
+    def test_node_escaping(self):
         self._test("\\= Escaped", "= Escaped")
         self._test("\%}", "%}")
         self._test("  \:python", "  :python")
@@ -222,25 +261,6 @@ test''', "test")
     def test_utf8(self):
         self._test("%a{'href':'', 'title':'링크(Korean)'} Some Link",
                    "<a href='' title='\ub9c1\ud06c(Korean)'>Some Link</a>")
-
-    def test_attr_wrapper(self):
-        self._test("""
-%html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}
-  %body#main
-    %div.wrap
-      %a{:href => '/'}
-:javascript""", '''<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-  <body id="main">
-    <div class="wrap">
-      <a href="/"></a>
-    </div>
-  </body>
-</html>
-<script type="text/javascript">
-  //<![CDATA[
-\x20\x20\x20\x20
-  //]]>
-</script>''', compiler_options={'attr_wrapper': '"'})
 
     def test_custom_filter(self):
         def upper(text, options):

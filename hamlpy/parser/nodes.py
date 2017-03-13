@@ -7,6 +7,22 @@ from .elements import read_element
 from .filters import get_filter
 
 
+XHTML_DOCTYPES = {
+    'strict': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
+    'frameset': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
+    'mobile': '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',  # noqa
+    'rdfa': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">',  # noqa
+    'basic': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',  # noqa
+    '': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
+}
+
+HTML4_DOCTYPES = {
+    'strict': '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+    'frameset': '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
+    '': '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
+}
+
+
 DOCTYPE_PREFIX = '!!!'
 ELEMENT_PREFIXES = ('%', '#', '.')
 HTML_COMMENT_PREFIX = '/'
@@ -46,7 +62,7 @@ def read_node(stream, prev, compiler):
 
         # peek ahead to so we don't try to parse an element from a variable node starting #{ or a Django tag ending %}
         if stream.text[stream.ptr] in ELEMENT_PREFIXES and stream.text[stream.ptr:stream.ptr+2] not in ('#{', '%}'):
-            element = read_element(stream)
+            element = read_element(stream, compiler)
             return ElementNode(element, indent, compiler)
 
         # all other nodes are single line
@@ -367,27 +383,23 @@ class DoctypeNode(LineNode):
     An XML doctype node, e.g. !!! 5
     """
     def _render(self):
-        doctype = self.haml.lstrip(DOCTYPE_PREFIX).strip()
+        doctype = self.haml.lstrip(DOCTYPE_PREFIX).strip().lower()
+        fmt = self.compiler.options['format']
 
-        parts = doctype.split()
-        if parts and parts[0] == "XML":
-            attr_wrapper = self.compiler.options['attr_wrapper']
+        if doctype.startswith('xml'):
+            parts = doctype.split()
             encoding = parts[1] if len(parts) > 1 else 'utf-8'
+            attr_wrapper = self.compiler.options['attr_wrapper']
             self.before = "<?xml version=%s1.0%s encoding=%s%s%s ?>" % (
                 attr_wrapper, attr_wrapper,
                 attr_wrapper, encoding, attr_wrapper,
             )
-        else:
-            types = {
-                "": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
-                "Strict": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
-                "Frameset": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
-                "5": '<!DOCTYPE html>',
-                "1.1": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'  # noqa
-            }
-
-            if doctype in types:
-                self.before = types[doctype]
+        elif fmt == 'html5':
+            self.before = '<!DOCTYPE html>'
+        elif fmt == 'xhtml':
+            self.before = XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[''])
+        elif fmt == 'html4':
+            self.before = HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
 
         self.after = self.render_newlines()
 

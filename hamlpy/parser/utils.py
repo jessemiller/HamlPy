@@ -9,5 +9,5 @@ def html_escape(s):
     s = s.replace("<", "&lt;")
     s = s.replace(">", "&gt;")
     s = s.replace('"', "&quot;")
-    s = s.replace("'", "&#039;")
+    s = s.replace("'", "&#39;")
     return s
