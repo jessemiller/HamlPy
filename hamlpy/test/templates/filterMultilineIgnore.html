@@ -1,4 +1,4 @@
-<div id='{{myId}}' class='multilinetest1' alt='{{nothing}}'></div>
+<div alt='{{nothing}}' class='multilinetest1' id='{{myId}}'></div>
 These { { braces
 
 should } not be interpreted as a multiline string
@@ -18,7 +18,7 @@ These { { braces&#x000A;&#x000A;should } not be interpreted as a multiline strin
     } be { ignored
   //]]>
 </script>
-<div id='{{myId}}' class='multilinetest2 {{myClass}}' alt=''></div>
+<div alt='' class='{{myClass}} multilinetest2' id='{{myId}}'></div>
 <!-- The following is from hjonathan, issue #67 -->
 <head>
   <div class='blah'>

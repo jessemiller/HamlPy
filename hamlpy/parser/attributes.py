@@ -6,6 +6,7 @@ from collections import OrderedDict
 
 from .core import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
 from .core import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CHARS
+from .utils import html_escape
 
 LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 
@@ -13,24 +14,30 @@ LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 ATTRIBUTE_KEY_EXTRA_CHARS = {':', '-', '$', '?', '[', ']'}
 
 
-def read_attribute_value(stream):
+def read_attribute_value(stream, options):
     """
     Reads an attribute's value which may be a string, a number or None
     """
     ch = stream.text[stream.ptr]
 
     if ch in STRING_LITERALS:
-        return read_quoted_string(stream)
+        value = read_quoted_string(stream)
     elif ch.isdigit():
-        return read_number(stream)
+        value = read_number(stream)
     elif stream.text[stream.ptr:stream.ptr+4].lower() == 'none':
         stream.ptr += 4
-        return None
+        value = None
     else:
         raise ParseException("Unexpected \"%s\"." % ch, stream)
 
+    if options.escape_attrs and value:
+        # TODO handle escape_attrs=once
+        value = html_escape(value)
 
-def read_attribute_value_list(stream):
+    return value
+
+
+def read_attribute_value_list(stream, options):
     """
     Reads an attribute value which is a list of other values
     """
@@ -51,7 +58,7 @@ def read_attribute_value_list(stream):
         if stream.text[stream.ptr] == close_literal:
             break
 
-        data.append(read_attribute_value(stream))
+        data.append(read_attribute_value(stream, options))
 
         read_whitespace(stream)
 
@@ -60,10 +67,10 @@ def read_attribute_value_list(stream):
 
     stream.ptr += 1  # consume closing symbol
 
-    return tuple(data) if read_tuple else data
+    return data
 
 
-def read_attribute_value_haml(stream):
+def read_attribute_value_haml(stream, options):
     """
     Reads an attribute value which is a block of indented Haml
     """
@@ -95,7 +102,7 @@ def read_attribute_value_haml(stream):
     return LEADING_SPACES_REGEX.sub(' ', html).replace('\n', '').strip()
 
 
-def read_ruby_attribute(stream):
+def read_ruby_attribute(stream, options):
     """
     Reads a Ruby style attribute, e.g. :foo => "bar" or foo: "bar"
     """
@@ -130,18 +137,18 @@ def read_ruby_attribute(stream):
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
 
-            value = read_attribute_value_haml(stream)
+            value = read_attribute_value_haml(stream, options)
         elif stream.text[stream.ptr] in ('(', '['):
-            value = read_attribute_value_list(stream)
+            value = read_attribute_value_list(stream, options)
         else:
-            value = read_attribute_value(stream)
+            value = read_attribute_value(stream, options)
     else:
         value = None
 
     return key, value
 
 
-def read_html_attribute(stream):
+def read_html_attribute(stream, options):
     """
     Reads an HTML style attribute, e.g. foo="bar"
     """
@@ -164,18 +171,18 @@ def read_html_attribute(stream):
         if stream.text[stream.ptr] == '\n':
             stream.ptr += 1
 
-            value = read_attribute_value_haml(stream)
+            value = read_attribute_value_haml(stream, options)
         elif stream.text[stream.ptr] == '[':
-            value = read_attribute_value_list(stream)
+            value = read_attribute_value_list(stream, options)
         else:
-            value = read_attribute_value(stream)
+            value = read_attribute_value(stream, options)
     else:
         value = None
 
     return key, value
 
 
-def read_attribute_dict(stream):
+def read_attribute_dict(stream, options):
     """
     Reads an attribute dictionary which may use one of 3 syntaxes:
      1. {:foo => "bar", :a => 3}  (old Ruby)
@@ -214,7 +221,7 @@ def read_attribute_dict(stream):
 
         # (foo = "bar" a=3)
         if html_style:
-            record_value(*read_html_attribute(stream))
+            record_value(*read_html_attribute(stream, options))
 
             read_whitespace(stream)
 
@@ -223,7 +230,7 @@ def read_attribute_dict(stream):
 
         # {:foo => "bar", :a=>3} or {foo: "bar", a: 3}
         else:
-            record_value(*read_ruby_attribute(stream))
+            record_value(*read_ruby_attribute(stream, options))
 
             read_whitespace(stream)
 

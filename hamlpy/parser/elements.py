@@ -25,7 +25,7 @@ def read_tag(stream):
     return (part1 + ':' + part2) if part2 else part1
 
 
-def read_element(stream):
+def read_element(stream, options):
     """
     Reads an element, e.g. %span, #banner{style:"width: 100px"}, .ng-hide(foo=1)
     """
@@ -46,7 +46,7 @@ def read_element(stream):
             stream.ptr += 1
             empty_class = True
 
-    ids = []
+    _id = None
     classes = []
 
     if not empty_class:
@@ -56,12 +56,12 @@ def read_element(stream):
 
             id_or_class = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
             if is_id:
-                ids.append(id_or_class)
+                _id = id_or_class
             else:
                 classes.append(id_or_class)
 
     if stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
-        attributes = read_attribute_dict(stream)
+        attributes = read_attribute_dict(stream, options)
     else:
         attributes = {}
 
@@ -96,7 +96,7 @@ def read_element(stream):
     else:
         inline = None
 
-    return Element(tag, ids, classes, attributes, nuke_outer_ws, nuke_inner_ws, self_close, django_variable, inline)
+    return Element(tag, _id, classes, attributes, nuke_outer_ws, nuke_inner_ws, self_close, django_variable, inline)
 
 
 class Element(object):
@@ -110,7 +110,7 @@ class Element(object):
 
     DEFAULT_TAG = 'div'
 
-    def __init__(self, tag, ids, classes, attributes, nuke_outer_whitespace, nuke_inner_whitespace, self_close,
+    def __init__(self, tag, _id, classes, attributes, nuke_outer_whitespace, nuke_inner_whitespace, self_close,
                  django_variable, inline_content):
         self.tag = tag or self.DEFAULT_TAG
         self.attributes = attributes
@@ -121,8 +121,9 @@ class Element(object):
         self.inline_content = inline_content
 
         # merge ids from the attribute dictionary
+        ids = [_id] if _id else []
         id_from_attrs = attributes.get('id')
-        if isinstance(id_from_attrs, tuple) or isinstance(id_from_attrs, list):
+        if isinstance(id_from_attrs, (tuple, list)):
             ids += id_from_attrs
         elif isinstance(id_from_attrs, six.string_types):
             ids += [id_from_attrs]
@@ -131,25 +132,17 @@ class Element(object):
         self.id = '_'.join(ids) if ids else None
 
         # merge classes from the attribute dictionary
-        class_from_attrs = attributes.get('class')
-        if isinstance(class_from_attrs, (tuple, list)):
-            classes += class_from_attrs
-        elif isinstance(class_from_attrs, six.string_types):
-            classes += [class_from_attrs]
+        class_from_attrs = attributes.get('class', [])
+        if not isinstance(class_from_attrs, (tuple, list)):
+            class_from_attrs = [class_from_attrs]
 
-        self.classes = classes
+        self.classes = class_from_attrs + classes
 
     def render_attributes(self, attr_wrapper):
         def attr_wrap(val):
             return '%s%s%s' % (attr_wrapper, val, attr_wrapper)
 
         rendered = []
-
-        if self.id:
-            rendered.append("id=%s" % attr_wrap(self.id))
-
-        if len(self.classes) > 0:
-            rendered.append("class=%s" % attr_wrap(" ".join(self.classes)))
 
         for name, value in self.attributes.items():
             if name in ('id', 'class'):
@@ -160,6 +153,12 @@ class Element(object):
             else:
                 value = self._escape_attribute_quotes(value, attr_wrapper)
                 rendered.append("%s=%s" % (name, attr_wrap(value)))
+
+        if len(self.classes) > 0:
+            rendered.append("class=%s" % attr_wrap(" ".join(self.classes)))
+
+        if self.id:
+            rendered.append("id=%s" % attr_wrap(self.id))
 
         return ' '.join(rendered)
 

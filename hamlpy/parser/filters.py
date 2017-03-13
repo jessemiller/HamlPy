@@ -135,21 +135,21 @@ def python(content, options):
 # ----------------------------------------------------------------------------------
 
 def style_filter(text, mime_type, options):
-    indent = '    ' if options['cdata'] else '  '
+    indent = '    ' if options.cdata else '  '
     text = text.rstrip().replace('\n', '\n' + indent)
     type_attr = ' type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s' % \
-                {'attr_wrapper': options['attr_wrapper'], 'mime_type': mime_type}
-    before, after = ('  /*<![CDATA[*/\n', '  /*]]>*/\n') if options['cdata'] else ('', '')
+                {'attr_wrapper': options.attr_wrapper, 'mime_type': mime_type}
+    before, after = ('  /*<![CDATA[*/\n', '  /*]]>*/\n') if options.cdata else ('', '')
 
     return '<style%s>\n%s%s%s\n%s</style>' % (type_attr, before, indent, text, after)
 
 
 def script_filter(text, mime_type, comment, options):
-    indent = '    ' if options['cdata'] else '  '
+    indent = '    ' if options.cdata else '  '
     text = text.rstrip().replace('\n', '\n' + indent)
     type_attr = ' type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s' % \
-                {'attr_wrapper': options['attr_wrapper'], 'mime_type': mime_type}
-    before, after = ('  %s<![CDATA[\n' % comment, '  %s]]>\n' % comment) if options['cdata'] else ('', '')
+                {'attr_wrapper': options.attr_wrapper, 'mime_type': mime_type}
+    before, after = ('  %s<![CDATA[\n' % comment, '  %s]]>\n' % comment) if options.cdata else ('', '')
 
     return '<script%s>\n%s%s%s\n%s</script>' % (type_attr, before, indent, text, after)
 
