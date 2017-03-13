@@ -9,9 +9,13 @@ from hamlpy.parser.nodes import Node, read_node
 
 
 class Compiler:
+    FORMAT_HTML4 = 'html4'
+    FORMAT_HTML5 = 'html5'
+    FORMAT_XHTML = 'xhtml'
+
     DEFAULT_OPTIONS = {
         'attr_wrapper': '\'',            # how to render attribute values, e.g. foo='bar'
-        'format': 'html5',               # html4, html5 or xhtml
+        'format': FORMAT_HTML5,          # HTML4, HTML5 or XHTML
         'escape_attrs': True,            # escape HTML-sensitive characters in attribute values
         'django_inline_style': False,    # support both #{...} and ={...}
         'tag_config': 'django',          # Django vs Jinja2 tags

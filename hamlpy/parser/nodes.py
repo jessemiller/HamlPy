@@ -8,6 +8,7 @@ from .filters import get_filter
 
 
 XHTML_DOCTYPES = {
+    '1.1': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',  # noqa
     'strict': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
     'frameset': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
     'mobile': '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',  # noqa
@@ -386,22 +387,33 @@ class DoctypeNode(LineNode):
         doctype = self.haml.lstrip(DOCTYPE_PREFIX).strip().lower()
         fmt = self.compiler.options['format']
 
+        self.before = self.get_header(doctype, fmt)
+        self.after = self.render_newlines()
+
+    def get_header(self, doctype, fmt):
+        from ..compiler import Compiler
+
         if doctype.startswith('xml'):
+            if fmt in (Compiler.FORMAT_HTML4, Compiler.FORMAT_HTML5):
+                return ''
             parts = doctype.split()
             encoding = parts[1] if len(parts) > 1 else 'utf-8'
             attr_wrapper = self.compiler.options['attr_wrapper']
-            self.before = "<?xml version=%s1.0%s encoding=%s%s%s ?>" % (
+            return "<?xml version=%s1.0%s encoding=%s%s%s ?>" % (
                 attr_wrapper, attr_wrapper,
                 attr_wrapper, encoding, attr_wrapper,
             )
-        elif fmt == 'html5':
-            self.before = '<!DOCTYPE html>'
-        elif fmt == 'xhtml':
-            self.before = XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[''])
-        elif fmt == 'html4':
-            self.before = HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
-
-        self.after = self.render_newlines()
+        elif fmt == Compiler.FORMAT_HTML5:
+            return '<!DOCTYPE html>'
+        elif fmt == Compiler.FORMAT_XHTML:
+            if doctype == "5":
+                return '<!DOCTYPE html>'
+            else:
+                return XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[''])
+        elif fmt == Compiler.FORMAT_HTML4:
+            return HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
+        else:
+            return ''
 
 
 class HamlCommentNode(LineNode):
