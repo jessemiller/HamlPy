@@ -406,10 +406,8 @@ class DoctypeNode(LineNode):
                 return '<!DOCTYPE html>'
             else:
                 return XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[''])
-        elif options.html4:
-            return HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
         else:
-            return ''
+            return HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
 
 
 class HamlCommentNode(LineNode):

@@ -209,8 +209,8 @@ test''', "test")
         self._test_error(":nosuchfilter\n", "No such filter: nosuchfilter")
 
     def test_doctypes(self):
-        self._test('!!!', '<!DOCTYPE html>',
-                   compiler_options={'format': 'html5'})
+        self._test('!!!', '<!DOCTYPE html>', compiler_options={'format': 'html5'})
+        self._test('!!! 5', '<!DOCTYPE html>', compiler_options={'format': 'xhtml'})
         self._test('!!! 5', '<!DOCTYPE html>')
         self._test('!!! strict', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
                    compiler_options={'format': 'xhtml'})
@@ -232,6 +232,9 @@ test''', "test")
                    compiler_options={'format': 'html4'})
         self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',  # noqa
                    compiler_options={'format': 'html4'})
+
+        self._test('!!! XML', '', compiler_options={'format': 'html4'})
+        self._test('!!! XML iso-8589', "<?xml version='1.0' encoding='iso-8589' ?>", compiler_options={'format': 'xhtml'})
 
     def test_attr_wrapper(self):
         self._test("%p{ :strange => 'attrs'}", "<p strange=*attrs*></p>",
