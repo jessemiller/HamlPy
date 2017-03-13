@@ -39,11 +39,11 @@ class AttributeDictParserTest(unittest.TestCase):
         # boolean attributes
         assert dict(self._parse(
             "{disabled, class:'test', data-number : 123,\n foo:\"bar\"}"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         assert dict(self._parse(
             "{class:'test', data-number : 123,\n foo:\"bar\",  \t   disabled}"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         # attribute name has colon
         assert dict(self._parse("{'xml:lang': 'en'}")) == {'xml:lang': 'en'}
@@ -132,11 +132,11 @@ class AttributeDictParserTest(unittest.TestCase):
         # boolean attributes
         assert dict(self._parse(
             "(disabled class='test' data-number = 123\n foo=\"bar\")"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         assert dict(self._parse(
             "(class='test' data-number = 123\n foo=\"bar\"  \t   disabled)"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         # attribute name has colon
         assert dict(self._parse('(xml:lang="en")')) == {'xml:lang': 'en'}

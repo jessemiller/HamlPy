@@ -56,6 +56,7 @@ class CompilerTest(unittest.TestCase):
         self._test("%input{a: 'b', required, b: 'c'}", "<input a='b' required b='c'>")
         self._test("%input{a: 'b', required}", "<input a='b' required>")
         self._test("%input{checked, required, visible}", "<input checked required visible>")
+        self._test("%input(checked=true)", "<input checked>")
 
     def test_attribute_values_as_tuples_and_lists(self):
         # id attribute as tuple

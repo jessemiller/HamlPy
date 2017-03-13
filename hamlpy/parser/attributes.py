@@ -13,6 +13,8 @@ LEADING_SPACES_REGEX = regex.compile(r'^\s+', regex.V1 | regex.MULTILINE)
 # non-word characters that we allow in attribute keys (in HTML style attribute dicts)
 ATTRIBUTE_KEY_EXTRA_CHARS = {':', '-', '$', '?', '[', ']'}
 
+ATTRIBUTE_VALUE_KEYWORDS = {'none': None, 'true': True, 'false': False}
+
 
 def read_attribute_value(stream, options):
     """
@@ -29,13 +31,15 @@ def read_attribute_value(stream, options):
 
     elif ch.isdigit():
         value = read_number(stream)
-    elif stream.text[stream.ptr:stream.ptr+4].lower() == 'none':
-        stream.ptr += 4
-        value = None
-    elif ch.isalnum():
-        value = '{{ %s }}' % read_word(stream)
     else:
-        raise ParseException("Unexpected \"%s\"." % ch, stream)
+        raw_value = read_word(stream)
+
+        if raw_value.lower() in ATTRIBUTE_VALUE_KEYWORDS:
+            value = ATTRIBUTE_VALUE_KEYWORDS[raw_value.lower()]
+        elif raw_value:
+            value = '{{ %s }}' % raw_value
+        else:
+            raise ParseException("Unexpected \"%s\"." % ch, stream)
 
     return value
 
@@ -146,7 +150,7 @@ def read_ruby_attribute(stream, options):
         else:
             value = read_attribute_value(stream, options)
     else:
-        value = None
+        value = True
 
     return key, value
 
@@ -180,7 +184,7 @@ def read_html_attribute(stream, options):
         else:
             value = read_attribute_value(stream, options)
     else:
-        value = None
+        value = True
 
     return key, value
 

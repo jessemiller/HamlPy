@@ -35,7 +35,7 @@ class ElementTest(unittest.TestCase):
         self.assertEqual(element.tag, 'input')
         self.assertEqual(element.id, None)
         self.assertEqual(element.classes, [])
-        self.assertEqual(dict(element.attributes), {'required': None})
+        self.assertEqual(dict(element.attributes), {'required': True})
         self.assertEqual(element.nuke_outer_whitespace, False)
         self.assertEqual(element.nuke_inner_whitespace, False)
         self.assertEqual(element.self_close, True)  # input is implicitly self-closing

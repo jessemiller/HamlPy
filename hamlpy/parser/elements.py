@@ -145,10 +145,10 @@ class Element(object):
         rendered = []
 
         for name, value in self.attributes.items():
-            if name in ('id', 'class'):
+            if name in ('id', 'class') or value in (None, False):
                 continue
 
-            if value is None:
+            if value is True:
                 rendered.append("%s" % name)  # boolean attribute
             else:
                 value = self._escape_attribute_quotes(value, attr_wrapper)
