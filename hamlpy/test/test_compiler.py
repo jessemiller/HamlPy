@@ -234,7 +234,8 @@ test''', "test")
                    compiler_options={'format': 'html4'})
 
         self._test('!!! XML', '', compiler_options={'format': 'html4'})
-        self._test('!!! XML iso-8589', "<?xml version='1.0' encoding='iso-8589' ?>", compiler_options={'format': 'xhtml'})
+        self._test('!!! XML iso-8589', "<?xml version='1.0' encoding='iso-8589' ?>",
+                   compiler_options={'format': 'xhtml'})
 
     def test_attr_wrapper(self):
         self._test("%p{ :strange => 'attrs'}", "<p strange=*attrs*></p>",
