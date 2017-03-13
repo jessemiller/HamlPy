@@ -46,7 +46,7 @@ def read_element(stream, options):
             stream.ptr += 1
             empty_class = True
 
-    ids = []
+    _id = None
     classes = []
 
     if not empty_class:
@@ -56,7 +56,7 @@ def read_element(stream, options):
 
             id_or_class = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
             if is_id:
-                ids.append(id_or_class)
+                _id = id_or_class
             else:
                 classes.append(id_or_class)
 
@@ -96,7 +96,7 @@ def read_element(stream, options):
     else:
         inline = None
 
-    return Element(tag, ids, classes, attributes, nuke_outer_ws, nuke_inner_ws, self_close, django_variable, inline)
+    return Element(tag, _id, classes, attributes, nuke_outer_ws, nuke_inner_ws, self_close, django_variable, inline)
 
 
 class Element(object):
@@ -110,7 +110,7 @@ class Element(object):
 
     DEFAULT_TAG = 'div'
 
-    def __init__(self, tag, ids, classes, attributes, nuke_outer_whitespace, nuke_inner_whitespace, self_close,
+    def __init__(self, tag, _id, classes, attributes, nuke_outer_whitespace, nuke_inner_whitespace, self_close,
                  django_variable, inline_content):
         self.tag = tag or self.DEFAULT_TAG
         self.attributes = attributes
@@ -121,8 +121,9 @@ class Element(object):
         self.inline_content = inline_content
 
         # merge ids from the attribute dictionary
+        ids = [_id] if _id else []
         id_from_attrs = attributes.get('id')
-        if isinstance(id_from_attrs, tuple) or isinstance(id_from_attrs, list):
+        if isinstance(id_from_attrs, (tuple, list)):
             ids += id_from_attrs
         elif isinstance(id_from_attrs, six.string_types):
             ids += [id_from_attrs]
