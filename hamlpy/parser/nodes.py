@@ -63,7 +63,7 @@ def read_node(stream, prev, compiler):
 
         # peek ahead to so we don't try to parse an element from a variable node starting #{ or a Django tag ending %}
         if stream.text[stream.ptr] in ELEMENT_PREFIXES and stream.text[stream.ptr:stream.ptr+2] not in ('#{', '%}'):
-            element = read_element(stream, compiler.options)
+            element = read_element(stream, compiler)
             return ElementNode(element, indent, compiler)
 
         # all other nodes are single line
@@ -267,7 +267,7 @@ class ElementNode(Node):
         """
         start = ["%s<%s" % (self.indent, element.tag)]
 
-        attributes = element.render_attributes(self.compiler.options.attr_wrapper)
+        attributes = element.render_attributes(self.compiler.options)
         if attributes:
             start.append(' ' + self.replace_inline_variables(attributes))
 

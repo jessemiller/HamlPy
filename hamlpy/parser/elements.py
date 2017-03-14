@@ -2,6 +2,7 @@ from __future__ import print_function, unicode_literals
 
 import six
 
+from collections import OrderedDict
 from .attributes import read_attribute_dict
 from .core import read_word, read_line
 
@@ -25,7 +26,7 @@ def read_tag(stream):
     return (part1 + ':' + part2) if part2 else part1
 
 
-def read_element(stream, options):
+def read_element(stream, compiler):
     """
     Reads an element, e.g. %span, #banner{style:"width: 100px"}, .ng-hide(foo=1)
     """
@@ -60,10 +61,9 @@ def read_element(stream, options):
             else:
                 classes.append(id_or_class)
 
-    if stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
-        attributes = read_attribute_dict(stream, options)
-    else:
-        attributes = {}
+    attributes = OrderedDict()
+    while stream.ptr < stream.length and stream.text[stream.ptr] in ('{', '('):
+        attributes.update(read_attribute_dict(stream, compiler))
 
     if stream.ptr < stream.length and stream.text[stream.ptr] == '>':
         stream.ptr += 1
@@ -138,20 +138,24 @@ class Element(object):
 
         self.classes = class_from_attrs + classes
 
-    def render_attributes(self, attr_wrapper):
+    def render_attributes(self, options):
         def attr_wrap(val):
-            return '%s%s%s' % (attr_wrapper, val, attr_wrapper)
+            return '%s%s%s' % (options.attr_wrapper, val, options.attr_wrapper)
 
         rendered = []
 
         for name, value in self.attributes.items():
-            if name in ('id', 'class'):
-                continue
+            if name in ('id', 'class') or value in (None, False):
+                # this line isn't recorded in coverage because it gets optimized away (http://bugs.python.org/issue2506)
+                continue  # pragma: no cover
 
-            if value is None:
-                rendered.append("%s" % name)  # boolean attribute
+            if value is True:  # boolean attribute
+                if options.xhtml:
+                    rendered.append("%s=%s" % (name, attr_wrap(name)))
+                else:
+                    rendered.append(name)
             else:
-                value = self._escape_attribute_quotes(value, attr_wrapper)
+                value = self._escape_attribute_quotes(value, options.attr_wrapper)
                 rendered.append("%s=%s" % (name, attr_wrap(value)))
 
         if len(self.classes) > 0:

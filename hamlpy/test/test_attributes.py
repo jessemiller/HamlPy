@@ -4,7 +4,7 @@ import unittest
 
 from collections import OrderedDict
 
-from hamlpy.compiler import Options
+from hamlpy.compiler import Compiler
 from hamlpy.parser.attributes import read_attribute_dict
 from hamlpy.parser.core import Stream, ParseException
 
@@ -13,12 +13,12 @@ class AttributeDictParserTest(unittest.TestCase):
 
     @staticmethod
     def _parse(text):
-        return read_attribute_dict(Stream(text), Options())
+        return read_attribute_dict(Stream(text), Compiler())
 
     def test_read_ruby_style_attribute_dict(self):
         # empty dict
         stream = Stream("{}><")
-        assert dict(read_attribute_dict(stream, Options())) == {}
+        assert dict(read_attribute_dict(stream, Compiler())) == {}
         assert stream.text[stream.ptr:] == '><'
 
         # string values
@@ -39,11 +39,11 @@ class AttributeDictParserTest(unittest.TestCase):
         # boolean attributes
         assert dict(self._parse(
             "{disabled, class:'test', data-number : 123,\n foo:\"bar\"}"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         assert dict(self._parse(
             "{class:'test', data-number : 123,\n foo:\"bar\",  \t   disabled}"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         # attribute name has colon
         assert dict(self._parse("{'xml:lang': 'en'}")) == {'xml:lang': 'en'}
@@ -132,11 +132,11 @@ class AttributeDictParserTest(unittest.TestCase):
         # boolean attributes
         assert dict(self._parse(
             "(disabled class='test' data-number = 123\n foo=\"bar\")"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         assert dict(self._parse(
             "(class='test' data-number = 123\n foo=\"bar\"  \t   disabled)"
-        )) == {'disabled': None, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
+        )) == {'disabled': True, 'class': 'test', 'data-number': '123', 'foo': 'bar'}
 
         # attribute name has colon
         assert dict(self._parse('(xml:lang="en")')) == {'xml:lang': 'en'}
@@ -151,6 +151,9 @@ class AttributeDictParserTest(unittest.TestCase):
         assert dict(self._parse(
             "(class=[ 'a', 'b', 'c' ] data-list=[1, 2, 3])"
         )) == {'class': ['a', 'b', 'c'], 'data-list': ['1', '2', '3']}
+
+        # variable attribute values
+        assert dict(self._parse('(foo=bar)')) == {'foo': '{{ bar }}'}
 
         # attribute values can be multi-line Haml
         assert dict(self._parse("""(
