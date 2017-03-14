@@ -50,6 +50,8 @@ class CompilerTest(unittest.TestCase):
         # multiple dicts
         self._test('%a(a="b"){:c => "d"} Stuff', "<a a='b' c='d'>Stuff</a>")
 
+        self._test_error('%a(b=)', "Unexpected \")\". @ \"%a(b=)\" <-")
+
     def test_boolean_attributes(self):
         self._test("%input{required}", "<input required>")
         self._test("%input{required, a: 'b'}", "<input required a='b'>")
@@ -57,6 +59,7 @@ class CompilerTest(unittest.TestCase):
         self._test("%input{a: 'b', required}", "<input a='b' required>")
         self._test("%input{checked, required, visible}", "<input checked required visible>")
         self._test("%input(checked=true)", "<input checked>")
+        self._test("%input(checked=true)", "<input checked='checked' />", compiler_options={'format': 'xhtml'})
 
     def test_attribute_values_as_tuples_and_lists(self):
         # id attribute as tuple

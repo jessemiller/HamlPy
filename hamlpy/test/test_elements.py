@@ -4,7 +4,7 @@ import unittest
 
 from collections import OrderedDict
 
-from hamlpy.compiler import Options
+from hamlpy.compiler import Compiler
 from hamlpy.parser.core import Stream
 from hamlpy.parser.elements import Element, read_tag, read_element
 
@@ -18,7 +18,7 @@ class ElementTest(unittest.TestCase):
 
     def test_read_element(self):
         stream = Stream('%angular:ng-repeat.my-class#my-id(class="test")></=  Hello  \n.next-element')
-        element = read_element(stream, Options())
+        element = read_element(stream, Compiler())
         self.assertEqual(element.tag, 'angular:ng-repeat')
         self.assertEqual(element.id, 'my-id')
         self.assertEqual(element.classes, ['test', 'my-class'])
@@ -31,7 +31,7 @@ class ElementTest(unittest.TestCase):
         self.assertEqual(stream.text[stream.ptr:], '.next-element')
 
         stream = Stream('%input{required}  ')
-        element = read_element(stream, Options())
+        element = read_element(stream, Compiler())
         self.assertEqual(element.tag, 'input')
         self.assertEqual(element.id, None)
         self.assertEqual(element.classes, [])
@@ -152,4 +152,4 @@ class ElementTest(unittest.TestCase):
 
     @staticmethod
     def _read_element(text):
-        return read_element(Stream(text), Options())
+        return read_element(Stream(text), Compiler())
