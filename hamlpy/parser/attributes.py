@@ -36,10 +36,8 @@ def read_attribute_value(stream, compiler):
 
         if raw_value.lower() in ATTRIBUTE_VALUE_KEYWORDS:
             value = ATTRIBUTE_VALUE_KEYWORDS[raw_value.lower()]
-        elif raw_value:
-            value = '{{ %s }}' % raw_value
         else:
-            raise ParseException("Unexpected \"%s\"." % ch, stream)
+            value = '{{ %s }}' % raw_value
 
     return value
 
