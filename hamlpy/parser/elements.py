@@ -146,7 +146,8 @@ class Element(object):
 
         for name, value in self.attributes.items():
             if name in ('id', 'class') or value in (None, False):
-                continue
+                # this line isn't recorded in coverage because it gets optimized away (http://bugs.python.org/issue2506)
+                continue  # pragma: no cover
 
             if value is True:  # boolean attribute
                 if options.xhtml:
