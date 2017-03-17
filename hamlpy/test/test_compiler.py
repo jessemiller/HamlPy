@@ -133,6 +133,9 @@ test''', "test")
         self._test('- with context\n  hello\n- with other_context\n  goodbye',
                    '{% with context %}\n  hello\n{% endwith %}\n{% with other_context %}\n  goodbye\n{% endwith %}')
 
+        # trans
+        self._test('- trans "Hello"\n', '{% trans "Hello" %}')
+
         # blocktrans
         self._test('- blocktrans with amount=num_cookies\n'
                    '  There are #{ amount } cookies',
@@ -265,6 +268,9 @@ test''', "test")
                    compiler_options={'escape_attrs': False})
         self._test("""#foo{:class => '"&lt;&gt;&amp;"'}""",
                    """<div class='&quot;&amp;lt;&amp;gt;&amp;amp;&quot;' id='foo'></div>""",
+                   compiler_options={'escape_attrs': True})
+        self._test("""#foo{:class => '{% trans "Hello" %}'}""",
+                   """<div class='{% trans "Hello" %}' id='foo'></div>""",
                    compiler_options={'escape_attrs': True})
 
     def test_node_escaping(self):

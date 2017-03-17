@@ -5,6 +5,7 @@ import unittest
 
 from hamlpy.parser.core import Stream, ParseException, read_whitespace, peek_indentation
 from hamlpy.parser.core import read_quoted_string, read_line, read_number, read_symbol, read_word
+from hamlpy.parser.utils import html_escape
 
 
 class ParserTest(unittest.TestCase):
@@ -96,3 +97,16 @@ class ParserTest(unittest.TestCase):
         stream = Stream('これはテストです...')
         assert read_word(stream) == 'これはテストです'
         assert stream.text[stream.ptr:] == '...'
+
+
+class UtilsTest(unittest.TestCase):
+
+    def test_html_escape(self):
+        assert html_escape('') == ''
+        assert html_escape('&<>"\'') == '&amp;&lt;&gt;&quot;&#39;'
+        assert html_escape('{% trans "hello" %}') == '{% trans "hello" %}'
+        assert html_escape('{{ foo|default:"hello" }}') == '{{ foo|default:"hello" }}'
+        assert html_escape('{% }} & %}') == '{% }} & %}'
+
+        result = html_escape('<>{% trans "hello" %}<>{{ foo|default:"hello" }}<>')
+        assert result == '&lt;&gt;{% trans "hello" %}&lt;&gt;{{ foo|default:"hello" }}&lt;&gt;'
