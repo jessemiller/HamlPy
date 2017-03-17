@@ -1,16 +1,11 @@
 from __future__ import unicode_literals
 
-import unittest
-
-from hamlpy import Config
+from django.test import SimpleTestCase
 
 
-class TemplatizeTest(unittest.TestCase):
+class TemplatizeTest(SimpleTestCase):
 
     def test_templatize(self):
-        # patching of Django's templatize happens when our app is loaded
-        Config.ready(None)
-
         from django.utils.translation import templatize
 
         # test regular Django tags
