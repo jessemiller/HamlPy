@@ -105,4 +105,7 @@ class UtilsTest(unittest.TestCase):
         assert html_escape('') == ''
         assert html_escape('&<>"\'') == '&amp;&lt;&gt;&quot;&#39;'
         assert html_escape('{% trans "hello" %}') == '{% trans "hello" %}'
-        assert html_escape('<>{% trans "hello" %}<>') == '&lt;&gt;{% trans "hello" %}&lt;&gt;'
+        assert html_escape('{{ foo|default:"hello" }}') == '{{ foo|default:"hello" }}'
+
+        result = html_escape('<>{% trans "hello" %}<>{{ foo|default:"hello" }}<>')
+        assert result == '&lt;&gt;{% trans "hello" %}&lt;&gt;{{ foo|default:"hello" }}&lt;&gt;'
