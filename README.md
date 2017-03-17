@@ -174,7 +174,17 @@ optional arguments:
 
 ### Create message files for translation
 
-Just include your Haml templates along with all the other files which contain translatable strings, e.g.
+HamlPy must first be included in Django's list of apps, i.e.
+
+```python
+INSTALLED_APPS = [
+  ...
+  'hamlpy'
+  ...
+]
+```
+
+Then just include your Haml templates along with all the other files which contain translatable strings, e.g.
 
 ```bash
 python manage.py makemessages --extension haml,html,py,txt

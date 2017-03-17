@@ -13,11 +13,11 @@ from hamlpy import HAML_EXTENSIONS
 from hamlpy.compiler import Compiler
 
 
-def decorate_templatize(func):
+def patch_templatize(func):
     def templatize(src, origin=None):
         # if the template has no origin then don't attempt to convert it because we don't know if it's Haml
         if origin:
-            extension = os.path.splitext(origin.name)[1][1:].lower()
+            extension = os.path.splitext(origin)[1][1:].lower()
 
             if extension in HAML_EXTENSIONS:
                 compiler = Compiler()
@@ -27,4 +27,4 @@ def decorate_templatize(func):
     return templatize
 
 
-translation.templatize = decorate_templatize(translation.templatize)
+translation.templatize = patch_templatize(translation.templatize)
