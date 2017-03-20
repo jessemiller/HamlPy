@@ -17,7 +17,7 @@ class Options(object):
         # standard Haml options
         self.attr_wrapper = '\''   # how to render attribute values, e.g. foo='bar'
         self.format = self.HTML5   # HTML4, HTML5 or XHTML
-        self.escape_attrs = True   # escape HTML-sensitive characters in attribute values
+        self.escape_attrs = False  # escape HTML-sensitive characters in attribute values
         self.cdata = False         # wrap CSS, Javascript etc content in CDATA section
 
         # implementation specific options

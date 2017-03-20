@@ -15,7 +15,7 @@ TEMPLATE_EXTENSION = '.hamlpy'
 
 
 class TemplateCheck(object):
-    compiler = Compiler(options={'format': 'xhtml'})
+    compiler = Compiler(options={'format': 'xhtml', 'escape_attrs': True})
 
     def __init__(self, name, haml, html):
         self.name = name

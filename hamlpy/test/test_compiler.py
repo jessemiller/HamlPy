@@ -59,7 +59,7 @@ class CompilerTest(unittest.TestCase):
         self._test("%input{a: 'b', required}", "<input a='b' required>")
         self._test("%input{checked, required, visible}", "<input checked required visible>")
         self._test("%input(checked=true)", "<input checked>")
-        self._test("%input(checked=true)", "<input checked='checked' />", compiler_options={'format': 'xhtml'})
+        self._test("%input(checked=true)", "<input checked='checked' />", options={'format': 'xhtml'})
 
     def test_attribute_values_as_tuples_and_lists(self):
         # id attribute as tuple
@@ -103,7 +103,7 @@ test''', "test")
         # embedded Django variables using ={...} (not enabled by default)
         self._test("Hi ={name}, how are you?", "Hi ={name}, how are you?")
         self._test("Hi ={name}, how are you?", "Hi {{ name }}, how are you?",
-                   compiler_options={'django_inline_style': True})
+                   options={'django_inline_style': True})
 
         # variables can use Django filters
         self._test("#{value|center:\"15\"}", "{{ value|center:\"15\" }}")
@@ -119,7 +119,7 @@ test''', "test")
         self._test("%a{'b': '\\\\#{greeting} test', title: \"It can't be removed\"} blah",
                    "<a b='#{greeting} test' title='It can&#39;t be removed'>blah</a>")
         self._test("%h1 Hello, \\={name}, how are you ={ date }?",
-                   "<h1>Hello, ={name}, how are you {{ date }}?</h1>", compiler_options={'django_inline_style': True})
+                   "<h1>Hello, ={name}, how are you {{ date }}?</h1>", options={'django_inline_style': True})
         self._test("\\#{name}, how are you?", "#{name}, how are you?")
 
     def test_django_tags(self):
@@ -222,56 +222,56 @@ test''', "test")
         self._test_error(":nosuchfilter\n", "No such filter: nosuchfilter")
 
     def test_doctypes(self):
-        self._test('!!!', '<!DOCTYPE html>', compiler_options={'format': 'html5'})
-        self._test('!!! 5', '<!DOCTYPE html>', compiler_options={'format': 'xhtml'})
+        self._test('!!!', '<!DOCTYPE html>', options={'format': 'html5'})
+        self._test('!!! 5', '<!DOCTYPE html>', options={'format': 'xhtml'})
         self._test('!!! 5', '<!DOCTYPE html>')
         self._test('!!! strict', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
         self._test('!!! frameset', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
         self._test('!!! mobile', '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',  # noqa
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
         self._test('!!! basic', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',  # noqa
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
         self._test('!!! transitional', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
         self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
         self._test('!!! strict', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',  # noqa
-                   compiler_options={'format': 'html4'})
+                   options={'format': 'html4'})
         self._test('!!! frameset', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',  # noqa
-                   compiler_options={'format': 'html4'})
+                   options={'format': 'html4'})
         self._test('!!! transitional', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',  # noqa
-                   compiler_options={'format': 'html4'})
+                   options={'format': 'html4'})
         self._test('!!!', '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',  # noqa
-                   compiler_options={'format': 'html4'})
+                   options={'format': 'html4'})
 
-        self._test('!!! XML', '', compiler_options={'format': 'html4'})
+        self._test('!!! XML', '', options={'format': 'html4'})
         self._test('!!! XML iso-8589', "<?xml version='1.0' encoding='iso-8589' ?>",
-                   compiler_options={'format': 'xhtml'})
+                   options={'format': 'xhtml'})
 
     def test_attr_wrapper(self):
         self._test("%p{ :strange => 'attrs'}", "<p strange=*attrs*></p>",
-                   compiler_options={'attr_wrapper': '*'})
+                   options={'attr_wrapper': '*', 'escape_attrs': True})
         self._test("%p{ :escaped => 'quo\"te'}", "<p escaped=\"quo&quot;te\"></p>",
-                   compiler_options={'attr_wrapper': '"'})
+                   options={'attr_wrapper': '"', 'escape_attrs': True})
         self._test("%p{ :escaped => 'quo\\'te'}", "<p escaped=\"quo&#39;te\"></p>",
-                   compiler_options={'attr_wrapper': '"'})
+                   options={'attr_wrapper': '"', 'escape_attrs': True})
         self._test("%p{ :escaped => 'q\\'uo\"te'}", "<p escaped=\"q&#39;uo&quot;te\"></p>",
-                   compiler_options={'attr_wrapper': '"'})
+                   options={'attr_wrapper': '"', 'escape_attrs': True})
         self._test("!!! XML", "<?xml version=\"1.0\" encoding=\"utf-8\" ?>",
-                   compiler_options={'attr_wrapper': '"', 'format': 'xhtml'})
+                   options={'attr_wrapper': '"', 'format': 'xhtml', 'escape_attrs': True})
 
     def test_attr_escaping(self):
         self._test("""#foo{:class => '<?php echo "&quot;" ?>'}""",
                    """<div class='<?php echo "&quot;" ?>' id='foo'></div>""",
-                   compiler_options={'escape_attrs': False})
+                   options={'escape_attrs': False})
         self._test("""#foo{:class => '"&lt;&gt;&amp;"'}""",
                    """<div class='&quot;&amp;lt;&amp;gt;&amp;amp;&quot;' id='foo'></div>""",
-                   compiler_options={'escape_attrs': True})
+                   options={'escape_attrs': True})
         self._test("""#foo{:class => '{% trans "Hello" %}'}""",
                    """<div class='{% trans "Hello" %}' id='foo'></div>""",
-                   compiler_options={'escape_attrs': True})
+                   options={'escape_attrs': True})
 
     def test_node_escaping(self):
         self._test("\\= Escaped", "= Escaped")
@@ -290,8 +290,11 @@ test''', "test")
 
         self._test(":upper\n  welcome", 'WELCOME')
 
-    def _test(self, haml, expected_html, compiler_options=None):
-        compiler = Compiler(compiler_options)
+    def _test(self, haml, expected_html, options=None):
+        if not options:
+            options = {'escape_attrs': True}
+
+        compiler = Compiler(options)
         result = compiler.process(haml)
 
         result = result.rstrip('\n')  # ignore trailing new lines
