@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 from django.apps import AppConfig
 
-__version__ = '1.0.1'
+__version__ = '1.1'
 
 HAML_EXTENSIONS = ('haml', 'hamlpy')
 

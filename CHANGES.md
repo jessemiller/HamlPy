@@ -1,3 +1,14 @@
+1.1 (2017-03-20)
+===================
+
+* Add support for more doc types (default is HTML5) (https://github.com/nyaruka/django-hamlpy/pull/63)
+* Add format (html4/html5/xhtml) and escape_attrs (True/False) compiler options
+* Don't use empty tag syntax or CDATA sections (can be overridden) in HTML5 format
+* Fix patching of templatize for makemessages (https://github.com/nyaruka/django-hamlpy/pull/65)
+* Add support for Django 1.11 betas (https://github.com/nyaruka/django-hamlpy/pull/62)
+* Fix use of plural tag within blocktrans tag (https://github.com/nyaruka/django-hamlpy/pull/57)
+* Add less, sass and escaped filters (https://github.com/nyaruka/django-hamlpy/pull/55)
+
 1.0.1 (2017-01-26)
 ===================
 
