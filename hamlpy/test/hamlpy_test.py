@@ -3,6 +3,7 @@ import unittest
 from nose.tools import eq_, raises
 from hamlpy import hamlpy
 
+
 class HamlPyTest(unittest.TestCase):
 
     def test_applies_id_properly(self):
@@ -57,7 +58,6 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
 
-
     def test_html_comments_rendered_properly(self):
         haml = '/ some comment'
         html = "<!-- some comment -->"
@@ -111,7 +111,7 @@ class HamlPyTest(unittest.TestCase):
     def test_throws_exception_when_trying_to_close_django(self):
         haml = '- endfor'
         hamlParser = hamlpy.Compiler()
-        result = hamlParser.process(haml)
+        hamlParser.process(haml)
 
     def test_handles_dash_in_class_name_properly(self):
         haml = '.header.span-24.last'
@@ -324,6 +324,14 @@ class HamlPyTest(unittest.TestCase):
 // ]]>
 </script>
 ''')
+
+    def test_conditional_attributes(self):
+        hamlParser = hamlpy.Compiler()
+
+        haml = """%a.foo{'class': 'bar' if baz == "bax", 'href': '#'}<
+                Bazinga!"""
+        result = hamlParser.process(haml)
+        self.assertEqual(result, """<a class='foo {% if baz == "bax" %}bar{% endif %}' href='#'>Bazinga!</a>\n""")
 
 if __name__ == '__main__':
     unittest.main()

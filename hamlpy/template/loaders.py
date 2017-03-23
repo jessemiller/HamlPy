@@ -22,6 +22,9 @@ if _django_available:
     if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
         options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
 
+if hasattr(settings, 'HAMLPY_SELF_CLOSING_SLASH'):
+    options_dict.update(self_closing_slash=settings.HAMLPY_SELF_CLOSING_SLASH)
+
 
 def get_haml_loader(loader):
     if hasattr(loader, 'Loader'):
@@ -61,7 +64,7 @@ def get_haml_loader(loader):
 
 
 haml_loaders = dict((name, get_haml_loader(loader))
-        for (name, loader) in get_django_template_loaders())
+                    for (name, loader) in get_django_template_loaders())
 
 if _django_available:
     HamlPyFilesystemLoader = get_haml_loader(filesystem)

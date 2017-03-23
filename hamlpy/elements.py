@@ -1,6 +1,20 @@
 import re
-import sys
-from types import NoneType
+from attributes_parser import AttributesParser
+
+
+def _conditional_string(value, condition, alt_value=None):
+    if alt_value is None:
+        return '{%% if %(condition)s %%}%(value)s{%% endif %%}' % {
+            'value': value,
+            'condition': condition
+        }
+
+    return '{%% if %(condition)s %%}%(value)s{%% else %%}%(alt_value)s{%% endif %%}' % {
+        'value': value,
+        'condition': condition,
+        'alt_value': alt_value,
+    }
+
 
 class Element(object):
     """contains the pieces of an element and can populate itself from haml element text"""
@@ -33,7 +47,6 @@ class Element(object):
     ATTRIBUTE_REGEX = re.compile(r'(?P<pre>\{\s*|,\s*)%s\s*:\s*%s' % (_ATTRIBUTE_KEY_REGEX, _ATTRIBUTE_VALUE_REGEX), re.UNICODE)
     DJANGO_VARIABLE_REGEX = re.compile(r'^\s*=\s(?P<variable>[a-zA-Z_][a-zA-Z0-9._-]*)\s*$')
 
-
     def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
         self.attr_wrapper = attr_wrapper
@@ -65,11 +78,11 @@ class Element(object):
         self.inline_content = split_tags.get('inline').strip()
 
     def _parse_class_from_attributes_dict(self):
-        clazz = self.attributes_dict.get('class', '')
-        if not isinstance(clazz, str):
-            clazz = ''
-            for one_class in self.attributes_dict.get('class'):
-                clazz += ' ' + one_class
+        clazz = ''
+        for classes in self.attributes_dict.get('class', []):
+            if isinstance(classes, basestring):
+                classes = [classes]
+            clazz += ' ' + u' '.join(classes)
         return clazz.strip()
 
     def _parse_id(self, id_haml):
@@ -82,7 +95,9 @@ class Element(object):
     def _parse_id_dict(self, id_dict):
         text = ''
         id_dict = self.attributes_dict.get('id')
-        if isinstance(id_dict, str):
+        if isinstance(id_dict, list):
+            id_dict = id_dict[0]
+        if isinstance(id_dict, basestring):
             text = '_' + id_dict
         else:
             text = ''
@@ -121,31 +136,44 @@ class Element(object):
                 # Put double quotes around key
                 attribute_dict_string = re.sub(self.ATTRIBUTE_REGEX, '\g<pre>"\g<key>":\g<val>', attribute_dict_string)
                 # Parse string as dictionary
-                attributes_dict = eval(attribute_dict_string)
-                for k, v in attributes_dict.items():
-                    if k != 'id' and k != 'class':
-                        if isinstance(v, NoneType):
-                            self.attributes += "%s " % (k,)
-                        elif isinstance(v, int) or isinstance(v, float):
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(v))
-                        else:
-                            # DEPRECATED: Replace variable in attributes (e.g. "= somevar") with Django version ("{{somevar}}")
-                            v = re.sub(self.DJANGO_VARIABLE_REGEX, '{{\g<variable>}}', attributes_dict[k])
-                            if v != attributes_dict[k]:
-                                sys.stderr.write("\n---------------------\nDEPRECATION WARNING: %s" % self.haml.lstrip() + \
-                                                 "\nThe Django attribute variable feature is deprecated and may be removed in future versions." +
-                                                 "\nPlease use inline variables ={...} instead.\n-------------------\n")
 
-                            attributes_dict[k] = v
-                            v = v.decode('utf-8')
-                            self.attributes += "%s=%s " % (k, self.attr_wrap(self._escape_attribute_quotes(v)))
+                attributes_dict = AttributesParser(attribute_dict_string).parse()
+                for attribute_name, values in attributes_dict.items():
+                    if len(values) == 1 and attribute_name not in ('id', 'class'):
+                        attributes_dict[attribute_name] = values[0]
+                        value, condition, alt_value = values[0]
+
+                        if value is None:
+                            attribute = '%s ' % attribute_name
+                        else:
+                            if isinstance(value, basestring):
+                                value = self._escape_attribute_quotes(value.decode('utf-8'))
+                            attribute = '%s=%s ' % (attribute_name, self.attr_wrap(value))
+
+                        if condition is None:
+                            self.attributes += attribute
+                        elif alt_value is None:
+                            self.attributes += _conditional_string(attribute.strip(), condition.strip()) + ' '
+                        else:
+                            if isinstance(alt_value, basestring):
+                                alt_value = self._escape_attribute_quotes(alt_value.decode('utf-8'))
+                            alt_attribute = '%s=%s ' % (attribute_name, self.attr_wrap(alt_value))
+
+                            self.attributes += _conditional_string(attribute.strip(), condition, alt_attribute.strip()) + ' '
+                    else:
+                        for key, (value, condition, alt_value) in enumerate(values):
+                            if condition is None:
+                                attributes_dict[attribute_name][key] = value
+                            else:
+                                attributes_dict[attribute_name][key] = _conditional_string(value, condition, alt_value)
+
+                        if attribute_name not in ('id', 'class'):
+                            attributes_dict[attribute_name] = u' '.join(attributes_dict[attribute_name])
+                            self.attributes += '%s ' % attributes_dict[attribute_name]
+
                 self.attributes = self.attributes.strip()
-            except Exception, e:
+            except Exception:
+                raise
                 raise Exception('failed to decode: %s' % attribute_dict_string)
-                #raise Exception('failed to decode: %s. Details: %s'%(attribute_dict_string, e))
 
         return attributes_dict
-
-
-
-
