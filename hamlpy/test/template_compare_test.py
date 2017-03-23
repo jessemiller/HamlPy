@@ -41,6 +41,23 @@ class TestTemplateCompare(unittest.TestCase):
     def test_filters(self):
         self._compare_test_files('filters')
     
+    def test_filters_markdown(self):
+        try:
+            import markdown
+            self._compare_test_files('filtersMarkdown')
+        except ImportError:
+            pass
+
+    def test_filters_pygments(self):
+        try:
+            import pygments
+            if pygments.__version__ == '1.6':
+                self._compare_test_files('filtersPygments16')
+            else:
+                self._compare_test_files('filtersPygments')
+        except ImportError:
+            pass
+
     def test_nested_if_else_blocks(self):
         self._compare_test_files('nestedIfElseBlocks')
 

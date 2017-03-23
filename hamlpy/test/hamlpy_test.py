@@ -13,6 +13,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
 
+    def test_non_ascii_id_allowed(self):
+        haml = u'%div#これはテストです test'
+        html = u"<div id='これはテストです'>test</div>"
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+        self.assertEqual(html, result.replace('\n', ''))
+
     def test_applies_class_properly(self):
         haml = '%div.someClass Some text'
         html = "<div class='someClass'>Some text</div>"
@@ -156,8 +163,8 @@ class HamlPyTest(unittest.TestCase):
         eq_(html, result)
 
     def test_inline_variables_in_attributes_are_escaped_correctly(self):
-        haml = "%a{'b': '\\\\={greeting} test'} blah"
-        html = "<a b='={greeting} test'>blah</a>\n"
+        haml = "%a{'b': '\\\\={greeting} test', title: \"It can't be removed\"} blah"
+        html = "<a b='={greeting} test' title='It can\\'t be removed'>blah</a>\n"
         hamlParser = hamlpy.Compiler()
         result = hamlParser.process(haml)
         eq_(html, result)
@@ -295,33 +302,13 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
-    def test_pygments_filter(self):
-        haml = '''
-            :highlight
-              print "hi"
-
-              if x:
-                  print "y":
-              else:
-                  print "z":
-        '''
-        html = '\n<div class="highlight"><pre><span class="n">print</span> &quot;<span class="n">hi</span>&quot;' \
-               + '\n\n<span class="k">if</span> <span class="n">x</span><span class="p">:</span>' \
-               + '\n    <span class="n">print</span> &quot;<span class="n">y</span>&quot;<span class="p">:</span>' \
-               + '\n<span class="k">else</span><span class="p">:</span>' \
-               + '\n    <span class="n">print</span> &quot;<span class="n">z</span>&quot;<span class="p">:</span>' \
-               + '\n</pre></div>\n'
-
-        hamlParser = hamlpy.Compiler()
-        result = hamlParser.process(haml)
-        eq_(html, result)
-
     def test_attr_wrapper(self):
         haml = """
 %html{'xmlns':'http://www.w3.org/1999/xhtml', 'xml:lang':'en', 'lang':'en'}
   %body#main
     %div.wrap
-      %a{:href => '/'}"""
+      %a{:href => '/'}
+:javascript"""
         hamlParser = hamlpy.Compiler(options_dict={'attr_wrapper': '"'})
         result = hamlParser.process(haml)
         self.assertEqual(result,
@@ -332,6 +319,10 @@ class HamlPyTest(unittest.TestCase):
     </div>
   </body>
 </html>
+<script type="text/javascript">
+// <![CDATA[
+// ]]>
+</script>
 ''')
 
     def test_conditional_attributes(self):

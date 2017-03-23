@@ -1,4 +1,1 @@
-try:
-    import templatize
-except ImportError:
-    pass
+import templatize

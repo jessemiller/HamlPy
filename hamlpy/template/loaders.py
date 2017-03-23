@@ -1,7 +1,14 @@
 import os
 
-from django.template import TemplateDoesNotExist
-from django.template.loaders import filesystem, app_directories
+try:
+    from django.template import TemplateDoesNotExist
+    from django.template.loaders import filesystem, app_directories
+    _django_available = True
+except ImportError, e:
+    class TemplateDoesNotExist(Exception):
+        pass
+
+    _django_available = False
 
 from hamlpy import hamlpy
 from hamlpy.template.utils import get_django_template_loaders
@@ -9,9 +16,11 @@ from hamlpy.template.utils import get_django_template_loaders
 
 # Get options from Django settings
 options_dict = {}
-from django.conf import settings
-if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
-    options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
+
+if _django_available:
+    from django.conf import settings
+    if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
+        options_dict.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
 
 if hasattr(settings, 'HAMLPY_SELF_CLOSING_SLASH'):
     options_dict.update(self_closing_slash=settings.HAMLPY_SELF_CLOSING_SLASH)
@@ -27,12 +36,14 @@ def get_haml_loader(loader):
 
     class Loader(baseclass):
         def load_template_source(self, template_name, *args, **kwargs):
-            _name, _extension = os.path.splitext(template_name)
+            name, _extension = os.path.splitext(template_name)
+            # os.path.splitext always returns a period at the start of extension
+            extension = _extension.lstrip('.')
 
-            for extension in hamlpy.VALID_EXTENSIONS:
+            if extension in hamlpy.VALID_EXTENSIONS:
                 try:
                     haml_source, template_path = super(Loader, self).load_template_source(
-                        self._generate_template_name(_name, extension), *args, **kwargs
+                        self._generate_template_name(name, extension), *args, **kwargs
                     )
                 except TemplateDoesNotExist:
                     pass
@@ -55,6 +66,6 @@ def get_haml_loader(loader):
 haml_loaders = dict((name, get_haml_loader(loader))
                     for (name, loader) in get_django_template_loaders())
 
-
-HamlPyFilesystemLoader = get_haml_loader(filesystem)
-HamlPyAppDirectoriesLoader = get_haml_loader(app_directories)
+if _django_available:
+    HamlPyFilesystemLoader = get_haml_loader(filesystem)
+    HamlPyAppDirectoriesLoader = get_haml_loader(app_directories)

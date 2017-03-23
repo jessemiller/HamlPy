@@ -3,7 +3,7 @@
 #
 # Watch a folder for files with the given extensions and call the HamlPy
 # compiler if the modified time has changed since the last check.
-from time import gmtime, strftime
+from time import strftime
 import argparse
 import sys
 import codecs
@@ -46,7 +46,8 @@ arg_parser.add_argument('-r', '--refresh', metavar = 'S', default = Options.CHEC
 arg_parser.add_argument('input_dir', help = 'Folder to watch', type = str)
 arg_parser.add_argument('output_dir', help = 'Destination folder', type = str, nargs = '?')
 arg_parser.add_argument('--tag', help = 'Add self closing tag. eg. --tag macro:endmacro', type = str, nargs = 1, action = StoreNameValueTagPair)
-arg_parser.add_argument('--attr-wrapper', dest='attr_wrapper', type=str, choices=('"', "'"), default="'", action='store', help="The character that should wrap element attributes. This defaults to ' (an apostrophe).")
+arg_parser.add_argument('--attr-wrapper', dest = 'attr_wrapper', type = str, choices = ('"', "'"), default = "'", action = 'store', help = "The character that should wrap element attributes. This defaults to ' (an apostrophe).")
+arg_parser.add_argument('--jinja', help = 'Makes the necessary changes to be used with Jinja2', default = False, action = 'store_true')
 
 def watched_extension(extension):
     """Return True if the given extension is one of the watched extensions"""
@@ -74,14 +75,29 @@ def watch_folder():
     if args.extension:
         Options.OUTPUT_EXT = args.extension
     
-    if args.tags:
+    if getattr(args, 'tags', False):
         hamlpynodes.TagNode.self_closing.update(args.tags)
     
     if args.input_extension:
         hamlpy.VALID_EXTENSIONS += args.input_extension
     
     if args.attr_wrapper:
-    	compiler_args['attr_wrapper'] = args.attr_wrapper
+        compiler_args['attr_wrapper'] = args.attr_wrapper
+    
+    if args.jinja:
+        for k in ('ifchanged', 'ifequal', 'ifnotequal', 'autoescape', 'blocktrans',
+                  'spaceless', 'comment', 'cache', 'localize', 'compress'):
+            del hamlpynodes.TagNode.self_closing[k]
+            
+            hamlpynodes.TagNode.may_contain.pop(k, None)
+        
+        hamlpynodes.TagNode.self_closing.update({
+            'macro'  : 'endmacro',
+            'call'   : 'endcall',
+            'raw'    : 'endraw'
+        })
+        
+        hamlpynodes.TagNode.may_contain['for'] = 'else'
     
     while True:
         try:
@@ -120,7 +136,7 @@ def _compiled_path(destination, filename):
 def compile_file(fullpath, outfile_name, compiler_args):
     """Calls HamlPy compiler."""
     if Options.VERBOSE:
-        print '%s %s -> %s' % (strftime("%H:%M:%S", gmtime()), fullpath, outfile_name)
+        print '%s %s -> %s' % (strftime("%H:%M:%S"), fullpath, outfile_name)
     try:
         if Options.DEBUG:
             print "Compiling %s -> %s" % (fullpath, outfile_name)

@@ -2,11 +2,17 @@ import imp
 from os import listdir
 from os.path import dirname, splitext
 
-from django.template import loaders
+try:
+  from django.template import loaders
+  _django_available = True
+except ImportError, e:
+  _django_available = False
 
 MODULE_EXTENSIONS = tuple([suffix[0] for suffix in imp.get_suffixes()])
 
 def get_django_template_loaders():
+    if not _django_available:
+        return []
     return [(loader.__name__.rsplit('.',1)[1], loader) 
                 for loader in get_submodules(loaders)
                 if hasattr(loader, 'Loader')]
