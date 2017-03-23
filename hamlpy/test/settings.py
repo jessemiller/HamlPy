@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 
 import django
 
-from distutils.version import StrictVersion
+from distutils.version import LooseVersion
 
 DEBUG = True
 
@@ -18,7 +18,7 @@ TEMPLATE_LOADERS = [
     'django.template.loaders.app_directories.Loader'
 ]
 
-if StrictVersion(django.get_version()) >= StrictVersion('1.8'):
+if LooseVersion(django.get_version()) >= LooseVersion('1.8'):
     TEMPLATES = [
         {
             'BACKEND': 'django.template.backends.django.DjangoTemplates',
