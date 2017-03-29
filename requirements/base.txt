@@ -2,3 +2,4 @@ django
 regex
 future
 six
+enum34
