@@ -24,14 +24,9 @@ if _django_available:
 
 
 def get_haml_loader(loader):
-    if hasattr(loader, 'Loader'):
-        baseclass = loader.Loader
-    else:
-        class baseclass(object):
-            def load_template_source(self, *args, **kwargs):
-                return loader.load_template_source(*args, **kwargs)
+    class Loader(loader.Loader):
 
-    class Loader(baseclass):
+        # load_template_source is deprecated in v1.9. Use get_contents instead.
         def load_template_source(self, template_name, *args, **kwargs):
             name, _extension = os.path.splitext(template_name)
             # os.path.splitext always returns a period at the start of extension
@@ -56,6 +51,16 @@ def get_haml_loader(loader):
 
         def _generate_template_name(self, name, extension="hamlpy"):
             return "%s.%s" % (name, extension)
+
+        def get_contents(self, origin):
+            contents = super(Loader, self).get_contents(origin)
+            # template_name is lookup name, name is file path.
+            # Should we check extension in name instead of template_name?
+            extension = os.path.splitext(origin.template_name)[1].lstrip(".")
+            if extension in hamlpy.VALID_EXTENSIONS:
+                hamlParser = hamlpy.Compiler(options_dict=options_dict)
+                contents = hamlParser.process(contents)
+            return contents
 
     return Loader
 
