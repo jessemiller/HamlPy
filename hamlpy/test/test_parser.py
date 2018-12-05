@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import unittest
 
 from hamlpy.parser.core import Stream, ParseException, read_whitespace, peek_indentation

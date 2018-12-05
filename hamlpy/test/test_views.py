@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import unittest
 
 from hamlpy.views.generic import CreateView, DetailView, UpdateView

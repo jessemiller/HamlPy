@@ -1,5 +1,3 @@
-from __future__ import unicode_literals
-
 import ast
 
 STRING_LITERALS = ('"', "'")
@@ -115,8 +113,8 @@ def read_quoted_string(stream):
 
     stream.ptr += 1  # consume closing quote
 
-    # evaluate as a Python unicode string (evaluates escape sequences)
-    return ast.literal_eval('u' + stream.text[start:stream.ptr])
+    # evaluate as a Python string (evaluates escape sequences)
+    return ast.literal_eval(stream.text[start:stream.ptr])
 
 
 def read_line(stream):

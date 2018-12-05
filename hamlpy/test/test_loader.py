@@ -1,13 +1,11 @@
-from __future__ import print_function, unicode_literals
-
-import mock
+import importlib
 import pytest
 
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
-from six.moves import reload_module
+from unittest import mock
 
 from hamlpy.compiler import Compiler
 from hamlpy.template import loaders
@@ -17,7 +15,7 @@ class LoaderTest(SimpleTestCase):
     def setUp(self):
         super(LoaderTest, self).setUp()
 
-        reload_module(loaders)
+        importlib.reload(loaders)
 
     @mock.patch('hamlpy.template.loaders.Compiler', wraps=Compiler)
     def test_compiler_default_settings(self, mock_compiler_class):
@@ -28,8 +26,7 @@ class LoaderTest(SimpleTestCase):
 
     @override_settings(HAMLPY_ATTR_WRAPPER='"', HAMLPY_DJANGO_INLINE_STYLE=False)
     def test_compiler_settings(self):
-
-        reload_module(loaders)
+        importlib.reload(loaders)
 
         with mock.patch('hamlpy.template.loaders.Compiler', wraps=Compiler) as mock_compiler_class:
             rendered = render_to_string('simple.hamlpy')

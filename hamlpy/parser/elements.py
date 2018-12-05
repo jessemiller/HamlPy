@@ -1,7 +1,3 @@
-from __future__ import print_function, unicode_literals
-
-import six
-
 from collections import OrderedDict
 from .attributes import read_attribute_dict
 from .core import read_word, read_line
@@ -125,7 +121,7 @@ class Element(object):
         id_from_attrs = attributes.get('id')
         if isinstance(id_from_attrs, (tuple, list)):
             ids += id_from_attrs
-        elif isinstance(id_from_attrs, six.string_types):
+        elif isinstance(id_from_attrs, str):
             ids += [id_from_attrs]
 
         # merge ids to a single value with _ separators

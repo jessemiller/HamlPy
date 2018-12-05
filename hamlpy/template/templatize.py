@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
 """
 This module decorates the django templatize function to parse haml templates before the translation utility extracts
 tags from it.

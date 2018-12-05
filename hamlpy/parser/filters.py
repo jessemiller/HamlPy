@@ -8,12 +8,7 @@ content into suitable <style> and <script> that can be transformed later by some
 """
 
 import sys
-
-# Required on Python 2 to accept non-unicode output
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 # Pygments and Markdown are optional dependencies which may or may not be available
 try:
@@ -32,9 +27,6 @@ try:
     _markdown_available = True
 except ImportError:  # pragma: no cover
     _markdown_available = False
-
-
-from future.utils import raise_from
 
 from .core import ParseException
 from .utils import html_escape
@@ -120,7 +112,7 @@ def python(content, options):
         try:
             exec(compiled_code)
         except Exception as e:
-            raise_from(ParseException('Error whilst executing python filter node'), e)
+            raise ParseException('Error whilst executing python filter node') from e
         finally:
             # restore the original stdout
             sys.stdout = sys.__stdout__

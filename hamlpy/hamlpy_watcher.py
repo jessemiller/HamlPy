@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function, unicode_literals
-
 """
 Based on original haml-watcher.py by Christian Stefanescu (st.chris@gmail.com)
 
