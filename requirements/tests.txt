@@ -3,5 +3,4 @@ markdown
 jinja2
 pytest
 pytest-cov
-mock
 flake8

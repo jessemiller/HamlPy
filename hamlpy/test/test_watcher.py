@@ -4,7 +4,7 @@ import sys
 import time
 import unittest
 
-from mock import patch
+from unittest.mock import patch
 
 from hamlpy.hamlpy_watcher import watch_folder
 

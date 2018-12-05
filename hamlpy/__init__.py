@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
-__version__ = '1.1.1'
+__version__ = '1.2'
 
 HAML_EXTENSIONS = ('haml', 'hamlpy')
 
