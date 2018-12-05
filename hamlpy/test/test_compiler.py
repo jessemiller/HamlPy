@@ -193,7 +193,7 @@ test''', "test")
 
     def test_python_filter(self):
         self._test(":python\n", '')  # empty
-        self._test(":python\n   for i in range(0, 5): print(\"<p>item \%s</p>\" % i)",
+        self._test(":python\n   for i in range(0, 5): print(\"<p>item \\%s</p>\" % i)",
                    '<p>item \\0</p>\n<p>item \\1</p>\n<p>item \\2</p>\n<p>item \\3</p>\n<p>item \\4</p>')
 
         self._test_error(":python\n   print(10 / 0)", "Error whilst executing python filter node", ZeroDivisionError)
@@ -275,8 +275,8 @@ test''', "test")
 
     def test_node_escaping(self):
         self._test("\\= Escaped", "= Escaped")
-        self._test("\%}", "%}")
-        self._test("  \:python", "  :python")
+        self._test("\\%}", "%}")
+        self._test("  \\:python", "  :python")
 
     def test_utf8(self):
         self._test("%a{'href':'', 'title':'링크(Korean)'} Some Link",

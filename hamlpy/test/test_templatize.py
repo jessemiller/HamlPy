@@ -10,13 +10,13 @@ class TemplatizeTest(SimpleTestCase):
 
         # test regular Django tags
         output = templatize('{% trans "Foo" %}{% blocktrans %}\nBar\n{% endblocktrans %}', origin='test.html')
-        self.assertRegexpMatches(output, r"gettext\(u?'Foo'\)")
-        self.assertRegexpMatches(output, r"gettext\(u?'\\nBar\\n'\)")
+        self.assertRegex(output, r"gettext\(u?'Foo'\)")
+        self.assertRegex(output, r"gettext\(u?'\\nBar\\n'\)")
 
         # test Haml tags with HTML origin
         output = templatize('- trans "Foo"\n- blocktrans\n  Bar\n', origin='test.haml')
-        self.assertRegexpMatches(output, r"gettext\(u?'Foo'\)")
-        self.assertRegexpMatches(output, r"gettext\(u?'\\n  Bar\\n'\)")
+        self.assertRegex(output, r"gettext\(u?'Foo'\)")
+        self.assertRegex(output, r"gettext\(u?'\\n  Bar\\n'\)")
 
         # test Haml tags and HTML origin
         self.assertNotIn('gettext', templatize('- trans "Foo"\n- blocktrans\n  Bar\n', origin='test.html'))

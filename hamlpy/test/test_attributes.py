@@ -174,82 +174,82 @@ class AttributeDictParserTest(unittest.TestCase):
 
     def test_empty_attribute_name_raises_error(self):
         # empty quoted string in Ruby new style
-        with self.assertRaisesRegexp(ParseException, "Attribute name can't be an empty string. @ \"{'':\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Attribute name can\'t be an empty string. @ "{\'\':" <-'):
             self._parse("{'': 'test'}")
 
         # empty old style Ruby attribute
-        with self.assertRaisesRegexp(ParseException, "Unexpected \" \". @ \"{: \" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected " ". @ "{: " <-'):
             self._parse("{: 'test'}")
 
         # missing (HTML style)
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"=\". @ \"\(=\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "=". @ "\(=" <-'):
             self._parse("(='test')")
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"=\". @ \"\(foo='bar' =\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "=". @ "\(foo=\'bar\' =" <-'):
             self._parse("(foo='bar' ='test')")
 
     def test_empty_attribute_value_raises_error(self):
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"}\". @ \"{:class=>}\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "}". @ "{:class=>}" <-'):
             self._parse("{:class=>}")
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"}\". @ \"{class:}\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "}". @ "{class:}" <-'):
             self._parse("{class:}")
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"\)\". @ \"\(class=\)\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "\)". @ "\(class=\)" <-'):
             self._parse("(class=)")
 
     def test_unterminated_string_raises_error(self):
         # on attribute key
-        with self.assertRaisesRegexp(ParseException, "Unterminated string \(expected '\). @ \"{'test: 123}\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unterminated string \(expected \'\). @ "{\'test: 123}" <-'):
             self._parse("{'test: 123}")
 
         # on attribute value
-        with self.assertRaisesRegexp(ParseException, "Unterminated string \(expected \"\). @ \"{'test': \"123}\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unterminated string \(expected "\). @ "{\'test\': "123}" <-'):
             self._parse("{'test': \"123}")
 
     def test_duplicate_attributes_raise_error(self):
-        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"{class: 'test', class: 'bar'}\" <-"):  # noqa
+        with self.assertRaisesRegex(ParseException, r'Duplicate attribute: "class". @ "{class: \'test\', class: \'bar\'}" <-'):  # noqa
             self._parse("{class: 'test', class: 'bar'}")
 
-        with self.assertRaisesRegexp(ParseException, "Duplicate attribute: \"class\". @ \"\(class='test' class='bar'\)\" <-"):  # noqa
+        with self.assertRaisesRegex(ParseException, r'Duplicate attribute: "class". @ "\(class=\'test\' class=\'bar\'\)" <-'):  # noqa
             self._parse("(class='test' class='bar')")
 
     def test_mixing_ruby_and_html_syntax_raises_errors(self):
         # omit comma in Ruby style dict
-        with self.assertRaisesRegexp(ParseException, "Expected \",\". @ \"{class: 'test' f\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Expected ",". @ "{class: \'test\' f" <-'):
             self._parse("{class: 'test' foo: 'bar'}")
 
         # use = in Ruby style dict
-        with self.assertRaisesRegexp(ParseException, "Expected \":\". @ \"{class=\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Expected ":". @ "{class=" <-'):
             self._parse("{class='test'}")
-        with self.assertRaisesRegexp(ParseException, "Expected \"=>\". @ \"{:class=\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Expected "=>". @ "{:class=" <-'):
             self._parse("{:class='test'}")
 
         # use colon as assignment for old style Ruby attribute
-        with self.assertRaisesRegexp(ParseException, "Expected \"=>\". @ \"{:class:\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Expected "=>". @ "{:class:" <-'):
             self._parse("{:class:'test'}")
 
         # use comma in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Unexpected \",\". @ \"\(class='test',\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected ",". @ "\(class=\'test\'," <-'):
             self._parse("(class='test', foo = 'bar')")
 
         # use : for assignment in HTML style dict (will treat as part of attribute name)
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"'\". @ \"\(class:'\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "\'". @ "\(class:\'" <-'):
             self._parse("(class:'test')")
 
         # use attribute quotes in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"'\". @ \"\('\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "\'". @ "\(\'" <-'):
             self._parse("('class'='test')")
 
         # use => in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Unexpected \">\". @ \"\(class=>\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected ">". @ "\(class=>" <-'):
             self._parse("(class=>'test')")
 
         # use tuple syntax in HTML style dict
-        with self.assertRaisesRegexp(ParseException, "Unexpected \"\(\". @ \"\(class=\(\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected "\(". @ "\(class=\(" <-'):
             self._parse("(class=(1, 2))")
 
     def test_unexpected_eof(self):
-        with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"{:class=>\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected end of input. @ "{:class=>" <-'):
             self._parse("{:class=>")
-        with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"{class:\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected end of input. @ "{class:" <-'):
             self._parse("{class:")
-        with self.assertRaisesRegexp(ParseException, "Unexpected end of input. @ \"\(class=\" <-"):
+        with self.assertRaisesRegex(ParseException, r'Unexpected end of input. @ "\(class=" <-'):
             self._parse("(class=")
