@@ -2,7 +2,7 @@ from setuptools import setup
 
 # Note to Jesse - only push sdist to PyPi, bdist seems to always break pip installer
 setup(name='hamlpy',
-      version = '0.82.2.2',
+      version = '0.82.2.3',
       download_url = 'git@github.com:a1s/HamlPy.git',
       packages = ['hamlpy', 'hamlpy.template'],
       author = 'Jesse Miller',
