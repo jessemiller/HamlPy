@@ -69,6 +69,8 @@ class Element(object):
 
     NEWLINE_REGEX = re.compile("[\r\n]+")
 
+    DJANGO_TAG_REGEX = re.compile("({%|%})")
+
 
     def __init__(self, haml, attr_wrapper="'"):
         self.haml = haml
@@ -132,17 +134,15 @@ class Element(object):
         '''
         escaped = []
         inside_tag = False
-        for i, _ in enumerate(v):
-            if v[i:i + 2] == '{%':
+        escape = "\\" + self.attr_wrapper
+        for ss in self.DJANGO_TAG_REGEX.split(v):
+            if ss == "{%":
                 inside_tag = True
-            elif v[i:i + 2] == '%}':
+            elif ss == "%}":
                 inside_tag = False
-
-            if v[i] == self.attr_wrapper and not inside_tag:
-                escaped.append('\\')
-
-            escaped.append(v[i])
-
+            if not inside_tag:
+                ss = ss.replace(self.attr_wrapper, escape)
+            escaped.append(ss)
         return ''.join(escaped)
 
     def _parse_attribute_dictionary(self, attribute_dict_string):
