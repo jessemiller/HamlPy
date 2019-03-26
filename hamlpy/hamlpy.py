@@ -24,6 +24,18 @@ class Compiler:
         for line_number, line in enumerate(line_iter):
             node_lines = line
 
+            # support for line breaks ("\" symbol at the end of line)
+            while node_lines.rstrip().endswith("\\"):
+                node_lines = node_lines.rstrip()[:-1]
+                try:
+                    line = line_iter.next()
+                except StopIteration:
+                    raise Exception(
+                        "Line break symbol '\\' found at the last line %s" \
+                        % line_number
+                    )
+                node_lines += line
+
             if not root.parent_of(HamlNode(line)).inside_filter_node():
                 if line.count('{') - line.count('}') == 1:
                     start_multiline=line_number # For exception handling
@@ -31,6 +43,9 @@ class Compiler:
                     while line.count('{') - line.count('}') != -1:
                         try:
                             line = line_iter.next()
+                            # support for line breaks inside Node parameters
+                            if line.rstrip().endswith("\\"):
+                                line = line.rstrip()[:-1]
                         except StopIteration:
                             raise Exception('No closing brace found for multi-line HAML beginning at line %s' % (start_multiline+1))
                         node_lines += line

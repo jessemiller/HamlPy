@@ -9,6 +9,7 @@
 	- [Attributes: {}](#attributes-)
 		- [Attributes without values (Boolean attributes)](#attributes-without-values-boolean-attributes)
 		- ['class' and 'id' attributes](#class-and-id-attributes)
+		- [Conditional attributes](#conditional-attributes)
 	- [Class and ID: . and #](#class-and-id--and-)
 		- [Implicit div elements](#implicit-div-elements)
 	- [Self-Closing Tags: /](#self-closing-tags-)
@@ -115,7 +116,39 @@ The 'class' and 'id' attributes can also be specified as a Python tuple whose el
 is compiled to:
 
 	<div id='article_3' class='newest urgent'>Content</div>
-	
+
+#### Conditional attributes
+
+Attribute dictionaries support Python-style conditional expressions for attribute values:
+
+	KEY : VALUE if CONDITION [else OTHER-VALUE]
+
+For example:
+
+	%img{'src': 'hello' if coming else 'goodbye' }
+
+is compiled to:
+
+	<img {% if coming %} src='hello' {% else %} src='goodbye' {% endif %} />
+
+The 'else' part may be omitted, for example:
+
+	%div{'id': 'No1' if tree is TheLarch}
+
+The 'else' part also may contain conditional expression:
+
+	'score': '29.9' if name == 'St Stephan' else '29.3' if name == 'Richard III'
+
+For the 'class' and 'id' attributes conditional expressions are processed in a different way: condition tags are placed inside the value rather than around the whole attribute.  That is done so because these attributes may get additional value parts from [HAML syntax](#class-and-id--and-).  The downside is that conditional expression cannot remove 'class' or 'id' attribute altogether, as it happens with common attributes.  Example:
+
+	%div{'id': 'dog_kennel' if assisant.name == 'Mr Lambert' else 'mattress',
+		'class': 'the-larch' if tree is quite_a_long_way_away}
+
+is rendered to:
+
+	<div id='{% if assisant.name == 'Mr Lambert' %}dog_kennel{% else %}mattress{% endif %}'
+		class='{% if tree is quite_a_long_way_away %}the-larch{% endif %}'></div>
+
 ### Class and ID: . and # 
 
 The period and pound sign are borrowed from CSS.  They are used as shortcuts to specify the class and id attributes of an element, respectively.  Multiple class names can be specified by chaining class names together with periods.  They are placed immediately after a tag and before an attribute dictionary.  For example:

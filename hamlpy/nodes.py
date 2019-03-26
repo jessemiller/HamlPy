@@ -50,69 +50,6 @@ ELEMENT_CHARACTERS = (ELEMENT, ID, CLASS)
 
 HAML_ESCAPE = '\\'
 
-def create_node(haml_line):
-    stripped_line = haml_line.strip()
-
-    if len(stripped_line) == 0:
-        return None
-
-    if re.match(INLINE_VARIABLE, stripped_line) or re.match(ESCAPED_INLINE_VARIABLE, stripped_line):
-        return PlaintextNode(haml_line)
-
-    if stripped_line[0] == HAML_ESCAPE:
-        return PlaintextNode(haml_line)
-
-    if stripped_line.startswith(DOCTYPE):
-        return DoctypeNode(haml_line)
-
-    if stripped_line[0] in ELEMENT_CHARACTERS:
-        return ElementNode(haml_line)
-
-    if stripped_line[0:len(CONDITIONAL_COMMENT)] == CONDITIONAL_COMMENT:
-        return ConditionalCommentNode(haml_line)
-
-    if stripped_line[0] == HTML_COMMENT:
-        return CommentNode(haml_line)
-
-    for comment_prefix in HAML_COMMENTS:
-        if stripped_line.startswith(comment_prefix):
-            return HamlCommentNode(haml_line)
-
-    if stripped_line[0] == VARIABLE:
-        return VariableNode(haml_line)
-
-    if stripped_line[0] == TAG:
-        return TagNode(haml_line)
-
-    if stripped_line == JAVASCRIPT_FILTER:
-        return JavascriptFilterNode(haml_line)
-
-    if stripped_line in COFFEESCRIPT_FILTERS:
-        return CoffeeScriptFilterNode(haml_line)
-
-    if stripped_line == CSS_FILTER:
-        return CssFilterNode(haml_line)
-
-    if stripped_line == STYLUS_FILTER:
-        return StylusFilterNode(haml_line)
-
-    if stripped_line == PLAIN_FILTER:
-        return PlainFilterNode(haml_line)
-
-    if stripped_line == PYTHON_FILTER:
-        return PythonFilterNode(haml_line)
-
-    if stripped_line == CDATA_FILTER:
-        return CDataFilterNode(haml_line)
-
-    if stripped_line == PYGMENTS_FILTER:
-        return PygmentsFilterNode(haml_line)
-
-    if stripped_line == MARKDOWN_FILTER:
-        return MarkdownFilterNode(haml_line)
-
-    return PlaintextNode(haml_line)
-
 class TreeNode(object):
     ''' Generic parent/child tree class'''
     def __init__(self):
@@ -203,8 +140,13 @@ class RootNode(TreeNode):
             self.add_child(node)
 
     def _should_go_inside_last_node(self, node):
-        return len(self.children) > 0 and (node.indentation > self.children[-1].indentation
-            or (node.indentation == self.children[-1].indentation and self.children[-1].should_contain(node)))
+        if self.children:
+            _child = self.children[-1]
+            if node.indentation > _child.indentation:
+                return True
+            elif node.indentation == _child.indentation:
+                return _child.should_contain(node)
+        return False
 
     def should_contain(self, node):
         return False
@@ -226,10 +168,16 @@ class RootNode(TreeNode):
 class HamlNode(RootNode):
     def __init__(self, haml):
         RootNode.__init__(self)
-        self.haml = haml.strip()
-        self.raw_haml = haml
-        self.indentation = (len(haml) - len(haml.lstrip()))
-        self.spaces = ''.join(haml[0] for i in range(self.indentation))
+        if haml:
+            self.haml = haml.strip()
+            self.raw_haml = haml
+            self.indentation = (len(haml) - len(haml.lstrip()))
+            self.spaces = haml[0] * self.indentation
+        else:
+            # When the string is empty, we cannot build self.spaces.
+            # All other attributes have trivial values, no need to compute.
+            self.haml = self.raw_haml = self.spaces = ""
+            self.indentation = 0
 
     def replace_inline_variables(self, content):
         content = re.sub(INLINE_VARIABLE, r'{{ \2 }}', content)
@@ -445,6 +393,7 @@ class TagNode(HamlNode):
                    'ifchanged':'else',
                    'ifequal':'else',
                    'ifnotequal':'else',
+                   'blocktrans':'plural',
                    'for':'empty',
                    'with':'with'}
 
@@ -604,3 +553,57 @@ class MarkdownFilterNode(FilterNode):
             self.before += markdown( ''.join(lines))
         else:
             self.after = self.render_newlines()
+
+LINE_NODES = {
+    HAML_ESCAPE: PlaintextNode,
+    ELEMENT: ElementNode,
+    ID: ElementNode,
+    CLASS: ElementNode,
+    HTML_COMMENT: CommentNode,
+    VARIABLE: VariableNode,
+    TAG: TagNode,
+}
+
+SCRIPT_FILTERS = {
+    JAVASCRIPT_FILTER: JavascriptFilterNode,
+    ':coffeescript': CoffeeScriptFilterNode,
+    ':coffee': CoffeeScriptFilterNode,
+    CSS_FILTER: CssFilterNode,
+    STYLUS_FILTER: StylusFilterNode,
+    PLAIN_FILTER: PlainFilterNode,
+    PYTHON_FILTER: PythonFilterNode,
+    CDATA_FILTER: CDataFilterNode,
+    PYGMENTS_FILTER: PygmentsFilterNode,
+    MARKDOWN_FILTER: MarkdownFilterNode,
+}
+
+def create_node(haml_line):
+    stripped_line = haml_line.strip()
+
+    if len(stripped_line) == 0:
+        return None
+
+    if INLINE_VARIABLE.match(stripped_line) \
+    or ESCAPED_INLINE_VARIABLE.match(stripped_line):
+        return PlaintextNode(haml_line)
+
+    if stripped_line.startswith(DOCTYPE):
+        return DoctypeNode(haml_line)
+
+    if stripped_line.startswith(CONDITIONAL_COMMENT):
+        return ConditionalCommentNode(haml_line)
+
+    for comment_prefix in HAML_COMMENTS:
+        if stripped_line.startswith(comment_prefix):
+            return HamlCommentNode(haml_line)
+
+    # Note: HAML_COMMENTS start with the same characters
+    # as TAG and VARIABLE prefixes, so comments must be processed first.
+    line_node = LINE_NODES.get(stripped_line[0], None)
+    if line_node is not None:
+        return line_node(haml_line)
+    line_node = SCRIPT_FILTERS.get(stripped_line, None)
+    if line_node is not None:
+        return line_node(haml_line)
+    return PlaintextNode(haml_line)
+

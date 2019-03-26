@@ -57,6 +57,24 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         self.assertEqual(html, result.replace('\n', ''))
 
+    def test_dictionaries_allow_conditionals(self):
+        for (haml, html) in (
+            ("%img{'src': 'hello' if coming}",
+             "<img {% if coming %} src='hello' {% endif %} />"),
+            ("%img{'src': 'hello' if coming else 'goodbye' }",
+             "<img {% if coming %} src='hello' {% else %} src='goodbye' {% endif %} />"),
+            ("%item{'a': 'one' if b == 1 else 'two' if b == [1, 2] else None}",
+             "<item {% if b == 1 %} a='one' {% elif b == [1, 2] %} a='two' {% else %} a {% endif %}></item>"),
+            # For id and class attributes, conditions work on individual parts
+            # of the value (more parts can be added from HAML tag).
+            ("%div{'id': 'No1' if tree is TheLarch, 'class': 'quite-a-long-way-away'}",
+             "<div id='{% if tree is TheLarch %}No1{% endif %}' class='quite-a-long-way-away'></div>"),
+             ("%div{'id': 'dog_kennel' if assisant.name == 'Mr Lambert' else 'mattress'}",
+              "<div id='{% if assisant.name == 'Mr Lambert' %}dog_kennel{% else %}mattress{% endif %}'></div>"),
+        ):
+            hamlParser = hamlpy.Compiler()
+            result = hamlParser.process(haml)
+            self.assertEqual(html, result.replace('\n', ''))
 
     def test_html_comments_rendered_properly(self):
         haml = '/ some comment'
@@ -295,6 +313,12 @@ class HamlPyTest(unittest.TestCase):
         result = hamlParser.process(haml)
         eq_(html, result)
 
+    @raises(Exception)
+    def test_throws_exception_when_break_last_line(self):
+        haml = '-width a=1 \\'
+        hamlParser = hamlpy.Compiler()
+        result = hamlParser.process(haml)
+
     def test_xml_namespaces(self):
         haml = "%fb:tag\n  content"
         html = "<fb:tag>\n  content\n</fb:tag>\n"
@@ -312,7 +336,7 @@ class HamlPyTest(unittest.TestCase):
         hamlParser = hamlpy.Compiler(options_dict={'attr_wrapper': '"'})
         result = hamlParser.process(haml)
         self.assertEqual(result,
-                         '''<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+                         '''<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <body id="main">
     <div class="wrap">
       <a href="/"></a>
