@@ -126,7 +126,8 @@ def _watch_folder(folder, extensions, destination, compiler_args):
     total_files = 0
     num_failed = 0
 
-    print('_watch_folder(%s, %s, %s)' % (folder, repr(extensions), destination))
+    if Options.VERBOSE:
+        print('_watch_folder(%s, %s, %s)' % (folder, repr(extensions), destination))
 
     for dirpath, dirnames, filenames in os.walk(folder):
         for filename in filenames:
