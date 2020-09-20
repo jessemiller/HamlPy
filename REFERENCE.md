@@ -538,6 +538,12 @@ Surrounds the filtered text with &lt;style type="text/stylus"&gt; and CDATA tags
 
 Converts the filter text from Markdown to HTML, using the Python [Markdown library](http://freewisdom.org/projects/python-markdown/).
 
+You can also specify the enabled extensions using the setting HAMLPY_MARKDOWN_EXTENSIONS and assigning a list of valid extensions to it. See [Markdown library extensions documentation](https://python-markdown.github.io/extensions/) for available extensions. For example:
+
+```python
+HAMLPY_MARKDOWN_EXTENSIONS = ['extras']
+```
+
 ### :highlight
 
 This will output the filtered text with syntax highlighting using [Pygments](http://pygments.org).

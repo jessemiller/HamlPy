@@ -11,6 +11,8 @@ content into suitable <style> and <script> that can be transformed later by some
 import sys
 from io import StringIO
 
+from django.conf import settings
+
 # Pygments and Markdown are optional dependencies which may or may not be available
 try:
     import pygments
@@ -85,7 +87,8 @@ def markdown(content, options):
     if not _markdown_available:
         raise ParseException("Markdown is not available")
 
-    return markdown_lib(content)
+    md_extensions = getattr(settings, 'HAMLPY_MARKDOWN_EXTENSIONS', [])
+    return markdown_lib(content, extensions=md_extensions)
 
 
 def highlight(content, options):
