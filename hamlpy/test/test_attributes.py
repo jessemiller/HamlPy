@@ -88,7 +88,7 @@ class AttributeDictParserTest(unittest.TestCase):
         ) == OrderedDict([('class', 'test'), ('id', 'something'), ('foo', 'bar')])
 
         # attribute values can be multi-line Haml
-        assert dict(self._parse("""{
+        haml = """{
                 'class':
                     - if forloop.first
                         link-first
@@ -98,8 +98,8 @@ class AttributeDictParserTest(unittest.TestCase):
                             link-last
                 'href':
                     - url 'some_view'
-                }"""
-        )) == {
+        }"""
+        assert dict(self._parse(haml)) == {
             'class': '{% if forloop.first %} link-first {% else %} {% if forloop.last %} link-last {% endif %} {% endif %}',  # noqa
             'href': "{% url 'some_view' %}"
         }
@@ -154,7 +154,7 @@ class AttributeDictParserTest(unittest.TestCase):
         assert dict(self._parse('(foo=bar)')) == {'foo': '{{ bar }}'}
 
         # attribute values can be multi-line Haml
-        assert dict(self._parse("""(
+        haml = """(
                 class=
                     - if forloop.first
                         link-first
@@ -164,11 +164,11 @@ class AttributeDictParserTest(unittest.TestCase):
                             link-last
                 href=
                     - url 'some_view'
-                )"""
-                        )) == {
+        )"""
+        assert dict(self._parse(haml)) == {
            'class': '{% if forloop.first %} link-first {% else %} {% if forloop.last %} link-last {% endif %} {% endif %}',  # noqa
            'href': "{% url 'some_view' %}"
-       }
+        }
 
     def test_empty_attribute_name_raises_error(self):
         # empty quoted string in Ruby new style
