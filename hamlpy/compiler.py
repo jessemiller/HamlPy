@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-import regex
 import warnings
+
+import regex
 
 from hamlpy.parser.core import Stream
 from hamlpy.parser.nodes import Node, read_node

@@ -15,7 +15,7 @@ from io import StringIO
 try:
     import pygments
     from pygments.formatters import HtmlFormatter
-    from pygments.lexers import guess_lexer, PythonLexer
+    from pygments.lexers import PythonLexer, guess_lexer
     from pygments.util import ClassNotFound
 
     _pygments_available = True
@@ -31,7 +31,6 @@ except ImportError:  # pragma: no cover
 
 from .core import ParseException
 from .utils import html_escape
-
 
 # ----------------------------------------------------------------------------------
 # Core filters

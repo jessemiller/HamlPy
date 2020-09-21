@@ -1,7 +1,7 @@
 from collections import OrderedDict
-from .attributes import read_attribute_dict
-from .core import read_word, read_line
 
+from .attributes import read_attribute_dict
+from .core import read_line, read_word
 
 # non-word characters that we allow in tag names, ids and classes
 DOM_OBJECT_EXTRA_CHARS = ("-",)

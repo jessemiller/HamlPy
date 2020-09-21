@@ -1,6 +1,6 @@
-import django
-
 from distutils.version import LooseVersion
+
+import django
 
 DEBUG = True
 

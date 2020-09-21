@@ -6,12 +6,11 @@ since the last check.
 """
 
 import argparse
-import sys
 import codecs
 import os
 import os.path
+import sys
 import time
-
 from time import strftime
 
 from hamlpy import HAML_EXTENSIONS

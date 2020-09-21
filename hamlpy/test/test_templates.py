@@ -1,12 +1,12 @@
-import os
 import codecs
-import regex
+import os
 import time
 import unittest
-
-from hamlpy.compiler import Compiler
 from os import listdir, path
 
+import regex
+
+from hamlpy.compiler import Compiler
 
 TEMPLATE_DIRECTORY = "/templates/"
 TEMPLATE_EXTENSION = ".hamlpy"

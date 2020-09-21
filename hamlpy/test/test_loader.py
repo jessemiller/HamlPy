@@ -1,11 +1,11 @@
 import importlib
-import pytest
+from unittest import mock
 
+import pytest
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.test import SimpleTestCase
 from django.test.utils import override_settings
-from unittest import mock
 
 from hamlpy.compiler import Compiler
 from hamlpy.template import loaders

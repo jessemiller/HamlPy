@@ -2,7 +2,7 @@ import os
 
 from django.conf import settings
 from django.template import TemplateDoesNotExist
-from django.template.loaders import filesystem, app_directories
+from django.template.loaders import app_directories, filesystem
 
 from hamlpy import HAML_EXTENSIONS
 from hamlpy.compiler import Compiler

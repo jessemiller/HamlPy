@@ -1,10 +1,9 @@
 import unittest
-
 from collections import OrderedDict
 
 from hamlpy.compiler import Compiler
 from hamlpy.parser.core import Stream
-from hamlpy.parser.elements import Element, read_tag, read_element
+from hamlpy.parser.elements import Element, read_element, read_tag
 
 
 class ElementTest(unittest.TestCase):

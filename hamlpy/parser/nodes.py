@@ -1,9 +1,8 @@
 import textwrap
 
-from .core import ParseException, TreeNode, read_line, read_whitespace, peek_indentation
+from .core import ParseException, TreeNode, peek_indentation, read_line, read_whitespace
 from .elements import read_element
 from .filters import get_filter
-
 
 XHTML_DOCTYPES = {
     "1.1": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',  # noqa

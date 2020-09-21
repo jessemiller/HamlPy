@@ -1,9 +1,19 @@
-import regex
-
 from collections import OrderedDict
 
-from .core import ParseException, read_whitespace, read_symbol, read_number, read_quoted_string, read_word
-from .core import peek_indentation, read_line, STRING_LITERALS, WHITESPACE_CHARS
+import regex
+
+from .core import (
+    STRING_LITERALS,
+    WHITESPACE_CHARS,
+    ParseException,
+    peek_indentation,
+    read_line,
+    read_number,
+    read_quoted_string,
+    read_symbol,
+    read_whitespace,
+    read_word,
+)
 from .utils import html_escape
 
 LEADING_SPACES_REGEX = regex.compile(r"^\s+", regex.V1 | regex.MULTILINE)

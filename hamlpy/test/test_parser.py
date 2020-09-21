@@ -1,7 +1,16 @@
 import unittest
 
-from hamlpy.parser.core import Stream, ParseException, read_whitespace, peek_indentation
-from hamlpy.parser.core import read_quoted_string, read_line, read_number, read_symbol, read_word
+from hamlpy.parser.core import (
+    ParseException,
+    Stream,
+    peek_indentation,
+    read_line,
+    read_number,
+    read_quoted_string,
+    read_symbol,
+    read_whitespace,
+    read_word,
+)
 from hamlpy.parser.utils import html_escape
 
 

@@ -1,8 +1,8 @@
 from importlib import machinery
-
-from django.template import loaders
 from os import listdir
 from os.path import dirname, splitext
+
+from django.template import loaders
 
 MODULE_EXTENSIONS = tuple(machinery.all_suffixes())
 

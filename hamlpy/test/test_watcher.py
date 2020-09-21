@@ -3,11 +3,9 @@ import shutil
 import sys
 import time
 import unittest
-
 from unittest.mock import patch
 
 from hamlpy.hamlpy_watcher import watch_folder
-
 
 WORKING_DIR = ".watcher_test"
 INPUT_DIR = WORKING_DIR + os.sep + "input"

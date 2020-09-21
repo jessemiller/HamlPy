@@ -1,5 +1,6 @@
-import jinja2.ext
 import os
+
+import jinja2.ext
 
 from hamlpy import HAML_EXTENSIONS
 from hamlpy.compiler import Compiler
