@@ -1,7 +1,7 @@
 # Introduction
 
-[![Build Status](https://travis-ci.org/nyaruka/django-hamlpy.svg?branch=master)](https://travis-ci.org/nyaruka/django-hamlpy)
-[![Coverage Status](https://coveralls.io/repos/github/nyaruka/django-hamlpy/badge.svg?branch=master)](https://coveralls.io/github/nyaruka/django-hamlpy?branch=master)
+[![Build Status](https://github.com/nyaruka/django-hamlpy/workflows/CI/badge.svg)](https://github.com/nyaruka/django-hamlpy/actions?query=workflow%3ACI)
+[![Coverage Status](https://codecov.io/gh/nyaruka/django-hamlpy/branch/master/graph/badge.svg)](https://codecov.io/gh/nyaruka/django-hamlpy)
 [![PyPI Release](https://img.shields.io/pypi/v/django-hamlpy.svg)](https://pypi.python.org/pypi/django-hamlpy/)
 
 Why type:

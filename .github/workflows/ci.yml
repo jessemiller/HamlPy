@@ -1,0 +1,37 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    name: Test
+    strategy:
+      matrix:
+        python-version: ['3.6.x', '3.7.x', '3.8.x']
+        django-version: ['2.1.15', '2.2.16']
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v1
+
+    - name: Install Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Initialize environment
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements/tests.txt
+        pip install codecov
+        pip install -q django==${{ matrix.django-version }}
+
+    - name: Run tests
+      run: |
+        flake8
+        py.test --cov-report= --cov=hamlpy hamlpy
+
+    - name: Upload coverage
+      if: success()
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: true
