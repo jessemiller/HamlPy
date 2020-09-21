@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+
 """
 Core HamlPy filters.
 
@@ -36,14 +37,15 @@ from .utils import html_escape
 # Core filters
 # ----------------------------------------------------------------------------------
 
+
 def plain(text, options):
     return text
 
 
 def preserve(text, options):
     text = text.rstrip()
-    text = text.replace('\n', '&#x000A;')
-    return text.replace('\r', '')
+    text = text.replace("\n", "&#x000A;")
+    return text.replace("\r", "")
 
 
 def escaped(text, options):
@@ -51,33 +53,33 @@ def escaped(text, options):
 
 
 def cdata(text, options):
-    text = '\n' + text.rstrip()
+    text = "\n" + text.rstrip()
     text = text.replace("\n", "\n    ")
-    return '<![CDATA[%s\n]]>' % text
+    return "<![CDATA[%s\n]]>" % text
 
 
 def css(text, options):
-    return style_filter(text, 'text/css', options)
+    return style_filter(text, "text/css", options)
 
 
 def stylus(text, options):
-    return style_filter(text, 'text/stylus', options)
+    return style_filter(text, "text/stylus", options)
 
 
 def less(text, options):
-    return style_filter(text, 'text/less', options)
+    return style_filter(text, "text/less", options)
 
 
 def sass(text, options):
-    return style_filter(text, 'text/sass', options)
+    return style_filter(text, "text/sass", options)
 
 
 def javascript(text, options):
-    return script_filter(text, 'text/javascript', '//', options)
+    return script_filter(text, "text/javascript", "//", options)
 
 
 def coffee(text, options):
-    return script_filter(text, 'text/coffeescript', '#', options)
+    return script_filter(text, "text/coffeescript", "#", options)
 
 
 def markdown(content, options):
@@ -100,7 +102,7 @@ def highlight(content, options):
 
         return pygments.highlight(content, lexer, HtmlFormatter())
     else:
-        return ''
+        return ""
 
 
 def python(content, options):
@@ -112,38 +114,43 @@ def python(content, options):
         try:
             exec(compiled_code)
         except Exception as e:
-            raise ParseException('Error whilst executing python filter node') from e
+            raise ParseException("Error whilst executing python filter node") from e
         finally:
             # restore the original stdout
             sys.stdout = sys.__stdout__
 
         return output_buffer.getvalue()
     else:
-        return ''
+        return ""
 
 
 # ----------------------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------------------
 
-def style_filter(text, mime_type, options):
-    indent = '    ' if options.cdata else '  '
-    text = text.rstrip().replace('\n', '\n' + indent)
-    type_attr = ' type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s' % \
-                {'attr_wrapper': options.attr_wrapper, 'mime_type': mime_type}
-    before, after = ('  /*<![CDATA[*/\n', '  /*]]>*/\n') if options.cdata else ('', '')
 
-    return '<style%s>\n%s%s%s\n%s</style>' % (type_attr, before, indent, text, after)
+def style_filter(text, mime_type, options):
+    indent = "    " if options.cdata else "  "
+    text = text.rstrip().replace("\n", "\n" + indent)
+    type_attr = " type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s" % {
+        "attr_wrapper": options.attr_wrapper,
+        "mime_type": mime_type,
+    }
+    before, after = ("  /*<![CDATA[*/\n", "  /*]]>*/\n") if options.cdata else ("", "")
+
+    return "<style%s>\n%s%s%s\n%s</style>" % (type_attr, before, indent, text, after)
 
 
 def script_filter(text, mime_type, comment, options):
-    indent = '    ' if options.cdata else '  '
-    text = text.rstrip().replace('\n', '\n' + indent)
-    type_attr = ' type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s' % \
-                {'attr_wrapper': options.attr_wrapper, 'mime_type': mime_type}
-    before, after = ('  %s<![CDATA[\n' % comment, '  %s]]>\n' % comment) if options.cdata else ('', '')
+    indent = "    " if options.cdata else "  "
+    text = text.rstrip().replace("\n", "\n" + indent)
+    type_attr = " type=%(attr_wrapper)s%(mime_type)s%(attr_wrapper)s" % {
+        "attr_wrapper": options.attr_wrapper,
+        "mime_type": mime_type,
+    }
+    before, after = ("  %s<![CDATA[\n" % comment, "  %s]]>\n" % comment) if options.cdata else ("", "")
 
-    return '<script%s>\n%s%s%s\n%s</script>' % (type_attr, before, indent, text, after)
+    return "<script%s>\n%s%s%s\n%s</script>" % (type_attr, before, indent, text, after)
 
 
 # ----------------------------------------------------------------------------------
@@ -151,20 +158,20 @@ def script_filter(text, mime_type, comment, options):
 # ----------------------------------------------------------------------------------
 
 FILTERS = {
-    'plain': plain,
-    'preserve': preserve,
-    'escaped': escaped,
-    'cdata': cdata,
-    'css': css,
-    'stylus': stylus,
-    'less': less,
-    'sass': sass,
-    'javascript': javascript,
-    'coffee': coffee,
-    'coffeescript': coffee,
-    'markdown': markdown,
-    'highlight': highlight,
-    'python': python
+    "plain": plain,
+    "preserve": preserve,
+    "escaped": escaped,
+    "cdata": cdata,
+    "css": css,
+    "stylus": stylus,
+    "less": less,
+    "sass": sass,
+    "javascript": javascript,
+    "coffee": coffee,
+    "coffeescript": coffee,
+    "markdown": markdown,
+    "highlight": highlight,
+    "python": python,
 }
 
 

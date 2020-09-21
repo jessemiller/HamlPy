@@ -6,32 +6,32 @@ from .filters import get_filter
 
 
 XHTML_DOCTYPES = {
-    '1.1': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',  # noqa
-    'strict': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
-    'frameset': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
-    'mobile': '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',  # noqa
-    'rdfa': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">',  # noqa
-    'basic': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',  # noqa
-    '': '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
+    "1.1": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',  # noqa
+    "strict": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',  # noqa
+    "frameset": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',  # noqa
+    "mobile": '<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN" "http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">',  # noqa
+    "rdfa": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML+RDFa 1.0//EN" "http://www.w3.org/MarkUp/DTD/xhtml-rdfa-1.dtd">',  # noqa
+    "basic": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN" "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">',  # noqa
+    "": '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',  # noqa
 }
 
 HTML4_DOCTYPES = {
-    'strict': '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
-    'frameset': '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
-    '': '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'
+    "strict": '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">',
+    "frameset": '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
+    "": '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
 }
 
 
-DOCTYPE_PREFIX = '!!!'
-ELEMENT_PREFIXES = ('%', '#', '.')
-HTML_COMMENT_PREFIX = '/'
-CONDITIONAL_COMMENT_PREFIX = '/['
-HAML_COMMENT_PREFIX = '-#'
-VARIABLE_PREFIX = '='
-TAG_PREFIX = '-'
-FILTER_PREFIX = ':'
+DOCTYPE_PREFIX = "!!!"
+ELEMENT_PREFIXES = ("%", "#", ".")
+HTML_COMMENT_PREFIX = "/"
+CONDITIONAL_COMMENT_PREFIX = "/["
+HAML_COMMENT_PREFIX = "-#"
+VARIABLE_PREFIX = "="
+TAG_PREFIX = "-"
+FILTER_PREFIX = ":"
 
-HAML_ESCAPE = '\\'
+HAML_ESCAPE = "\\"
 
 
 def read_node(stream, prev, compiler):
@@ -49,7 +49,7 @@ def read_node(stream, prev, compiler):
             indent = indent[0] * len(indent)
 
         # empty lines are recorded as newlines on previous node
-        if stream.text[stream.ptr] == '\n':
+        if stream.text[stream.ptr] == "\n":
             if prev:
                 prev.newlines += 1
             stream.ptr += 1
@@ -60,7 +60,10 @@ def read_node(stream, prev, compiler):
             return read_filter_node(stream, indent, compiler)
 
         # peek ahead to so we don't try to parse an element from a variable node starting #{ or a Django tag ending %}
-        if stream.text[stream.ptr] in ELEMENT_PREFIXES and stream.text[stream.ptr:stream.ptr+2] not in ('#{', '%}'):
+        if stream.text[stream.ptr] in ELEMENT_PREFIXES and stream.text[stream.ptr : stream.ptr + 2] not in (
+            "#{",
+            "%}",
+        ):
             element = read_element(stream, compiler)
             return ElementNode(element, indent, compiler)
 
@@ -117,17 +120,18 @@ def read_filter_node(stream, indent, compiler):
 
         # don't preserve whitespace on empty lines
         if line.isspace():
-            line = ''
+            line = ""
 
         content_lines.append(line)
 
-    return FilterNode(name.rstrip(), '\n'.join(content_lines), indent, compiler)
+    return FilterNode(name.rstrip(), "\n".join(content_lines), indent, compiler)
 
 
 class Node(TreeNode):
     """
     Base class of all nodes
     """
+
     def __init__(self, indent, compiler):
         super(Node, self).__init__()
 
@@ -140,9 +144,9 @@ class Node(TreeNode):
 
         self.compiler = compiler
 
-        self.newlines = 0        # number of empty lines to render after node
-        self.before = ''         # rendered text at start of node, e.g. "<p>\n"
-        self.after = ''          # rendered text at end of node, e.g. "\n</p>"
+        self.newlines = 0  # number of empty lines to render after node
+        self.before = ""  # rendered text at start of node, e.g. "<p>\n"
+        self.after = ""  # rendered text at end of node, e.g. "\n</p>"
 
     @classmethod
     def create_root(cls, compiler):
@@ -157,7 +161,7 @@ class Node(TreeNode):
         return self._generate_html()
 
     def render_newlines(self):
-        return '\n' * (self.newlines + 1)
+        return "\n" * (self.newlines + 1)
 
     def _render_children(self):
         for child in self.children:
@@ -174,13 +178,13 @@ class Node(TreeNode):
             output += [gc._generate_html() for gc in child.children]
             output.append(child.after)
         output.append(self.after)
-        return ''.join(output)
+        return "".join(output)
 
     def replace_inline_variables(self, content):
         inline_var_regex, escaped_var_regex = self.compiler.inline_variable_regexes
 
-        content = inline_var_regex.sub(r'{{ \2 }}', content)
-        content = escaped_var_regex.sub(r'\1', content)
+        content = inline_var_regex.sub(r"{{ \2 }}", content)
+        content = escaped_var_regex.sub(r"\1", content)
         return content
 
     def add_node(self, node):
@@ -190,53 +194,56 @@ class Node(TreeNode):
             self.add_child(node)
 
     def _should_go_inside_last_node(self, node):
-        return len(self.children) > 0 \
-               and (node.indentation > self.children[-1].indentation
-                    or (node.indentation == self.children[-1].indentation and self.children[-1].should_contain(node)))
+        return len(self.children) > 0 and (
+            node.indentation > self.children[-1].indentation
+            or (node.indentation == self.children[-1].indentation and self.children[-1].should_contain(node))
+        )
 
     def should_contain(self, node):
         return False
 
     def debug_tree(self):  # pragma: no cover
-        return '\n'.join(self._debug_tree([self]))
+        return "\n".join(self._debug_tree([self]))
 
     def _debug_tree(self, nodes):  # pragma: no cover
         output = []
         for n in nodes:
-            output.append('%s%s' % (' ' * (n.indentation + 2), n))
+            output.append("%s%s" % (" " * (n.indentation + 2), n))
             if n.children:
                 output += self._debug_tree(n.children)
         return output
 
     def __repr__(self):  # pragma: no cover
-        return '%s' % type(self).__name__
+        return "%s" % type(self).__name__
 
 
 class LineNode(Node):
     """
     Base class of nodes which are a single line of Haml
     """
+
     def __init__(self, line, indent, compiler):
         super(LineNode, self).__init__(indent, compiler)
 
         self.haml = line.rstrip()
 
     def __repr__(self):  # pragma: no cover
-        return '%s(indent=%d, newlines=%d): %s' % (type(self).__name__, self.indentation, self.newlines, self.haml)
+        return "%s(indent=%d, newlines=%d): %s" % (type(self).__name__, self.indentation, self.newlines, self.haml)
 
 
 class PlaintextNode(LineNode):
     """
     Node that is not modified or processed when rendering
     """
+
     def _render(self):
         text = self.replace_inline_variables(self.haml)
 
         # remove escape character
         if text and text[0] == HAML_ESCAPE:
-            text = text.replace(HAML_ESCAPE, '', 1)
+            text = text.replace(HAML_ESCAPE, "", 1)
 
-        self.before = '%s%s' % (self.indent, text)
+        self.before = "%s%s" % (self.indent, text)
         if self.children:
             self.before += self.render_newlines()
         else:
@@ -249,6 +256,7 @@ class ElementNode(Node):
     """
     An HTML tag node, e.g. %span
     """
+
     def __init__(self, element, indent, compiler):
         super(ElementNode, self).__init__(indent, compiler)
 
@@ -267,7 +275,7 @@ class ElementNode(Node):
 
         attributes = element.render_attributes(self.compiler.options)
         if attributes:
-            start.append(' ' + self.replace_inline_variables(attributes))
+            start.append(" " + self.replace_inline_variables(attributes))
 
         content = self._render_inline_content(self.element.inline_content)
 
@@ -282,7 +290,7 @@ class ElementNode(Node):
             start.append(">%s" % (self.render_newlines()))
         else:
             start.append(">")
-        return ''.join(start)
+        return "".join(start)
 
     def _render_after(self, element):
         """
@@ -351,6 +359,7 @@ class CommentNode(LineNode):
     """
     An HTML comment node, e.g. / This is a comment
     """
+
     def _render(self):
         self.after = "-->\n"
         if self.children:
@@ -364,13 +373,14 @@ class ConditionalCommentNode(LineNode):
     """
     An HTML conditional comment node, e.g. /[if IE]
     """
+
     def _render(self):
-        conditional = self.haml[1: self.haml.index(']') + 1]
+        conditional = self.haml[1 : self.haml.index("]") + 1]
 
         if self.children:
             self.before = "<!--%s>\n" % conditional
         else:
-            content = self.haml[len(CONDITIONAL_COMMENT_PREFIX) + len(conditional) - 1:]
+            content = self.haml[len(CONDITIONAL_COMMENT_PREFIX) + len(conditional) - 1 :]
             self.before = "<!--%s>%s" % (conditional, content)
 
         self.after = "<![endif]-->\n"
@@ -381,6 +391,7 @@ class DoctypeNode(LineNode):
     """
     An XML doctype node, e.g. !!! 5
     """
+
     def _render(self):
         doctype = self.haml.lstrip(DOCTYPE_PREFIX).strip().lower()
 
@@ -388,30 +399,34 @@ class DoctypeNode(LineNode):
         self.after = self.render_newlines()
 
     def get_header(self, doctype, options):
-        if doctype.startswith('xml'):
+        if doctype.startswith("xml"):
             if options.html:
-                return ''
+                return ""
             parts = doctype.split()
-            encoding = parts[1] if len(parts) > 1 else 'utf-8'
+            encoding = parts[1] if len(parts) > 1 else "utf-8"
             return "<?xml version=%s1.0%s encoding=%s%s%s ?>" % (
-                options.attr_wrapper, options.attr_wrapper,
-                options.attr_wrapper, encoding, options.attr_wrapper,
+                options.attr_wrapper,
+                options.attr_wrapper,
+                options.attr_wrapper,
+                encoding,
+                options.attr_wrapper,
             )
         elif options.html5:
-            return '<!DOCTYPE html>'
+            return "<!DOCTYPE html>"
         elif options.xhtml:
             if doctype == "5":
-                return '<!DOCTYPE html>'
+                return "<!DOCTYPE html>"
             else:
-                return XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[''])
+                return XHTML_DOCTYPES.get(doctype, XHTML_DOCTYPES[""])
         else:
-            return HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[''])
+            return HTML4_DOCTYPES.get(doctype, HTML4_DOCTYPES[""])
 
 
 class HamlCommentNode(LineNode):
     """
     A Haml comment node, e.g. -# This is a comment
     """
+
     def _render(self):
         self.after = self.render_newlines()[1:]
 
@@ -423,6 +438,7 @@ class VariableNode(LineNode):
     """
     A Django variable node, e.g. =person.name
     """
+
     def __init__(self, haml, indent, compiler):
         super(VariableNode, self).__init__(haml, indent, compiler)
 
@@ -439,11 +455,12 @@ class TagNode(LineNode):
     """
     A Django/Jinja server-side tag node, e.g. -block
     """
+
     def __init__(self, haml, indent, compiler):
         super(TagNode, self).__init__(haml, indent, compiler)
 
         self.tag_statement = self.haml.lstrip(TAG_PREFIX).strip()
-        self.tag_name = self.tag_statement.split(' ')[0]
+        self.tag_name = self.tag_statement.split(" ")[0]
 
         if self.tag_name in self.compiler.self_closing_tags.values():
             raise ParseException("Unexpected closing tag for self-closing tag %s" % self.tag_name)
@@ -455,7 +472,7 @@ class TagNode(LineNode):
 
         if closing_tag:
             self.before += self.render_newlines()
-            self.after = '%s{%% %s %%}%s' % (self.indent, closing_tag, self.render_newlines())
+            self.after = "%s{%% %s %%}%s" % (self.indent, closing_tag, self.render_newlines())
         else:
             if self.children:
                 self.before += self.render_newlines()
@@ -464,13 +481,14 @@ class TagNode(LineNode):
         self._render_children()
 
     def should_contain(self, node):
-        return isinstance(node, TagNode) and node.tag_name in self.compiler.tags_may_contain.get(self.tag_name, '')
+        return isinstance(node, TagNode) and node.tag_name in self.compiler.tags_may_contain.get(self.tag_name, "")
 
 
 class FilterNode(Node):
     """
     A type filter, e.g. :javascript
     """
+
     def __init__(self, filter_name, content, indent, compiler):
         super(FilterNode, self).__init__(indent, compiler)
 
@@ -483,14 +501,19 @@ class FilterNode(Node):
         filter_func = get_filter(self.filter_name)
         content = filter_func(content, self.compiler.options)
 
-        content = self.indent + content.replace('\n', '\n' + self.indent)
+        content = self.indent + content.replace("\n", "\n" + self.indent)
 
         self.before = content
-        self.after = self.render_newlines() if self.content else ''
+        self.after = self.render_newlines() if self.content else ""
 
     def _post_render(self):
         pass
 
     def __repr__(self):  # pragma: no cover
-        return '%s(indent=%d, newlines=%d, filter=%s): %s' \
-               % (type(self).__name__, self.indentation, self.newlines, self.filter_name, self.content)
+        return "%s(indent=%d, newlines=%d, filter=%s): %s" % (
+            type(self).__name__,
+            self.indentation,
+            self.newlines,
+            self.filter_name,
+            self.content,
+        )

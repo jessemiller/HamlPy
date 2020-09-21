@@ -7,7 +7,6 @@ from hamlpy.parser.core import ParseException
 
 
 class HamlPyExtension(jinja2.ext.Extension):
-
     def preprocess(self, source, name, filename=None):
         extension = os.path.splitext(name)[1][1:]
 

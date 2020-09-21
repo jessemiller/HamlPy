@@ -3,12 +3,21 @@ import django.views.generic
 from hamlpy import HAML_EXTENSIONS
 
 pouet = [
-    'ArchiveIndexView', 'YearArchiveView', 'MonthArchiveView',
-    'WeekArchiveView', 'DayArchiveView', 'TodayArchiveView', 'DateDetailView',
-    'DetailView', 'CreateView', 'UpdateView', 'DeleteView', 'ListView',
+    "ArchiveIndexView",
+    "YearArchiveView",
+    "MonthArchiveView",
+    "WeekArchiveView",
+    "DayArchiveView",
+    "TodayArchiveView",
+    "DateDetailView",
+    "DetailView",
+    "CreateView",
+    "UpdateView",
+    "DeleteView",
+    "ListView",
 ]
 
-NON_HAML_EXTENSIONS = ('html', 'htm', 'xml')
+NON_HAML_EXTENSIONS = ("html", "htm", "xml")
 
 
 class HamlExtensionTemplateView(object):
@@ -20,8 +29,8 @@ class HamlExtensionTemplateView(object):
         for name in names:
 
             for ext in NON_HAML_EXTENSIONS:
-                if name.endswith('.' + ext):
-                    base_name = name[:-len(ext)]
+                if name.endswith("." + ext):
+                    base_name = name[: -len(ext)]
 
                     for haml_ext in HAML_EXTENSIONS:
                         haml_names.append(base_name + haml_ext)

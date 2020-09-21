@@ -8,17 +8,17 @@ from hamlpy.compiler import Compiler
 from os import listdir, path
 
 
-TEMPLATE_DIRECTORY = '/templates/'
-TEMPLATE_EXTENSION = '.hamlpy'
+TEMPLATE_DIRECTORY = "/templates/"
+TEMPLATE_EXTENSION = ".hamlpy"
 
 
 class TemplateCheck(object):
-    compiler = Compiler(options={'format': 'xhtml', 'escape_attrs': True})
+    compiler = Compiler(options={"format": "xhtml", "escape_attrs": True})
 
     def __init__(self, name, haml, html):
         self.name = name
         self.haml = haml
-        self.expected_html = html.replace('\r', '')  # ignore line ending differences
+        self.expected_html = html.replace("\r", "")  # ignore line ending differences
         self.actual_html = None
 
     @classmethod
@@ -30,10 +30,10 @@ class TemplateCheck(object):
         for f in listdir(directory):
             haml_path = path.join(directory, f)
             if haml_path.endswith(TEMPLATE_EXTENSION):
-                html_path = path.splitext(haml_path)[0] + '.html'
+                html_path = path.splitext(haml_path)[0] + ".html"
 
-                haml = codecs.open(haml_path, encoding='utf-8').read()
-                html = open(html_path, 'r').read()
+                haml = codecs.open(haml_path, encoding="utf-8").read()
+                html = open(html_path, "r").read()
 
                 tests.append(TemplateCheck(haml_path, haml, html))
 
@@ -43,25 +43,24 @@ class TemplateCheck(object):
         parsed = self.compiler.process(self.haml)
 
         # ignore line ending differences and blank lines
-        self.actual_html = parsed.replace('\r', '')
-        self.actual_html = regex.sub('\n[ \t]+(?=\n)', '\n', self.actual_html)
+        self.actual_html = parsed.replace("\r", "")
+        self.actual_html = regex.sub("\n[ \t]+(?=\n)", "\n", self.actual_html)
 
     def passed(self):
         return self.actual_html == self.expected_html
 
 
 class TemplateCompareTest(unittest.TestCase):
-
     def test_templates(self):
         tests = TemplateCheck.load_all()
 
         for test in tests:
-            print('Template test: ' + test.name)
+            print("Template test: " + test.name)
             test.run()
 
             if not test.passed():
-                print('\nHTML (actual): ')
-                print('\n'.join(["%d. %s" % (i + 1, l) for i, l in enumerate(test.actual_html.split('\n'))]))
+                print("\nHTML (actual): ")
+                print("\n".join(["%d. %s" % (i + 1, l) for i, l in enumerate(test.actual_html.split("\n"))]))
                 self._print_diff(test.actual_html, test.expected_html)
                 self.fail()
 
@@ -77,21 +76,21 @@ class TemplateCompareTest(unittest.TestCase):
 
         for i, _ in enumerate(shorter):
             if len(shorter) <= i + 1:
-                print('Ran out of characters to compare!')
-                print('Actual len=%d' % len(s1))
-                print('Expected len=%d' % len(s2))
+                print("Ran out of characters to compare!")
+                print("Actual len=%d" % len(s1))
+                print("Expected len=%d" % len(s2))
                 break
             if s1[i] != s2[i]:
-                print('Difference begins at line', line, 'column', col)
+                print("Difference begins at line", line, "column", col)
                 actual_line = s1.splitlines()[line - 1]
                 expected_line = s2.splitlines()[line - 1]
-                print('HTML (actual, len=%2d)   : %s' % (len(actual_line), actual_line))
-                print('HTML (expected, len=%2d) : %s' % (len(expected_line), expected_line))
-                print('Character code (actual)  : %d (%s)' % (ord(s1[i]), s1[i]))
-                print('Character code (expected): %d (%s)' % (ord(s2[i]), s2[i]))
+                print("HTML (actual, len=%2d)   : %s" % (len(actual_line), actual_line))
+                print("HTML (expected, len=%2d) : %s" % (len(expected_line), expected_line))
+                print("Character code (actual)  : %d (%s)" % (ord(s1[i]), s1[i]))
+                print("Character code (expected): %d (%s)" % (ord(s2[i]), s2[i]))
                 break
 
-            if shorter[i] == '\n':
+            if shorter[i] == "\n":
                 line += 1
                 col = 1
             else:
@@ -120,9 +119,11 @@ def performance_test(num_runs):
 
         times.append(time.time() - start)
 
-    print("Ran template tests %d times in %.2f seconds (average = %.3f secs)"
-          % (num_runs, sum(times), sum(times) / float(num_runs)))
+    print(
+        "Ran template tests %d times in %.2f seconds (average = %.3f secs)"
+        % (num_runs, sum(times), sum(times) / float(num_runs))
+    )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     performance_test(500)

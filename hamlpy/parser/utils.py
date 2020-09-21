@@ -2,10 +2,10 @@ from enum import Enum
 
 from .core import Stream
 
-DJANGO_TAG_OPEN = '{%'
-DJANGO_TAG_CLOSE = '%}'
-DJANGO_EXP_OPEN = '{{'
-DJANGO_EXP_CLOSE = '}}'
+DJANGO_TAG_OPEN = "{%"
+DJANGO_TAG_CLOSE = "%}"
+DJANGO_EXP_OPEN = "{{"
+DJANGO_EXP_CLOSE = "}}"
 HTML_CHARS = {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}
 
 
@@ -26,14 +26,15 @@ def html_escape(text):
 
     while stream.ptr < stream.length:
         ch = stream.text[stream.ptr]
-        ch2 = stream.text[stream.ptr:stream.ptr + 2]
+        ch2 = stream.text[stream.ptr : stream.ptr + 2]
 
         if ch2 == DJANGO_TAG_OPEN or ch2 == DJANGO_EXP_OPEN:
             state = EscapeState.in_tag if ch2 == DJANGO_TAG_OPEN else EscapeState.in_exp
             stream.ptr += 2
             new_text.append(ch2)
-        elif (state == EscapeState.in_tag and ch2 == DJANGO_TAG_CLOSE) \
-                or (state == EscapeState.in_exp and ch2 == DJANGO_EXP_CLOSE):
+        elif (state == EscapeState.in_tag and ch2 == DJANGO_TAG_CLOSE) or (
+            state == EscapeState.in_exp and ch2 == DJANGO_EXP_CLOSE
+        ):
             state = EscapeState.normal
             stream.ptr += 2
             new_text.append(ch2)
@@ -41,4 +42,4 @@ def html_escape(text):
             stream.ptr += 1
             new_text.append(HTML_CHARS.get(ch, ch) if state == EscapeState.normal else ch)
 
-    return ''.join(new_text)
+    return "".join(new_text)

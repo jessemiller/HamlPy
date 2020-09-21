@@ -1,15 +1,15 @@
 import ast
 
 STRING_LITERALS = ('"', "'")
-WHITESPACE_CHARS = (' ', '\t')
-WHITESPACE_AND_NEWLINE_CHARS = (' ', '\t', '\r', '\n')
+WHITESPACE_CHARS = (" ", "\t")
+WHITESPACE_AND_NEWLINE_CHARS = (" ", "\t", "\r", "\n")
 
 
 class ParseException(Exception):
     def __init__(self, message, stream=None):
         if stream:
-            context = stream.text[max(stream.ptr-31, 0):stream.ptr+1]
-            message = "%s @ \"%s\" <-" % (message, context)
+            context = stream.text[max(stream.ptr - 31, 0) : stream.ptr + 1]
+            message = '%s @ "%s" <-' % (message, context)
 
         super(ParseException, self).__init__(message)
 
@@ -31,17 +31,20 @@ class Stream(object):
         """
         Raises exception that current character is unexpected
         """
-        raise ParseException("Unexpected \"%s\"." % self.text[self.ptr], self)
+        raise ParseException('Unexpected "%s".' % self.text[self.ptr], self)
 
     def __repr__(self):  # pragma: no cover
-        return '"%s" >> "%s"' \
-               % (self.text[:self.ptr].replace('\n', '\\n'), self.text[self.ptr:].replace('\n', '\\n'))
+        return '"%s" >> "%s"' % (
+            self.text[: self.ptr].replace("\n", "\\n"),
+            self.text[self.ptr :].replace("\n", "\\n"),
+        )
 
 
 class TreeNode(object):
     """
     Generic parent/child tree class
     """
+
     def __init__(self):
         self.parent = None
         self.children = []
@@ -72,7 +75,7 @@ def read_whitespace(stream, include_newlines=False):
     while stream.ptr < stream.length and stream.text[stream.ptr] in whitespace:
         stream.ptr += 1
 
-    return stream.text[start:stream.ptr]
+    return stream.text[start : stream.ptr]
 
 
 def peek_indentation(stream):
@@ -82,7 +85,7 @@ def peek_indentation(stream):
     indentation = 0
     while True:
         ch = stream.text[stream.ptr + indentation]
-        if ch == '\n':
+        if ch == "\n":
             return None
 
         if not ch.isspace():
@@ -106,7 +109,7 @@ def read_quoted_string(stream):
         if stream.ptr >= stream.length:
             raise ParseException("Unterminated string (expected %s)." % terminator, stream)
 
-        if stream.text[stream.ptr] == terminator and stream.text[stream.ptr - 1] != '\\':
+        if stream.text[stream.ptr] == terminator and stream.text[stream.ptr - 1] != "\\":
             break
 
         stream.ptr += 1
@@ -114,7 +117,7 @@ def read_quoted_string(stream):
     stream.ptr += 1  # consume closing quote
 
     # evaluate as a Python string (evaluates escape sequences)
-    return ast.literal_eval(stream.text[start:stream.ptr])
+    return ast.literal_eval(stream.text[start : stream.ptr])
 
 
 def read_line(stream):
@@ -126,12 +129,12 @@ def read_line(stream):
     if stream.ptr >= stream.length:
         return None
 
-    while stream.ptr < stream.length and stream.text[stream.ptr] != '\n':
+    while stream.ptr < stream.length and stream.text[stream.ptr] != "\n":
         stream.ptr += 1
 
-    line = stream.text[start:stream.ptr]
+    line = stream.text[start : stream.ptr]
 
-    if stream.ptr < stream.length and stream.text[stream.ptr] == '\n':
+    if stream.ptr < stream.length and stream.text[stream.ptr] == "\n":
         stream.ptr += 1
 
     return line
@@ -144,12 +147,12 @@ def read_number(stream):
     start = stream.ptr
 
     while True:
-        if not stream.text[stream.ptr].isdigit() and stream.text[stream.ptr] != '.':
+        if not stream.text[stream.ptr].isdigit() and stream.text[stream.ptr] != ".":
             break
 
         stream.ptr += 1
 
-    return stream.text[start:stream.ptr]
+    return stream.text[start : stream.ptr]
 
 
 def read_symbol(stream, symbols):
@@ -157,11 +160,11 @@ def read_symbol(stream, symbols):
     Reads one of the given symbols, returning its value
     """
     for symbol in symbols:
-        if stream.text[stream.ptr:stream.ptr+len(symbol)] == symbol:
+        if stream.text[stream.ptr : stream.ptr + len(symbol)] == symbol:
             stream.ptr += len(symbol)
             return symbol
 
-    raise ParseException("Expected %s." % ' or '.join(['"%s"' % s for s in symbols]), stream)
+    raise ParseException("Expected %s." % " or ".join(['"%s"' % s for s in symbols]), stream)
 
 
 def read_word(stream, include_chars=()):
@@ -174,7 +177,7 @@ def read_word(stream, include_chars=()):
 
     while stream.ptr < stream.length:
         ch = stream.text[stream.ptr]
-        if not (ch.isalnum() or ch == '_' or ch in include_chars):
+        if not (ch.isalnum() or ch == "_" or ch in include_chars):
             break
         stream.ptr += 1
 
@@ -182,4 +185,4 @@ def read_word(stream, include_chars=()):
     if start == stream.ptr:
         stream.raise_unexpected()
 
-    return stream.text[start:stream.ptr]
+    return stream.text[start : stream.ptr]

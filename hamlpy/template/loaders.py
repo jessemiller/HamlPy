@@ -11,10 +11,10 @@ from hamlpy.template.utils import get_django_template_loaders
 # Get options from Django settings
 options = {}
 
-if hasattr(settings, 'HAMLPY_ATTR_WRAPPER'):
+if hasattr(settings, "HAMLPY_ATTR_WRAPPER"):
     options.update(attr_wrapper=settings.HAMLPY_ATTR_WRAPPER)
 
-if hasattr(settings, 'HAMLPY_DJANGO_INLINE_STYLE'):
+if hasattr(settings, "HAMLPY_DJANGO_INLINE_STYLE"):
     options.update(django_inline_style=settings.HAMLPY_DJANGO_INLINE_STYLE)
 
 
@@ -25,7 +25,7 @@ def get_haml_loader(loader):
             contents = super(Loader, self).get_contents(origin)
             name, _extension = os.path.splitext(origin.template_name)
             # os.path.splitext always returns a period at the start of extension
-            extension = _extension.lstrip('.')
+            extension = _extension.lstrip(".")
 
             if extension in HAML_EXTENSIONS:
                 compiler = Compiler(options=options)
@@ -37,7 +37,7 @@ def get_haml_loader(loader):
             # Django<1.9
             name, _extension = os.path.splitext(template_name)
             # os.path.splitext always returns a period at the start of extension
-            extension = _extension.lstrip('.')
+            extension = _extension.lstrip(".")
 
             if extension in HAML_EXTENSIONS:
                 try:
