@@ -1,3 +1,9 @@
+1.3 (2020-09-21)
+================
+
+* Add support for markdown extensions (https://github.com/nyaruka/django-hamlpy/pull/78)
+* Drop support for Django 1.x, test on 2.x and 3.x
+
 1.1.1 (2017-05-29)
 ===================
 
