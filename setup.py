@@ -11,7 +11,7 @@ except ImportError:
 def _is_requirement(line):
     """Returns whether the line is a valid package requirement."""
     line = line.strip()
-    return line and not line.startswith("#")
+    return line and not (line.startswith("-r") or line.startswith("#"))
 
 
 def _read_requirements(filename):
