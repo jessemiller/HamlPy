@@ -1,10 +1,10 @@
-import imp
+from importlib import machinery
 
 from django.template import loaders
 from os import listdir
 from os.path import dirname, splitext
 
-MODULE_EXTENSIONS = tuple([suffix[0] for suffix in imp.get_suffixes()])
+MODULE_EXTENSIONS = tuple(machinery.all_suffixes())
 
 
 def get_django_template_loaders():
