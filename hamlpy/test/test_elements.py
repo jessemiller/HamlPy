@@ -13,11 +13,11 @@ class ElementTest(unittest.TestCase):
         self.assertEqual(stream.text[stream.ptr :], "(")
 
     def test_read_element(self):
-        stream = Stream('%angular:ng-repeat.my-class#my-id(class="test")></=  Hello  \n.next-element')
+        stream = Stream('%angular:ng-repeat.my-class.other:class#my-id(class="test")></=  Hello  \n.next-element')
         element = read_element(stream, Compiler())
         self.assertEqual(element.tag, "angular:ng-repeat")
         self.assertEqual(element.id, "my-id")
-        self.assertEqual(element.classes, ["test", "my-class"])
+        self.assertEqual(element.classes, ["test", "my-class", "other:class"])
         self.assertEqual(dict(element.attributes), {"class": "test"})
         self.assertEqual(element.nuke_outer_whitespace, True)
         self.assertEqual(element.nuke_inner_whitespace, True)
@@ -79,9 +79,9 @@ class ElementTest(unittest.TestCase):
         element = self._read_element("%div.someClass.anotherClass#someId")
         assert element.classes == ["someClass", "anotherClass"]
 
-        # classes can contain hypens and underscores
-        element = self._read_element("%div.-some-class-._another_class_")
-        assert element.classes == ["-some-class-", "_another_class_"]
+        # classes can contain hypens, underscores and colons
+        element = self._read_element("%div.-some-class-._another_class_.also:class")
+        assert element.classes == ["-some-class-", "_another_class_", "also:class"]
 
         # no class
         element = self._read_element("%div#someId")
