@@ -19,15 +19,14 @@ jobs:
 
     - name: Initialize environment
       run: |
-        pip install --upgrade pip
-        pip install -r requirements/tests.txt
-        pip install codecov
-        pip install -q django==${{ matrix.django-version }}
+        python -m pip install -U pip poetry
+        poetry install
+        poetry run pip install -q django==${{ matrix.django-version }}
 
     - name: Run tests
       run: |
-        flake8
-        py.test --cov-report= --cov=hamlpy hamlpy
+        poetry run flake8
+        poetry run py.test --cov-report=xml --cov=hamlpy hamlpy
 
     - name: Upload coverage
       if: success()

@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "django-hamlpy"
+version = "1.4.0"
+description = "HAML like syntax for Django templates"
+authors = ["Nyaruka <code@nyaruka.com>"]
+readme = "README.md"
+license = "MIT"
+classifiers=[
+    "Environment :: Web Environment",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Framework :: Django",
+]
+packages = [
+    { include = "hamlpy" },
+]
+
+[tool.poetry.urls]
+repository = "http://github.com/nyaruka/django-hamlpy"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+django = "^2.1"
+regex = "^2020.11.13"
+
+[tool.poetry.dev-dependencies]
+Markdown = "^3.3.3"
+pytest = "^6.1.2"
+pytest-cov = "^2.10.1"
+flake8 = "^3.8.4"
+Pygments = "2.1.3"
+codecov = "^2.1.10"
+Jinja2 = "^2.11.2"
+
+[tool.poetry.scripts]
+hamlpy-watcher = "hamlpy.hamlpy_watcher:watch_folder"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
