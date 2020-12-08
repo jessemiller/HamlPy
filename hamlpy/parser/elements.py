@@ -4,18 +4,21 @@ from .attributes import read_attribute_dict
 from .core import read_line, read_word
 
 # non-word characters that we allow in tag names, ids and classes
-DOM_OBJECT_EXTRA_CHARS = ("-",)
+TAG_EXTRA_CHARS = ("-",)
+
+# non-word characters that we allow in ids and classes
+ID_OR_CLASS_EXTRA_CHARS = ("-", ":")
 
 
 def read_tag(stream):
     """
     Reads an element tag, e.g. span, ng-repeat, cs:dropdown
     """
-    part1 = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
+    part1 = read_word(stream, TAG_EXTRA_CHARS)
 
     if stream.ptr < stream.length and stream.text[stream.ptr] == ":":
         stream.ptr += 1
-        part2 = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
+        part2 = read_word(stream, TAG_EXTRA_CHARS)
     else:
         part2 = None
 
@@ -39,7 +42,7 @@ def read_element(stream, compiler):
         # Element may start with a period representing an unidentified div rather than a CSS class. In this case it
         # can't have other classes or ids, e.g. .{foo:"bar"}
         next_ch = stream.text[stream.ptr + 1] if stream.ptr < stream.length - 1 else None
-        if not (next_ch.isalnum() or next_ch == "_" or next_ch in DOM_OBJECT_EXTRA_CHARS):
+        if not (next_ch.isalnum() or next_ch == "_" or next_ch in ID_OR_CLASS_EXTRA_CHARS):
             stream.ptr += 1
             empty_class = True
 
@@ -51,7 +54,7 @@ def read_element(stream, compiler):
             is_id = stream.text[stream.ptr] == "#"
             stream.ptr += 1
 
-            id_or_class = read_word(stream, DOM_OBJECT_EXTRA_CHARS)
+            id_or_class = read_word(stream, ID_OR_CLASS_EXTRA_CHARS)
             if is_id:
                 _id = id_or_class
             else:
