@@ -87,7 +87,7 @@ def markdown(content, options):
     if not _markdown_available:
         raise ParseException("Markdown is not available")
 
-    md_extensions = getattr(settings, 'HAMLPY_MARKDOWN_EXTENSIONS', [])
+    md_extensions = getattr(settings, "HAMLPY_MARKDOWN_EXTENSIONS", [])
     return markdown_lib(content, extensions=md_extensions)
 
 

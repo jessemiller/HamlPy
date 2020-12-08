@@ -1,6 +1,5 @@
 from django.apps import AppConfig
 
-
 HAML_EXTENSIONS = ("haml", "hamlpy")
 
 
