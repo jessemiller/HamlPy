@@ -33,7 +33,6 @@ flake8 = "^3.8.4"
 Pygments = "2.1.3"
 codecov = "^2.1.10"
 Jinja2 = "^2.11.2"
-coveragePy = "^1.5.0"
 
 [tool.poetry.scripts]
 hamlpy-watcher = "hamlpy.hamlpy_watcher:watch_folder"

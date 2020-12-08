@@ -37,14 +37,6 @@ optional = false
 python-versions = "*"
 
 [[package]]
-name = "click"
-version = "7.1.2"
-description = "Composable command line interface toolkit"
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[[package]]
 name = "codecov"
 version = "2.1.10"
 description = "Hosted coverage reports for GitHub, Bitbucket and Gitlab"
@@ -71,19 +63,6 @@ description = "Code coverage measurement for Python"
 category = "dev"
 optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4"
-
-[[package]]
-name = "coveragepy"
-version = "1.5.0"
-description = "measure code coverage of Python programs"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-coverage = "4.5.3"
-flask = "1.0.2"
-requests = "2.25.0"
 
 [[package]]
 name = "django"
@@ -116,25 +95,6 @@ pycodestyle = ">=2.6.0a1,<2.7.0"
 pyflakes = ">=2.2.0,<2.3.0"
 
 [[package]]
-name = "flask"
-version = "1.0.2"
-description = "A simple framework for building complex web applications."
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-click = ">=5.1"
-itsdangerous = ">=0.24"
-Jinja2 = ">=2.10"
-Werkzeug = ">=0.14"
-
-[package.extras]
-dev = ["pytest (>=3)", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet"]
-docs = ["sphinx", "pallets-sphinx-themes", "sphinxcontrib-log-cabinet"]
-dotenv = ["python-dotenv"]
-
-[[package]]
 name = "idna"
 version = "2.10"
 description = "Internationalized Domain Names in Applications (IDNA)"
@@ -164,14 +124,6 @@ description = "iniconfig: brain-dead simple config-ini parsing"
 category = "dev"
 optional = false
 python-versions = "*"
-
-[[package]]
-name = "itsdangerous"
-version = "1.1.0"
-description = "Various helpers to pass data to untrusted environments and back."
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "jinja2"
@@ -384,18 +336,6 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
-name = "werkzeug"
-version = "1.0.1"
-description = "The comprehensive WSGI web application library."
-category = "dev"
-optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-
-[package.extras]
-dev = ["pytest", "pytest-timeout", "coverage", "tox", "sphinx", "pallets-sphinx-themes", "sphinx-issues"]
-watchdog = ["watchdog"]
-
-[[package]]
 name = "zipp"
 version = "3.4.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
@@ -410,7 +350,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "605d9f91d9894cc1a4ad8ebb994d6b41e937dd4b56ae4ba728496f2663eff104"
+content-hash = "3c279b120a420a46a0d7b54d9ddb7a5b404d9d13afe4b1895072758799f324e2"
 
 [metadata.files]
 atomicwrites = [
@@ -428,10 +368,6 @@ certifi = [
 chardet = [
     {file = "chardet-3.0.4-py2.py3-none-any.whl", hash = "sha256:fc323ffcaeaed0e0a02bf4d117757b98aed530d9ed4531e3e15460124c106691"},
     {file = "chardet-3.0.4.tar.gz", hash = "sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae"},
-]
-click = [
-    {file = "click-7.1.2-py2.py3-none-any.whl", hash = "sha256:dacca89f4bfadd5de3d7489b7c8a566eee0d3676333fbb50030263894c38c0dc"},
-    {file = "click-7.1.2.tar.gz", hash = "sha256:d2b5255c7c6349bc1bd1e59e08cd12acbbd63ce649f2588755783aa94dfb6b1a"},
 ]
 codecov = [
     {file = "codecov-2.1.10-py2.py3-none-any.whl", hash = "sha256:61bc71b5f58be8000bf9235aa9d0112f8fd3acca00aa02191bb81426d22a8584"},
@@ -485,10 +421,6 @@ coverage = [
     {file = "coverage-4.5.3.win32-py3.6.exe", hash = "sha256:2b412abc4c7d6e019ce7c27cbc229783035eef6d5401695dccba80f481be4eb3"},
     {file = "coverage-4.5.3.win32-py3.7.exe", hash = "sha256:0c5fe441b9cfdab64719f24e9684502a59432df7570521563d7b1aff27ac755f"},
 ]
-coveragepy = [
-    {file = "coveragePy-1.5.0-py3-none-any.whl", hash = "sha256:5e662cac389f78be6b3ad30dea852987ef9fcef0b6011d00c0516f51f2990e96"},
-    {file = "coveragePy-1.5.0.tar.gz", hash = "sha256:4a3cd6616e491f28f63d61b729ab5f1381bd114d08da89cf50dc6d612e77a6e5"},
-]
 django = [
     {file = "Django-2.2.17-py3-none-any.whl", hash = "sha256:558cb27930defd9a6042133258caf797b2d1dee233959f537e3dc475cb49bd7c"},
     {file = "Django-2.2.17.tar.gz", hash = "sha256:cf5370a4d7765a9dd6d42a7b96b53c74f9446cd38209211304b210fe0404b861"},
@@ -496,10 +428,6 @@ django = [
 flake8 = [
     {file = "flake8-3.8.4-py2.py3-none-any.whl", hash = "sha256:749dbbd6bfd0cf1318af27bf97a14e28e5ff548ef8e5b1566ccfb25a11e7c839"},
     {file = "flake8-3.8.4.tar.gz", hash = "sha256:aadae8761ec651813c24be05c6f7b4680857ef6afaae4651a4eccaef97ce6c3b"},
-]
-flask = [
-    {file = "Flask-1.0.2-py2.py3-none-any.whl", hash = "sha256:a080b744b7e345ccfcbc77954861cb05b3c63786e93f2b3875e0913d44b43f05"},
-    {file = "Flask-1.0.2.tar.gz", hash = "sha256:2271c0070dbcb5275fad4a82e29f23ab92682dc45f9dfbc22c02ba9b9322ce48"},
 ]
 idna = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
@@ -512,10 +440,6 @@ importlib-metadata = [
 iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
-]
-itsdangerous = [
-    {file = "itsdangerous-1.1.0-py2.py3-none-any.whl", hash = "sha256:b12271b2047cb23eeb98c8b5622e2e5c5e9abd9784a153e9d8ef9cb4dd09d749"},
-    {file = "itsdangerous-1.1.0.tar.gz", hash = "sha256:321b033d07f2a4136d3ec762eac9f16a10ccd60f53c0c91af90217ace7ba1f19"},
 ]
 jinja2 = [
     {file = "Jinja2-2.11.2-py2.py3-none-any.whl", hash = "sha256:f0a4641d3cf955324a89c04f3d94663aa4d638abe8f733ecd3582848e1c37035"},
@@ -662,10 +586,6 @@ toml = [
 urllib3 = [
     {file = "urllib3-1.26.2-py2.py3-none-any.whl", hash = "sha256:d8ff90d979214d7b4f8ce956e80f4028fc6860e4431f731ea4a8c08f23f99473"},
     {file = "urllib3-1.26.2.tar.gz", hash = "sha256:19188f96923873c92ccb987120ec4acaa12f0461fa9ce5d3d0772bc965a39e08"},
-]
-werkzeug = [
-    {file = "Werkzeug-1.0.1-py2.py3-none-any.whl", hash = "sha256:2de2a5db0baeae7b2d2664949077c2ac63fbd16d98da0ff71837f7d1dea3fd43"},
-    {file = "Werkzeug-1.0.1.tar.gz", hash = "sha256:6c80b1e5ad3665290ea39320b91e1be1e0d5f60652b964a3070216de83d2e47c"},
 ]
 zipp = [
     {file = "zipp-3.4.0-py3-none-any.whl", hash = "sha256:102c24ef8f171fd729d46599845e95c7ab894a4cf45f5de11a44cc7444fb1108"},
