@@ -252,10 +252,7 @@ class MyNewView(HamlExtensionTemplateView, ParentViewType):
 We're always happy to have contributions to this project. To get started you'll need to clone the project and install 
 the dependencies:
 
-    virtualenv env
-    source env/bin/activate
-    pip install -r requirements/base.txt
-    pip install -r requirements/tests.txt
+    poetry install
 
 Please write tests for any new features and always ensure the current tests pass. To run the tests, use:
 
