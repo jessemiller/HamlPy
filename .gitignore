@@ -7,9 +7,12 @@
 .idea/
 .tox/
 .watcher_test/
+.venv
 coverage.xml
 build/
 htmlcov/
 env/
 dist/
 django_hamlpy.egg-info/
+fabric
+fabfile.*
