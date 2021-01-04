@@ -1,3 +1,7 @@
+v1.4.3
+----------
+ * Fix Django requirement to properly support 3.x
+
 v1.4.2
 ----------
  * Switch to new release system
