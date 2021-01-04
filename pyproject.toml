@@ -22,7 +22,7 @@ repository = "http://github.com/nyaruka/django-hamlpy"
 
 [tool.poetry.dependencies]
 python = "^3.6"
-django = "^2.1"
+django = ">=2.1"
 regex = "^2020.11.13"
 
 [tool.poetry.dev-dependencies]
