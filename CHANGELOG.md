@@ -1,3 +1,7 @@
+v1.4.4
+----------
+ * Loosen regex dependency
+
 v1.4.3
 ----------
  * Fix Django requirement to properly support 3.x
