@@ -21,7 +21,7 @@ when you can just type:
 
 ... and do something more fun with all the time you save not typing angle brackets and remembering to close tags? 
 
-The syntax above is [Haml](http://www.haml-lang.com) - a templating language used extensively in the Ruby on Rails 
+The syntax above is [Haml](https://haml.info) - a templating language used extensively in the Ruby on Rails 
 community. This library lets Django developers use a Haml like syntax in their templates. It's not a template engine in 
 itself, but simply a compiler which will convert "HamlPy" files into templates that Django can understand.
 
