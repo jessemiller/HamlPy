@@ -2,6 +2,7 @@ import importlib
 from unittest import mock
 
 import pytest
+
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.test import SimpleTestCase

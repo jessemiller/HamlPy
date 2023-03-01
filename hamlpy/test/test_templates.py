@@ -60,7 +60,7 @@ class TemplateCompareTest(unittest.TestCase):
 
             if not test.passed():
                 print("\nHTML (actual): ")
-                print("\n".join(["%d. %s" % (i + 1, l) for i, l in enumerate(test.actual_html.split("\n"))]))
+                print("\n".join(["%d. %s" % (i + 1, line) for i, line in enumerate(test.actual_html.split("\n"))]))
                 self._print_diff(test.actual_html, test.expected_html)
                 self.fail()
 

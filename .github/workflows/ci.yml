@@ -5,8 +5,8 @@ jobs:
     name: Test
     strategy:
       matrix:
-        python-version: ['3.6.x', '3.7.x', '3.8.x']
-        django-version: ['2.1.15', '2.2.17', '3.0.11', '3.1.4']
+        python-version: ['3.8.x', '3.9.x', '3.10.x', '3.11.x']
+        django-version: ['4.1.7']
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
@@ -25,7 +25,9 @@ jobs:
 
     - name: Run tests
       run: |
-        poetry run flake8
+        poetry run isort hamlpy
+        poetry run black --check hamlpy
+        poetry run ruff hamlpy
         poetry run py.test --cov-report=xml --cov=hamlpy hamlpy
 
     - name: Upload coverage

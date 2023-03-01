@@ -1,4 +1,10 @@
-from __future__ import unicode_literals
+import sys
+from io import StringIO
+
+from django.conf import settings
+
+from .core import ParseException
+from .utils import html_escape
 
 """
 Core HamlPy filters.
@@ -8,10 +14,6 @@ possible. Where we differ is that we don't compile Stylus, Coffeescript etc into
 content into suitable <style> and <script> that can be transformed later by something like django-compressor.
 """
 
-import sys
-from io import StringIO
-
-from django.conf import settings
 
 # Pygments and Markdown are optional dependencies which may or may not be available
 try:
@@ -31,8 +33,6 @@ try:
 except ImportError:  # pragma: no cover
     _markdown_available = False
 
-from .core import ParseException
-from .utils import html_escape
 
 # ----------------------------------------------------------------------------------
 # Core filters
