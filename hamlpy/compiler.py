@@ -69,6 +69,7 @@ class Compiler:
                 "autoescape": "endautoescape",
                 "with": "endwith",
                 "blocktrans": "endblocktrans",
+                "blocktranslate": "endblocktranslate",
                 "spaceless": "endspaceless",
                 "comment": "endcomment",
                 "cache": "endcache",
@@ -79,6 +80,7 @@ class Compiler:
             },
             "may_contain": {
                 "blocktrans": ["plural"],
+                "blocktranslate": ["plural"],
                 "if": ["else", "elif"],
                 "ifchanged": ["else"],
                 "ifequal": ["else"],

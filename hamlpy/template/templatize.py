@@ -5,8 +5,6 @@ tags from it.
 
 import os
 
-from django.utils import translation
-
 from hamlpy import HAML_EXTENSIONS
 from hamlpy.compiler import Compiler
 
@@ -24,6 +22,3 @@ def patch_templatize(func):
         return func(src, origin=origin)
 
     return templatize
-
-
-translation.templatize = patch_templatize(translation.templatize)
